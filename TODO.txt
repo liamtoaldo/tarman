@@ -1,0 +1,22 @@
+USAGE:
+tarman [<commands>] [<options>] [<input>]
+
+Default behaviour: show help screen.
+
+COMMANDS:
+Commands specify what tarman has to do:
+* -h, --help    Show help screen
+* -i, --install Install a package
+* -l, --list    List all installed packages
+* -r, --remove  Remove a package
+* -u, --update  Update a package if possible
+
+FLAGS:
+Flags change the bahaviour of commands:
+* -U, --from-url Use URL to download package
+* -N, --app-name Override application name during installation
+* -X, --executable Override executable path during installation
+* -W, --working-dir Override working directory during instalaltion
+* -P, --add-path    Add installed application to PATH
+* -D, --add-desktop Add installed application to desktop applications
+
