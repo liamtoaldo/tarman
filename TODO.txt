@@ -17,9 +17,9 @@ Commands specify what tarman has to do:
 
 OPTIONS:
 Options change the bahaviour of commands:
-* -S, --super       Install a package at the system level (may require root priviledges)
+* -S, --super       Runs at system-wide level (may require root priviledges)
 * -U, --from-url    Use URL to download package
-* -R, --from-repo   Use remote repository database to resolve package name
+* -R, --from-repo   Use remote repository database to resolve package name`
 * -N, --app-name    Override application name during installation
 * -X, --executable  Override executable path during installation
 * -W, --working-dir Override working directory during instalaltion
