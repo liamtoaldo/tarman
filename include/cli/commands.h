@@ -30,7 +30,7 @@ typedef struct {
   bool        add_desktop;
 } cli_info_t;
 
-typedef int (*cli_fcn_t)(cli_info_t *info, const char *next);
+typedef bool (*cli_fcn_t)(cli_info_t *info, const char *next);
 typedef int (*cli_exec_t)(cli_info_t info);
 
 typedef struct {
@@ -40,3 +40,22 @@ typedef struct {
   bool        has_argument;
   cli_exec_t  exec_handler;
 } cli_cmd_desc_t;
+
+bool cli_opt_from_url(cli_info_t *info, const char *next);
+bool cli_opt_from_repo(cli_info_t *info, const char *next);
+bool cli_opt_app_name(cli_info_t *info, const char *next);
+bool cli_opt_exec(cli_info_t *info, const char *next);
+bool cli_opt_wrk_dir(cli_info_t *info, const char *next);
+bool cli_opt_add_path(cli_info_t *info, const char *next);
+bool cli_opt_add_desktop(cli_info_t *info, const char *next);
+
+// Commands
+int cli_cmd_help(cli_info_t info);
+int cli_cmd_install(cli_info_t info);
+int cli_cmd_list(cli_info_t info);
+int cli_cmd_remove(cli_info_t info);
+int cli_cmd_update(cli_info_t info);
+int cli_cmd_update_all(cli_info_t info);
+int cli_cmd_add_repo(cli_info_t info);
+int cli_cmd_remove_repo(cli_info_t info);
+int cli_cmd_list_repos(cli_info_t info);

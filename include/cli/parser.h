@@ -18,4 +18,9 @@
 
 #pragma once
 
-int cli_parse(int argc, char *argv[]);
+#include "cli/commands.h"
+
+bool cli_parse(int         argc,
+               char       *argv[],
+               cli_info_t *cli_info,
+               cli_exec_t *handler);

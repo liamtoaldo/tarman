@@ -17,3 +17,52 @@
 *************************************************************************/
 
 #include "cli/commands.h"
+
+bool cli_opt_from_url(cli_info_t *info, const char *next) {
+}
+
+bool cli_opt_from_repo(cli_info_t *info, const char *next) {
+}
+
+bool cli_opt_app_name(cli_info_t *info, const char *next) {
+}
+
+bool cli_opt_exec(cli_info_t *info, const char *next) {
+}
+
+bool cli_opt_wrk_dir(cli_info_t *info, const char *next) {
+}
+
+bool cli_opt_add_path(cli_info_t *info, const char *next) {
+}
+
+bool cli_opt_add_desktop(cli_info_t *info, const char *next) {
+}
+
+// Commands
+int cli_cmd_help(cli_info_t info) {
+}
+
+int cli_cmd_install(cli_info_t info) {
+}
+
+int cli_cmd_list(cli_info_t info) {
+}
+
+int cli_cmd_remove(cli_info_t info) {
+}
+
+int cli_cmd_update(cli_info_t info) {
+}
+
+int cli_cmd_update_all(cli_info_t info) {
+}
+
+int cli_cmd_add_repo(cli_info_t info) {
+}
+
+int cli_cmd_remove_repo(cli_info_t info) {
+}
+
+int cli_cmd_list_repos(cli_info_t info) {
+}

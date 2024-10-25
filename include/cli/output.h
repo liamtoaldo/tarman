@@ -16,15 +16,12 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#include <stdlib.h>
+#pragma once
 
-#include "cli/output.h"
+#pragma once
 
-int main(int argc, char *argv[]) {
-  cli_out_progress("Testing progress");
-  cli_out_warning("Testing warning");
-  cli_out_error("Testing error");
-  cli_out_success("Testing success");
-  cli_out_prompt("Testing prompt");
-  return EXIT_SUCCESS;
-}
+void cli_out_progress(const char *fmt, ...);
+void cli_out_success(const char *fmt, ...);
+void cli_out_error(const char *fmt, ...);
+void cli_out_warning(const char *fmt, ...);
+void cli_out_prompt(const char *fmt, ...);
