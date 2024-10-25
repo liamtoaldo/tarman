@@ -51,6 +51,7 @@ These files specify parameters that would otherwise be specified by the user whe
 
 tarman files have one property per line. Lines are separated by \n (LF). Lines are composed of a key and a value separated by '=' as follows:
 URL=http[s]://<path>
+FROM_REPOSITORY=<repo name>
 APPLICATION_NAME=<application name>
 EXECUTABLE=<path to executable relative to package root>
 WORKING_DIRECTORY=<path of wd relative to package root>
