@@ -16,11 +16,19 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#pragma once
+#ifndef _POSIX_SOURCE
+#define _POSIX_SOURCE
+#endif
 
-#include "cli/commands/commands.h"
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <termios.h>
+#include <unistd.h>
 
-bool cli_parse(int         argc,
-               char       *argv[],
-               cli_info_t *cli_info,
-               cli_exec_t *handler);
+#include "os/console.h"
+
+os_console_sz_t os_console_get_sz() {
+  struct winsize size;
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
+  return (os_console_sz_t){.rows = size.ws_row, .columns = size.ws_col};
+}

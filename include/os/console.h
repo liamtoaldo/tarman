@@ -18,9 +18,11 @@
 
 #pragma once
 
-#include "cli/commands/commands.h"
+#include <stdlib.h>
 
-bool cli_parse(int         argc,
-               char       *argv[],
-               cli_info_t *cli_info,
-               cli_exec_t *handler);
+typedef struct {
+  size_t rows;
+  size_t columns;
+} os_console_sz_t;
+
+os_console_sz_t os_console_get_sz();

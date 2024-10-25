@@ -16,46 +16,50 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#pragma once
+#include "cli/commands/commands.h"
 
-#include <stdbool.h>
+bool cli_opt_from_url(cli_info_t *info, const char *next) {
+}
 
-typedef struct {
-  const char *input;
-  bool        from_repo;
-  const char *app_name;
-  const char *exec_path;
-  const char *working_dir;
-  bool        add_path;
-  bool        add_desktop;
-} cli_info_t;
+bool cli_opt_from_repo(cli_info_t *info, const char *next) {
+}
 
-typedef bool (*cli_fcn_t)(cli_info_t *info, const char *next);
-typedef int (*cli_exec_t)(cli_info_t info);
+bool cli_opt_app_name(cli_info_t *info, const char *next) {
+}
 
-typedef struct {
-  const char *short_option;
-  const char *full_option;
-  cli_fcn_t   handler;
-  bool        has_argument;
-  cli_exec_t  exec_handler;
-} cli_cmd_desc_t;
+bool cli_opt_exec(cli_info_t *info, const char *next) {
+}
 
-bool cli_opt_from_url(cli_info_t *info, const char *next);
-bool cli_opt_from_repo(cli_info_t *info, const char *next);
-bool cli_opt_app_name(cli_info_t *info, const char *next);
-bool cli_opt_exec(cli_info_t *info, const char *next);
-bool cli_opt_wrk_dir(cli_info_t *info, const char *next);
-bool cli_opt_add_path(cli_info_t *info, const char *next);
-bool cli_opt_add_desktop(cli_info_t *info, const char *next);
+bool cli_opt_wrk_dir(cli_info_t *info, const char *next) {
+}
+
+bool cli_opt_add_path(cli_info_t *info, const char *next) {
+}
+
+bool cli_opt_add_desktop(cli_info_t *info, const char *next) {
+}
 
 // Commands
-int cli_cmd_help(cli_info_t info);
-int cli_cmd_install(cli_info_t info);
-int cli_cmd_list(cli_info_t info);
-int cli_cmd_remove(cli_info_t info);
-int cli_cmd_update(cli_info_t info);
-int cli_cmd_update_all(cli_info_t info);
-int cli_cmd_add_repo(cli_info_t info);
-int cli_cmd_remove_repo(cli_info_t info);
-int cli_cmd_list_repos(cli_info_t info);
+int cli_cmd_install(cli_info_t info) {
+}
+
+int cli_cmd_list(cli_info_t info) {
+}
+
+int cli_cmd_remove(cli_info_t info) {
+}
+
+int cli_cmd_update(cli_info_t info) {
+}
+
+int cli_cmd_update_all(cli_info_t info) {
+}
+
+int cli_cmd_add_repo(cli_info_t info) {
+}
+
+int cli_cmd_remove_repo(cli_info_t info) {
+}
+
+int cli_cmd_list_repos(cli_info_t info) {
+}

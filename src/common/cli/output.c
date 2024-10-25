@@ -43,9 +43,13 @@ static void reset_color() {
   printf("\e[m\n");
 }
 
-void cli_out_progress(const char *fmt, ...) {
-  textcolor(false, COLOR_Magenta);
+void prefix(color_t color) {
+  textcolor(false, color);
   printf("=> ");
+}
+
+void cli_out_progress(const char *fmt, ...) {
+  prefix(COLOR_Magenta);
 
   va_list args;
   va_start(args, fmt);
@@ -57,8 +61,7 @@ void cli_out_progress(const char *fmt, ...) {
 }
 
 void cli_out_success(const char *fmt, ...) {
-  textcolor(false, COLOR_Green);
-  printf("=> ");
+  prefix(COLOR_Green);
 
   va_list args;
   va_start(args, fmt);
@@ -70,8 +73,7 @@ void cli_out_success(const char *fmt, ...) {
 }
 
 void cli_out_error(const char *fmt, ...) {
-  textcolor(false, COLOR_Red);
-  printf("=> ");
+  prefix(COLOR_Red);
 
   va_list args;
   va_start(args, fmt);
@@ -84,8 +86,7 @@ void cli_out_error(const char *fmt, ...) {
 }
 
 void cli_out_warning(const char *fmt, ...) {
-  textcolor(false, COLOR_Yellow);
-  printf("=> ");
+  prefix(COLOR_Yellow);
 
   va_list args;
   va_start(args, fmt);

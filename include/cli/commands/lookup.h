@@ -16,53 +16,19 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#include "cli/commands.h"
+#pragma once
 
-bool cli_opt_from_url(cli_info_t *info, const char *next) {
-}
+#include <stdbool.h>
+#include <stdlib.h>
 
-bool cli_opt_from_repo(cli_info_t *info, const char *next) {
-}
+#include "cli/commands/commands.h"
 
-bool cli_opt_app_name(cli_info_t *info, const char *next) {
-}
+typedef struct {
+  cli_cmd_desc_t *table;
+  size_t          num_entries;
+} cli_lkup_table_t;
 
-bool cli_opt_exec(cli_info_t *info, const char *next) {
-}
-
-bool cli_opt_wrk_dir(cli_info_t *info, const char *next) {
-}
-
-bool cli_opt_add_path(cli_info_t *info, const char *next) {
-}
-
-bool cli_opt_add_desktop(cli_info_t *info, const char *next) {
-}
-
-// Commands
-int cli_cmd_help(cli_info_t info) {
-}
-
-int cli_cmd_install(cli_info_t info) {
-}
-
-int cli_cmd_list(cli_info_t info) {
-}
-
-int cli_cmd_remove(cli_info_t info) {
-}
-
-int cli_cmd_update(cli_info_t info) {
-}
-
-int cli_cmd_update_all(cli_info_t info) {
-}
-
-int cli_cmd_add_repo(cli_info_t info) {
-}
-
-int cli_cmd_remove_repo(cli_info_t info) {
-}
-
-int cli_cmd_list_repos(cli_info_t info) {
-}
+bool             cli_lkup_command(const char *command, cli_cmd_desc_t *dst);
+bool             cli_lkup_option(const char *command, cli_cmd_desc_t *dst);
+cli_lkup_table_t cli_lkup_cmdtable();
+cli_lkup_table_t cli_lkup_opttable();

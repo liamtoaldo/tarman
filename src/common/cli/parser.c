@@ -19,68 +19,58 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cli/commands.h"
+#include "cli/commands/commands.h"
+#include "cli/commands/lookup.h"
 #include "cli/output.h"
 #include "cli/parser.h"
-
-cli_cmd_desc_t commands[] = {};
 
 bool cli_parse(int         argc,
                char       *argv[],
                cli_info_t *cli_info,
                cli_exec_t *handler) {
   if (2 > argc) {
+    return true;
+  }
+
+  // Descriptor of the command
+  cli_cmd_desc_t cmd_desc;
+
+  // If no matching command is found, an
+  // error is thrown
+  if (!cli_lkup_command(argv[1], &cmd_desc)) {
+    cli_out_error("Unknown command '%s'", argv[1]);
     return false;
   }
 
-  for (int i = 1; i < argc; i++) {
-    bool        found_matching_option = false;
-    const char *argument              = argv[i];
-    const char *next                  = NULL;
+  for (int i = 2; i < argc; i++) {
+    const char *argument = argv[i];
+    const char *next     = NULL;
     if (argc - i != i) {
       next = argv[i + 1];
     }
 
-    for (int j = 0;
-         !found_matching_option && j < sizeof commands / sizeof(cli_cmd_desc_t);
-         j++) {
-      cli_cmd_desc_t opt_desc = commands[j];
-
-      if (0 != strcmp(opt_desc.short_option, argument) &&
-          0 != strcmp(opt_desc.full_option, argument)) {
-        continue;
-      }
-
-      found_matching_option = true;
-      if (opt_desc.has_argument) {
-        i++; // Advance outer loop to avoid issues
-      }
-
-      // If the handler is for mutually exclusive option
-      if (NULL != opt_desc.exec_handler) {
-        if (NULL != *handler) {
-          cli_out_error("More than one command specified");
-          return false;
-        }
-
-        *handler = opt_desc.exec_handler;
-      }
-
-      // If the handler isfor a non-mutually exclusive option
-      if (NULL != opt_desc.handler && !opt_desc.handler(cli_info, next)) {
-        return false;
-      }
-    }
+    cli_cmd_desc_t opt_desc;
 
     // If no mathcing option was found
     // This argument is treated as the input file
-    if (!found_matching_option) {
+    if (!cli_lkup_option(argument, &opt_desc)) {
       if (NULL != cli_info->input) {
         cli_out_error("Too many inputs");
         return false;
       }
 
       cli_info->input = argument;
+    }
+
+    // Skip next CLI argument if the option required an arguments
+    // of its own
+    if (opt_desc.has_argument) {
+      i++;
+    }
+
+    // If the handler is for an option
+    if (NULL != opt_desc.handler && !opt_desc.handler(cli_info, next)) {
+      return false;
     }
   }
 

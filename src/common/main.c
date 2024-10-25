@@ -18,13 +18,26 @@
 
 #include <stdlib.h>
 
-#include "cli/output.h"
+#include "cli/commands/commands.h"
+#include "cli/parser.h"
 
 int main(int argc, char *argv[]) {
-  cli_out_progress("Testing progress");
-  cli_out_warning("Testing warning");
-  cli_out_error("Testing error");
-  cli_out_success("Testing success");
-  cli_out_prompt("Testing prompt");
-  return EXIT_SUCCESS;
+  cli_info_t cli_info        = {0};
+  cli_exec_t command_handler = NULL;
+
+  if (!cli_parse(argc, argv, &cli_info, &command_handler)) {
+    return EXIT_FAILURE;
+  }
+
+  if (NULL == command_handler) {
+    return cli_cmd_help(cli_info);
+  }
+
+  return command_handler(cli_info);
+
+  // cli_out_progress("Testing progress");
+  // cli_out_warning("Testing warning");
+  // cli_out_error("Testing error");
+  // cli_out_success("Testing success");
+  // cli_out_prompt("Testing prompt");
 }
