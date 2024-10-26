@@ -60,6 +60,7 @@ bool cli_parse(int         argc,
       }
 
       cli_info->input = argument;
+      continue;
     }
 
     // Skip next CLI argument if the option required an arguments
