@@ -94,6 +94,8 @@ static void print_help_list(const char      *title,
     cli_cmd_desc_t desc = table.table[i];
     print_help_line(desc, max_cmd_len, csz);
   }
+
+  puts("");
 }
 
 int cli_cmd_help(cli_info_t info) {
@@ -108,7 +110,6 @@ int cli_cmd_help(cli_info_t info) {
   printf("Usage: tarman <command> [<options>] [<package|url|repo>]\n\n");
 
   print_help_list("COMMANDS", cmd_table, console_sz);
-  puts("");
   print_help_list("OPTIONS", opt_table, console_sz);
 
   return EXIT_SUCCESS;

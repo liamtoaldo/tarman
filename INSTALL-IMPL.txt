@@ -1,0 +1,97 @@
+INSTALLATION PROCESS:
+1. If it is a URL, download the tar
+2. If it is a repository package
+    2.1 Find all repositories that have the package
+    2.2 If there's more than one repository with the package
+        2.2.1 Prompt the user to choose one
+    2.3 If there's just one
+        2.3.1 Continue
+    2.4 If there's none, error
+    2.5 Downlaod the package archive
+3. Extract archive
+4. If -R is given, copy the package tarman file recepie to the extract dir
+5. If $TARMAN/tmp/<archive root>/<directory>/pack.tarman exists
+    5.1 Override unset CLI properties with data from the file
+6. If -N is not given, find application name
+    6.1 Prompt user to confirm name
+7. If -X is not given, search source tree to find executable
+    7.1 Prompt user to confirm executable path
+8. If -W is not given, set working dir to executable dir
+    8.1 Prompt user to confirm working dir
+9. If -P is not given, prompt the user to add to PATH
+10. If -D is not given, prompt the user to add to desktop apps
+11. Prompt user to confirm summary
+12. Copy package directory to packages
+13. Add to PATH if needed
+14. Add to desktop if needed
+15. Clean cache
+
+FIRST IMPLEMENTATION:
+3. Extract archive
+6. If -N is not given, find application name
+    6.1 Prompt user to confirm name
+7. If -X is not given, search source tree to find executable
+    7.1 Prompt user to confirm executable path
+8. If -W is not given, set working dir to executable dir
+    8.1 Prompt user to confirm working dir
+9. If -P is not given, prompt the user to add to PATH
+10. If -D is not given, prompt the user to add to desktop apps
+11. Prompt user to confirm summary
+12. Copy package directory to packages
+13. Add to PATH if needed
+14. Add to desktop if needed
+15. Clean cache
+
+NEEDED TYPES:
+os_dirop_status_t:
+    TM_OS_DIROP_STATUS_NOEXIST
+    TM_OS_DIROP_STATUS_PERM
+    TM_OS_DIROP_STATUS_END
+    TM_OS_DIROP_STATUS_ERR
+    TM_OS_DIROP_STATUS_OK
+
+os_fileop_status_t:
+    TM_OS_FILEOP_STATUS_NOEXIST
+    TM_OS_FILEOP_STATUS_PERM
+    TM_OS_FILEOP_STATUS_ERR
+    TM_OS_FILEOP_STATUS_OK
+    
+os_fs_filetype_t:
+    TM_OS_FS_FILETYPE_DIR
+    TM_OS_FS_FILETYPE_REGULAR
+    TM_OS_FS_FILETYPE_EXEC
+
+typedef os_fs_dirsteram_t void*;
+
+os_fs_dirent_t {
+    os_fs_filetype_t file_type;
+    const char *name;
+}
+
+NEEDED FUNCTIONS:
+os_fs_mkdir(path)
+os_fs_dir_mv(dst, src)
+os_fs_dir_cp(dst, src)
+os_fs_dir_rm(path)
+os_fs_dir_count(&count, path)
+os_fs_dir_open(&stream)
+os_fs_dir_close(stream)
+os_fs_dir_next(&ent)
+
+os_fs_file_mv(dst, src)
+os_fs_file_cp(dst, src)
+os_fs_file_rm(path)
+
+os_fs_path_vlen(num_args, va_args)
+os_fs_path_len(num_args, ...)
+os_fs_path_concat(dst, num_args, ...)
+os_fs_path_dyconcat(&dst, num_args, ...)
+
+os_fs_tm_dyhome(&dst)
+os_fs_tm_dyrepos(&dst)
+os_fs_tm_dypkgs(&dst)
+os_fs_tm_dyrepocache(&dst)
+os_fs_fm_dyextract(&dst)
+
+
+
