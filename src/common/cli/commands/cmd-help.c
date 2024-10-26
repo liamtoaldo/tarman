@@ -29,14 +29,8 @@
 #define OPT_SEPARATOR_LEN    2
 #define COLUMN_SEPARATOR_LEN 4
 
-static void print_spaces(size_t num_spaces) {
-  for (size_t i = 0; i < num_spaces; i++) {
-    printf(" ");
-  }
-}
-
 static void print_indent() {
-  print_spaces(BASE_LINE_LEN);
+  cli_out_space(BASE_LINE_LEN);
 }
 
 static size_t find_line_len(cli_cmd_desc_t desc) {
@@ -67,7 +61,8 @@ static size_t find_max_line_len(cli_lkup_table_t table) {
   return max_cmd_len;
 }
 
-static void print_help_line(cli_cmd_desc_t desc, size_t max_line_len) {
+static void
+print_help_line(cli_cmd_desc_t desc, size_t max_line_len, os_console_sz_t csz) {
   size_t line_len = find_line_len(desc);
   size_t rem      = max_line_len - line_len;
 
@@ -81,10 +76,11 @@ static void print_help_line(cli_cmd_desc_t desc, size_t max_line_len) {
     printf("%s", desc.full_option);
   }
 
-  print_spaces(COLUMN_SEPARATOR_LEN);
-  print_spaces(rem);
+  cli_out_space(COLUMN_SEPARATOR_LEN);
+  cli_out_space(rem);
 
-  printf("%s\n", desc.description);
+  size_t tot_off = max_line_len + COLUMN_SEPARATOR_LEN;
+  cli_out_tab_words(tot_off, desc.description, csz);
 }
 
 static void print_help_list(const char      *title,
@@ -96,23 +92,20 @@ static void print_help_list(const char      *title,
 
   for (size_t i = 0; i < table.num_entries; i++) {
     cli_cmd_desc_t desc = table.table[i];
-    print_help_line(desc, max_cmd_len);
+    print_help_line(desc, max_cmd_len, csz);
   }
 }
 
 int cli_cmd_help(cli_info_t info) {
   os_console_sz_t console_sz = os_console_get_sz();
 
-  if (32 > console_sz.columns) {
-    cli_out_error(
-        "Window has insufficient space to correctly display this menu");
-    return EXIT_FAILURE;
-  }
-
   cli_lkup_table_t cmd_table = cli_lkup_cmdtable();
   cli_lkup_table_t opt_table = cli_lkup_opttable();
 
-  printf("Usage: tarman <command> [<options>] [<package>]\n\n");
+  puts("tarman by Alessandro Salerno");
+  puts("Portable tar.gz package manager\n");
+
+  printf("Usage: tarman <command> [<options>] [<package|url|repo>]\n\n");
 
   print_help_list("COMMANDS", cmd_table, console_sz);
   puts("");

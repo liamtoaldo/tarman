@@ -18,6 +18,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "cli/output.h"
 
@@ -108,4 +109,57 @@ void cli_out_prompt(const char *fmt, ...) {
   va_end(args);
 
   reset_color();
+}
+
+void cli_out_space(size_t num) {
+  for (size_t i = 0; i < num; i++) {
+    printf(" ");
+  }
+}
+
+static size_t
+print_word(char *word, size_t rem, size_t offset, os_console_sz_t csz) {
+  size_t len = strlen(word);
+
+  while (true) {
+    if (rem > len) {
+      printf("%s", word);
+
+      if (rem >= len + 1) {
+        printf(" ");
+        rem--;
+      }
+
+      rem -= len;
+      return rem;
+    }
+
+    puts("");
+    rem = csz.columns - offset;
+    cli_out_space(offset);
+  }
+
+  return rem;
+}
+
+void cli_out_tab_words(size_t offset, const char *text, os_console_sz_t csz) {
+  char *buf = malloc(strlen(text) + 1);
+  strcpy(buf, text);
+
+  char  *word = strtok(buf, " ");
+  size_t rem  = csz.columns - offset;
+
+  if (NULL == word) {
+    printf("%s\n", text);
+    free(buf);
+    return;
+  }
+
+  while (NULL != word) {
+    rem  = print_word(word, rem, offset, csz);
+    word = strtok(NULL, " ");
+  }
+
+  free(buf);
+  puts("");
 }

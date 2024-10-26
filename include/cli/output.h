@@ -20,8 +20,16 @@
 
 #pragma once
 
+#include <stdlib.h>
+
+#include "os/console.h"
+
 void cli_out_progress(const char *fmt, ...);
 void cli_out_success(const char *fmt, ...);
 void cli_out_error(const char *fmt, ...);
 void cli_out_warning(const char *fmt, ...);
 void cli_out_prompt(const char *fmt, ...);
+
+void cli_out_space(size_t num);
+
+void cli_out_tab_words(size_t offset, const char *text, os_console_sz_t csz);
