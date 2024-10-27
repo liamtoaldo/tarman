@@ -73,6 +73,36 @@ static fs_dirop_status_t simplify(fs_dirop_status_t s) {
   return s;
 }
 
+static fs_dirop_status_t translate_direrr() {
+  switch (errno) {
+  case EACCES:
+    return TM_FS_DIROP_STATUS_PERM;
+
+  case ENOENT:
+  case ENOTDIR:
+    return TM_FS_DIROP_STATUS_NOEXIST;
+
+  case EEXIST:
+    return TM_FS_DIROP_STATUS_EXIST;
+
+  default:
+    return TM_FS_DIROP_STATUS_ERR;
+  }
+}
+
+static fs_fileop_status_t translate_fileerr() {
+  switch (errno) {
+  case EACCES:
+    return TM_FS_FILEOP_STATUS_PERM;
+
+  case ENOENT:
+    return TM_FS_FILEOP_STATUS_NOEXIST;
+
+  default:
+    return TM_FS_FILEOP_STATUS_ERR;
+  }
+}
+
 fs_dirop_status_t os_fs_mkdir(const char *path) {
   struct stat st = {0};
 
@@ -84,16 +114,7 @@ fs_dirop_status_t os_fs_mkdir(const char *path) {
     return TM_FS_DIROP_STATUS_OK;
   }
 
-  switch (errno) {
-  case EACCES:
-    return TM_FS_DIROP_STATUS_PERM;
-
-  case EEXIST:
-    return TM_FS_DIROP_STATUS_EXIST;
-
-  default:
-    return TM_FS_DIROP_STATUS_ERR;
-  }
+  return translate_direrr();
 }
 
 fs_dirop_status_t os_fs_dir_rm(const char *path) {
@@ -140,8 +161,9 @@ fs_dirop_status_t os_fs_dir_rm(const char *path) {
     safe_free(full_path);
   }
 
-  if (TM_FS_DIROP_STATUS_OK != os_fs_dir_close(dir)) {
-    return TM_FS_DIROP_STATUS_ERR;
+  status = os_fs_dir_close(dir);
+  if (TM_FS_DIROP_STATUS_OK != status) {
+    return status;
   }
 
   if (0 != rmdir(path)) {
@@ -179,17 +201,7 @@ fs_dirop_status_t os_fs_dir_open(os_fs_dirstream_t *stream, const char *path) {
 
   if (NULL == dir) {
     *stream = NULL;
-    switch (errno) {
-    case ENOENT:
-    case ENOTDIR:
-      return TM_FS_DIROP_STATUS_NOEXIST;
-
-    case EACCES:
-      return TM_FS_DIROP_STATUS_PERM;
-
-    defaut:
-      return TM_FS_DIROP_STATUS_ERR;
-    }
+    return translate_direrr();
   }
 
   *stream = dir;
@@ -275,16 +287,7 @@ fs_fileop_status_t os_fs_file_rm(const char *path) {
     return TM_FS_FILEOP_STATUS_OK;
   }
 
-  switch (errno) {
-  case EACCES:
-    return TM_FS_FILEOP_STATUS_PERM;
-
-  case ENOENT:
-    return TM_FS_FILEOP_STATUS_NOEXIST;
-
-  default:
-    return TM_FS_FILEOP_STATUS_ERR;
-  }
+  return translate_fileerr();
 }
 
 size_t os_fs_path_vlen(size_t num_args, va_list args) {
