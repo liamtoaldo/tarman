@@ -17,29 +17,77 @@
 *************************************************************************/
 
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "archive.h"
 #include "cli/commands/commands.h"
 #include "cli/output.h"
+#include "os/fs.h"
+
+#define TARMAN_TEST_INIT() bool tarman_tests_work = true
+#define TARMAN_TEST(val)          \
+  bool tarman_test_##val = val(); \
+  if (!tarman_test_##val) {       \
+    cli_out_error("Test failed"); \
+  }                               \
+  tarman_tests_work = tarman_tests_work && tarman_test_##val;
+
+#define TARMAN_TEST_END()                      \
+  if (!tarman_tests_work) {                    \
+    cli_out_error("One or more tests failed"); \
+    return EXIT_FAILURE;                       \
+  }                                            \
+  cli_out_success("All tests passed");         \
+  return EXIT_SUCCESS;
 
 static bool test_tar() {
   cli_out_progress("Testing tar extraction...");
-  bool r = archive_tar_extract("extract", "archive.tar");
+  return archive_tar_extract("extract", "archive.tar");
+}
 
-  if (!r) {
-    cli_out_error("Tar extraction failed");
+static bool test_dypath() {
+  cli_out_progress("Testing dypath...");
+  char *path;
+  os_fs_tm_dyhome(&path);
+  printf("%s\n", path);
+  return true;
+}
+
+static bool test_dirs() {
+  cli_out_progress("Testing dir creation...");
+  if (TM_FS_DIROP_STATUS_OK != os_fs_mkdir("test")) {
+    return false;
   }
 
-  return r;
+  cli_out_progress("Testing dir enumeration...");
+  size_t count;
+  if (TM_FS_DIROP_STATUS_OK != os_fs_dir_count(&count, "test")) {
+    return false;
+  }
+  printf("Count: %d, expected: %d\n", count, 0);
+  if (0 != count) {
+    return false;
+  }
+
+  cli_out_progress("Testing dir deletion...");
+  if (TM_FS_DIROP_STATUS_OK != os_fs_dir_rm("test")) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool test_init() {
+  cli_out_progress("Testing fs init...");
+  return os_fs_tm_dyinit();
 }
 
 int cli_cmd_test(cli_info_t info) {
-  if (!test_tar()) {
-    cli_out_error("Tests failed");
-    return EXIT_FAILURE;
-  }
-
-  cli_out_success("All successful");
-  return EXIT_SUCCESS;
+  TARMAN_TEST_INIT();
+  // TARMAN_TEST(test_tar);
+  TARMAN_TEST(test_init);
+  TARMAN_TEST(test_dypath);
+  TARMAN_TEST(test_dirs);
+  TARMAN_TEST_END();
 }
