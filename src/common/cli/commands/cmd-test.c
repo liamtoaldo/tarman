@@ -16,22 +16,30 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
+#include <stdbool.h>
 #include <stdlib.h>
 
+#include "archive.h"
 #include "cli/commands/commands.h"
-#include "cli/parser.h"
+#include "cli/output.h"
 
-int main(int argc, char *argv[]) {
-  cli_info_t cli_info        = {0};
-  cli_exec_t command_handler = NULL;
+static bool test_tar() {
+  cli_out_progress("Testing tar extraction...");
+  bool r = archive_tar_extract("extract", "archive.tar");
 
-  if (!cli_parse(argc, argv, &cli_info, &command_handler)) {
+  if (!r) {
+    cli_out_error("Tar extraction failed");
+  }
+
+  return r;
+}
+
+int cli_cmd_test(cli_info_t info) {
+  if (!test_tar()) {
+    cli_out_error("Tests failed");
     return EXIT_FAILURE;
   }
 
-  if (NULL == command_handler) {
-    return cli_cmd_help(cli_info);
-  }
-
-  return command_handler(cli_info);
+  cli_out_success("All successful");
+  return EXIT_SUCCESS;
 }

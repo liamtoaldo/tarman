@@ -29,6 +29,7 @@
 #define TARMAN_CMD_ADD_REPO    "add-repo"
 #define TARMAN_CMD_REMOVE_REPO "remove-repo"
 #define TARMAN_CMD_LIST_REPOS  "list-repos"
+#define TARMAN_CMD_TEST        "test"
 
 #define TARMAN_SOPT_FROM_URL    "-U"
 #define TARMAN_SOPT_FROM_REPO   "-R"
@@ -86,3 +87,4 @@ int cli_cmd_update_all(cli_info_t info);
 int cli_cmd_add_repo(cli_info_t info);
 int cli_cmd_remove_repo(cli_info_t info);
 int cli_cmd_list_repos(cli_info_t info);
+int cli_cmd_test(cli_info_t info);

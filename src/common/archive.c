@@ -16,22 +16,29 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
+#include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "cli/commands/commands.h"
-#include "cli/parser.h"
+#include "archive.h"
 
-int main(int argc, char *argv[]) {
-  cli_info_t cli_info        = {0};
-  cli_exec_t command_handler = NULL;
+bool archive_tar_extract(const char *dst, const char *src) {
+  size_t dst_len = strlen(dst);
+  size_t src_len = strlen(src);
+  size_t cmd_len = dst_len + src_len + strlen("tar -xf -C ") + 1;
 
-  if (!cli_parse(argc, argv, &cli_info, &command_handler)) {
-    return EXIT_FAILURE;
+  char *command = (char *)malloc(cmd_len);
+  if (NULL == command) {
+    return false;
   }
 
-  if (NULL == command_handler) {
-    return cli_cmd_help(cli_info);
-  }
+  sprintf(command, "tar -xf %s -C %s", src, dst);
+  int ecode = system(command);
+  free(command);
+  return !ecode;
+}
 
-  return command_handler(cli_info);
+bool archive_zip_extract(const char *dst, const char *src) {
+  return false;
 }

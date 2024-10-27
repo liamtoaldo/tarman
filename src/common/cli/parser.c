@@ -42,6 +42,8 @@ bool cli_parse(int         argc,
     return false;
   }
 
+  *handler = cmd_desc.exec_handler;
+
   for (int i = 2; i < argc; i++) {
     const char *argument = argv[i];
     const char *next     = NULL;

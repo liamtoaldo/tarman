@@ -22,18 +22,18 @@
 #include <stdlib.h>
 
 typedef enum {
-  TM_OS_DIROP_STATUS_NOEXIST,
-  TM_OS_DIROP_STATUS_PERM,
-  TM_OS_DIROP_STATUS_END,
-  TM_OS_DIROP_STATUS_ERR,
-  TM_OS_DIROP_STATUS_OK
+  TM_OS_DIROP_STATUS_NOEXIST = 0,
+  TM_OS_DIROP_STATUS_PERM    = 1,
+  TM_OS_DIROP_STATUS_END     = 2,
+  TM_OS_DIROP_STATUS_ERR     = 3,
+  TM_OS_DIROP_STATUS_OK      = 4
 } os_fs_dirop_status_t;
 
 typedef enum {
-  TM_OS_FILEOP_STATUS_NOEXIST,
-  TM_OS_FILEOP_STATUS_PERM,
-  TM_OS_FILEOP_STATUS_ERR,
-  TM_OS_FILEOP_STATUS_OK
+  TM_OS_FILEOP_STATUS_NOEXIST = 0,
+  TM_OS_FILEOP_STATUS_PERM    = 1,
+  TM_OS_FILEOP_STATUS_ERR     = 2,
+  TM_OS_FILEOP_STATUS_OK      = 3
 } os_fs_fileop_status_t;
 
 typedef enum {
@@ -67,9 +67,15 @@ size_t os_fs_path_vlen(size_t num_args, va_list args);
 size_t os_fs_path_len(size_t num_args, ...);
 size_t os_fs_path_concat(const char *dst, size_t num_args, ...);
 size_t os_fs_path_dyconcat(const char **dst, size_t num_args, ...);
+size_t os_fs_path_dyparent(const char **dst, const char *path);
 
 size_t os_fs_tm_dyhome(const char **dst);
 size_t os_fs_tm_dyrepos(const char **dst);
+size_t os_fs_fm_dyrepo(const char **dst, const char *repo_name);
+size_t os_fs_fm_dyrepopkg(const char **dst,
+                          const char  *repo_name,
+                          const char  *pkg_name);
 size_t os_fs_tm_dypkgs(const char **dst);
+size_t os_fs_tm_dypkg(const char **dst, const char *pkg_name);
 size_t os_fs_tm_dyrepocache(const char **dst);
 size_t os_fs_fm_dyextract(const char **dst);
