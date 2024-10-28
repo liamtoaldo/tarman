@@ -99,6 +99,13 @@ static cli_cmd_desc_t options[] = {
      NULL,
      "Use simple package name as input and perform repo lookup"},
 
+    {TARMAN_SOPT_PKG_NAME,
+     TARMAN_FOPT_PKG_NAME,
+     cli_opt_pkg_name,
+     true,
+     NULL,
+     "Set or override package name"},
+
     {TARMAN_SOPT_APP_NAME,
      TARMAN_FOPT_APP_NAME,
      cli_opt_app_name,
@@ -120,6 +127,13 @@ static cli_cmd_desc_t options[] = {
      NULL,
      "Specify a directory to use as working directory in the `.desktop` file "
      "during installation"},
+
+    {TARMAN_SOPT_ICON,
+     TARMAN_FOPT_ICON,
+     cli_opt_icon,
+     true,
+     NULL,
+     "Override icon path for desktop application"},
 
     {TARMAN_SOPT_ADD_PATH,
      TARMAN_FOPT_ADD_PATH,

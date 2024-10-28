@@ -21,6 +21,5 @@
 #include "cli/commands/commands.h"
 
 int cli_cmd_install(cli_info_t info) {
-
   return EXIT_SUCCESS;
 }

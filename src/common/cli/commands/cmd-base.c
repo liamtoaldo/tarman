@@ -24,6 +24,9 @@ bool cli_opt_from_url(cli_info_t *info, const char *next) {
 bool cli_opt_from_repo(cli_info_t *info, const char *next) {
 }
 
+bool cli_opt_pkg_name(cli_info_t *info, const char *next) {
+}
+
 bool cli_opt_app_name(cli_info_t *info, const char *next) {
 }
 
@@ -31,6 +34,9 @@ bool cli_opt_exec(cli_info_t *info, const char *next) {
 }
 
 bool cli_opt_wrk_dir(cli_info_t *info, const char *next) {
+}
+
+bool cli_opt_icon(cli_info_t *info, const char *next) {
 }
 
 bool cli_opt_add_path(cli_info_t *info, const char *next) {
