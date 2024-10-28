@@ -362,6 +362,13 @@ size_t posix_fs_path_dyparent(char **dst, const char *path) {
     last_sep_idx = back;
   }
 
+  const char *target_path = path;
+
+  if (0 == last_sep_idx) {
+    last_sep_idx++;
+    target_path = ".";
+  }
+
   size_t buf_len = last_sep_idx + 1;
   char  *buf     = (char *)malloc(buf_len * sizeof(char));
 
@@ -370,7 +377,7 @@ size_t posix_fs_path_dyparent(char **dst, const char *path) {
     return 0;
   }
 
-  strncpy(buf, path, last_sep_idx);
+  strncpy(buf, target_path, last_sep_idx);
   buf[last_sep_idx] = 0; // Add string terminator
 
   *dst = buf;
