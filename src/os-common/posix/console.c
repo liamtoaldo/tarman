@@ -16,10 +16,10 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#ifndef _POSIX_SOURCE
-#define _POSIX_SOURCE
-#endif
+// MUST BE HERE
+#include <tm-os-defs.h>
 
+// General includes
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <termios.h>
@@ -27,7 +27,7 @@
 
 #include "os/console.h"
 
-csz_t os_console_get_sz() {
+csz_t posix_console_get_sz() {
   struct winsize size;
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
   return (csz_t){.rows = size.ws_row, .columns = size.ws_col};

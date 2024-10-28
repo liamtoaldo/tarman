@@ -18,7 +18,8 @@ CC=gcc
 CFLAGS=-O2 -std=c2x -Iinclude/ -DEXT_TARMAN_BUILD="\"$(shell date +%y.%m.%d)\""
 BIN=bin
 EXEC=$(BIN)/tarman
-TARMAN_OS=$(shell uname -s | tr A-Z a-z)
+TARMAN_OS?=$(shell uname -s | tr A-Z a-z)
+CFLAGS+=-Iinclude/os/$(TARMAN_OS)
 
 ifeq ($(OS),Windows_NT)
 	TARMAN_OS=windows
@@ -27,7 +28,10 @@ endif
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard ,$d, $2) $(filter $(subst *, %, $2),$d))
 SRC=$(call rwildcard, src/common, *.c)
-SRC+=$(call rwildcard, src/$(TARMAN_OS), *.c)
+SRC+=$(call rwildcard, src/os-specific/$(TARMAN_OS), *.c)
+
+include src/os-specific/$(TARMAN_OS)/Makefile
+
 OBJ=$(patsubst src/%.c,obj/%.o, $(SRC))
 
 .PHONEY: all
@@ -41,7 +45,7 @@ info:
 	@echo Compiling for $(HTMC_OS)
 
 $(EXEC): obj $(OBJ)
-	$(CC) -flto -static -static-libgcc $(OBJ) -o $(EXEC)
+	$(CC) -flto $(OBJ) -o $(EXEC)
 
 obj/%.o: src/%.c
 	@mkdir -p $(@D)

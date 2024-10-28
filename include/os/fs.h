@@ -72,7 +72,7 @@ size_t os_fs_path_dyparent(char **dst, const char *path);
 size_t os_fs_tm_dyhome(char **dst);
 size_t os_fs_tm_dyrepos(char **dst);
 size_t os_fs_tm_dypkgs(char **dst);
-size_t os_fs_fm_dyextract(char **dst);
+size_t os_fs_tm_dyextract(char **dst);
 size_t os_fs_tm_dyrepo(char **dst, const char *repo_name);
 size_t os_fs_tm_dypkg(char **dst, const char *pkg_name);
 size_t os_fs_tm_dycached(char **dst, const char *item_name);

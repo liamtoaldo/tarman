@@ -1,4 +1,4 @@
-/*************************************************************************
+/********************************************************
 | tarman                                                                 |
 | Copyright (C) 2024 Alessandro Salerno                                  |
 |                                                                        |
@@ -16,9 +16,10 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#define _DEFAULT_SOURCE
-#define _POSIX_C_SOURCE 200809L
+// MUST BE HERE
+#include <tm-os-defs.h>
 
+// General includes
 #include <dirent.h>
 #include <errno.h>
 #include <pwd.h>
@@ -31,6 +32,7 @@
 #include <unistd.h>
 
 #include "os/fs.h"
+#include "os/posix/fs.h"
 
 #define TMLINUX_ASSERT(p, d) \
   if (NULL == p) {           \
@@ -103,7 +105,7 @@ static fs_fileop_status_t translate_fileerr() {
   }
 }
 
-fs_dirop_status_t os_fs_mkdir(const char *path) {
+fs_dirop_status_t posix_fs_mkdir(const char *path) {
   struct stat st = {0};
 
   if (-1 != stat(path, &st)) {
@@ -117,7 +119,7 @@ fs_dirop_status_t os_fs_mkdir(const char *path) {
   return translate_direrr();
 }
 
-fs_dirop_status_t os_fs_dir_rm(const char *path) {
+fs_dirop_status_t posix_fs_dir_rm(const char *path) {
   os_fs_dirstream_t dir;
   fs_dirop_status_t status = os_fs_dir_open(&dir, path);
 
@@ -140,13 +142,14 @@ fs_dirop_status_t os_fs_dir_rm(const char *path) {
     }
 
     switch (ent.file_type) {
-    case TM_FS_FILETYPE_DIR:
+    case TM_FS_FILETYPE_DIR: {
       fs_dirop_status_t s = os_fs_dir_rm(full_path);
       if (TM_FS_DIROP_STATUS_OK != s) {
         safe_free(full_path);
         return s;
       }
       break;
+    }
 
     case TM_FS_FILETYPE_REGULAR:
     case TM_FS_FILETYPE_EXEC:
@@ -161,7 +164,7 @@ fs_dirop_status_t os_fs_dir_rm(const char *path) {
     safe_free(full_path);
   }
 
-  status = os_fs_dir_close(dir);
+  status = posix_fs_dir_close(dir);
   if (TM_FS_DIROP_STATUS_OK != status) {
     return status;
   }
@@ -173,7 +176,7 @@ fs_dirop_status_t os_fs_dir_rm(const char *path) {
   return TM_FS_DIROP_STATUS_OK;
 }
 
-fs_dirop_status_t os_fs_dir_count(size_t *count, const char *path) {
+fs_dirop_status_t posix_fs_dir_count(size_t *count, const char *path) {
   size_t m_count = 0;
 
   os_fs_dirstream_t dir;
@@ -196,7 +199,8 @@ fs_dirop_status_t os_fs_dir_count(size_t *count, const char *path) {
   return TM_FS_DIROP_STATUS_OK;
 }
 
-fs_dirop_status_t os_fs_dir_open(os_fs_dirstream_t *stream, const char *path) {
+fs_dirop_status_t posix_fs_dir_open(os_fs_dirstream_t *stream,
+                                    const char        *path) {
   DIR *dir = opendir(path);
 
   if (NULL == dir) {
@@ -208,7 +212,7 @@ fs_dirop_status_t os_fs_dir_open(os_fs_dirstream_t *stream, const char *path) {
   return TM_FS_DIROP_STATUS_OK;
 }
 
-fs_dirop_status_t os_fs_dir_close(os_fs_dirstream_t stream) {
+fs_dirop_status_t posix_fs_dir_close(os_fs_dirstream_t stream) {
   DIR *dir = (DIR *)stream;
 
   if (0 == closedir(dir)) {
@@ -218,7 +222,8 @@ fs_dirop_status_t os_fs_dir_close(os_fs_dirstream_t stream) {
   return TM_FS_DIROP_STATUS_ERR;
 }
 
-fs_dirop_status_t os_fs_dir_next(os_fs_dirstream_t stream, fs_dirent_t *ent) {
+fs_dirop_status_t posix_fs_dir_next(os_fs_dirstream_t stream,
+                                    fs_dirent_t      *ent) {
   DIR           *dir  = (DIR *)stream;
   struct dirent *next = readdir(dir);
 
@@ -276,13 +281,13 @@ fs_dirop_status_t os_fs_dir_next(os_fs_dirstream_t stream, fs_dirent_t *ent) {
   return TM_FS_DIROP_STATUS_OK;
 }
 
-fs_fileop_status_t os_fs_file_mv(const char *dst, const char *src) {
+fs_fileop_status_t posix_fs_file_mv(const char *dst, const char *src) {
 }
 
-fs_fileop_status_t os_fs_file_cp(const char *dst, const char *src) {
+fs_fileop_status_t posix_fs_file_cp(const char *dst, const char *src) {
 }
 
-fs_fileop_status_t os_fs_file_rm(const char *path) {
+fs_fileop_status_t posix_fs_file_rm(const char *path) {
   if (0 == unlink(path)) {
     return TM_FS_FILEOP_STATUS_OK;
   }
@@ -290,7 +295,7 @@ fs_fileop_status_t os_fs_file_rm(const char *path) {
   return translate_fileerr();
 }
 
-size_t os_fs_path_vlen(size_t num_args, va_list args) {
+size_t posix_fs_path_vlen(size_t num_args, va_list args) {
   size_t len = 0;
 
   for (size_t i = 0; i < num_args; i++) {
@@ -305,15 +310,7 @@ size_t os_fs_path_vlen(size_t num_args, va_list args) {
   return len - 1; // Remove last / separator
 }
 
-size_t os_fs_path_len(size_t num_args, ...) {
-  va_list args;
-  va_start(args, num_args);
-  size_t ret = os_fs_path_vlen(num_args, args);
-  va_end(args);
-  return ret;
-}
-
-size_t os_fs_path_vconcat(char *dst, size_t num_args, va_list args) {
+size_t posix_fs_path_vconcat(char *dst, size_t num_args, va_list args) {
   size_t j = 0; // Index into dst
 
   for (size_t i = 0; i < num_args; i++) {
@@ -332,37 +329,7 @@ size_t os_fs_path_vconcat(char *dst, size_t num_args, va_list args) {
   return j;
 }
 
-size_t os_fs_path_concat(char *dst, size_t num_args, ...) {
-  va_list args;
-  va_start(args, num_args);
-  size_t ret = os_fs_path_vconcat(dst, num_args, args);
-  va_end(args);
-  return ret;
-}
-
-size_t os_fs_path_dyconcat(char **dst, size_t num_args, ...) {
-  va_list args;
-  va_start(args, num_args);
-  size_t len = os_fs_path_vlen(num_args, args);
-  va_end(args);
-
-  size_t buf_sz = len + 1;
-  char  *buf    = (char *)malloc(buf_sz * sizeof(char));
-
-  if (NULL == buf) {
-    *dst = NULL;
-    return 0;
-  }
-
-  va_start(args, num_args);
-  os_fs_path_vconcat(buf, num_args, args);
-  va_end(args);
-
-  *dst = buf;
-  return len;
-}
-
-size_t os_fs_path_dyparent(char **dst, const char *path) {
+size_t posix_fs_path_dyparent(char **dst, const char *path) {
   size_t last_sep_idx = 0;
 
   for (size_t i = 0; path[i]; i++) {
@@ -410,7 +377,7 @@ size_t os_fs_path_dyparent(char **dst, const char *path) {
   return buf_len;
 }
 
-size_t os_fs_tm_dyhome(char **dst) {
+size_t posix_fs_tm_dyhome(char **dst) {
   char *tm_home = (char *)malloc((tmLinuxHome.len + 1) * sizeof(char));
   TMLINUX_ASSERT(tm_home, dst);
   strcpy(tm_home, tmLinuxHome.buf);
@@ -418,7 +385,7 @@ size_t os_fs_tm_dyhome(char **dst) {
   return tmLinuxHome.len;
 }
 
-size_t os_fs_tm_dyrepos(char **dst) {
+size_t posix_fs_tm_dyrepos(char **dst) {
   char *tm_repos = (char *)malloc((tmLinuxRepos.len + 1) * sizeof(char));
   TMLINUX_ASSERT(tm_repos, dst);
   strcpy(tm_repos, tmLinuxRepos.buf);
@@ -426,7 +393,7 @@ size_t os_fs_tm_dyrepos(char **dst) {
   return tmLinuxRepos.len;
 }
 
-size_t os_fs_tm_dypkgs(char **dst) {
+size_t posix_fs_tm_dypkgs(char **dst) {
   char *tm_pkgs = (char *)malloc((tmLinuxPkgs.len + 1) * sizeof(char));
   TMLINUX_ASSERT(tm_pkgs, dst);
   strcpy(tm_pkgs, tmLinuxPkgs.buf);
@@ -434,7 +401,7 @@ size_t os_fs_tm_dypkgs(char **dst) {
   return tmLinuxPkgs.len;
 }
 
-size_t os_fs_fm_dyextract(char **dst) {
+size_t posix_fs_tm_dyextract(char **dst) {
   char *tm_extract = (char *)malloc((tmLinuxExtract.len + 1) * sizeof(char));
   TMLINUX_ASSERT(tm_extract, dst);
   strcpy(tm_extract, tmLinuxExtract.buf);
@@ -442,7 +409,7 @@ size_t os_fs_fm_dyextract(char **dst) {
   return tmLinuxExtract.len;
 }
 
-size_t os_fs_tm_dyrepo(char **dst, const char *repo_name) {
+size_t posix_fs_tm_dyrepo(char **dst, const char *repo_name) {
   char  *tm_repo;
   size_t ret = os_fs_path_dyconcat(&tm_repo, 2, tmLinuxRepos.buf, repo_name);
   TMLINUX_ASSERT(tm_repo, dst);
@@ -450,7 +417,7 @@ size_t os_fs_tm_dyrepo(char **dst, const char *repo_name) {
   return ret;
 }
 
-size_t os_fs_tm_dypkg(char **dst, const char *pkg_name) {
+size_t posix_fs_tm_dypkg(char **dst, const char *pkg_name) {
   char  *tm_pkg;
   size_t ret = os_fs_path_dyconcat(&tm_pkg, 2, tmLinuxPkgs.buf, pkg_name);
   TMLINUX_ASSERT(tm_pkg, dst);
@@ -458,7 +425,7 @@ size_t os_fs_tm_dypkg(char **dst, const char *pkg_name) {
   return ret;
 }
 
-size_t os_fs_tm_dycached(char **dst, const char *item_name) {
+size_t posix_fs_tm_dycached(char **dst, const char *item_name) {
   char  *tm_cached;
   size_t ret =
       os_fs_path_dyconcat(&tm_cached, 2, tmLinuxExtract.buf, item_name);
@@ -468,7 +435,7 @@ size_t os_fs_tm_dycached(char **dst, const char *item_name) {
 }
 
 size_t
-os_fs_tm_dyrecepie(char **dst, const char *repo_name, const char *pkg_name) {
+posix_fs_tm_dyrecepie(char **dst, const char *repo_name, const char *pkg_name) {
   size_t ret = 0;
 
   char *rec_name = (char *)malloc((strlen(pkg_name) + 1) * sizeof(char));
@@ -486,7 +453,7 @@ cleanup:
   return ret;
 }
 
-bool os_fs_tm_dyinit() {
+bool posix_fs_tm_dyinit() {
   const char *usr_home = get_home_directory();
 
   tmLinuxHome.len =
