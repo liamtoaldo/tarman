@@ -62,7 +62,7 @@ static size_t find_max_line_len(cli_lkup_table_t table) {
 }
 
 static void
-print_help_line(cli_cmd_desc_t desc, size_t max_line_len, os_console_sz_t csz) {
+print_help_line(cli_cmd_desc_t desc, size_t max_line_len, csz_t csz) {
   size_t line_len = find_line_len(desc);
   size_t rem      = max_line_len - line_len;
 
@@ -83,9 +83,8 @@ print_help_line(cli_cmd_desc_t desc, size_t max_line_len, os_console_sz_t csz) {
   cli_out_tab_words(tot_off, desc.description, csz);
 }
 
-static void print_help_list(const char      *title,
-                            cli_lkup_table_t table,
-                            os_console_sz_t  csz) {
+static void
+print_help_list(const char *title, cli_lkup_table_t table, csz_t csz) {
   printf("%s:\n", title);
 
   size_t max_cmd_len = find_max_line_len(table);
@@ -99,7 +98,7 @@ static void print_help_list(const char      *title,
 }
 
 int cli_cmd_help(cli_info_t info) {
-  os_console_sz_t console_sz = os_console_get_sz();
+  csz_t console_sz = os_console_get_sz();
 
   cli_lkup_table_t cmd_table = cli_lkup_cmdtable();
   cli_lkup_table_t opt_table = cli_lkup_opttable();

@@ -117,8 +117,7 @@ void cli_out_space(size_t num) {
   }
 }
 
-static size_t
-print_word(char *word, size_t rem, size_t offset, os_console_sz_t csz) {
+static size_t print_word(char *word, size_t rem, size_t offset, csz_t csz) {
   size_t len = strlen(word);
 
   while (true) {
@@ -142,7 +141,7 @@ print_word(char *word, size_t rem, size_t offset, os_console_sz_t csz) {
   return rem;
 }
 
-void cli_out_tab_words(size_t offset, const char *text, os_console_sz_t csz) {
+void cli_out_tab_words(size_t offset, const char *text, csz_t csz) {
   char *buf = malloc(strlen(text) + 1);
   strcpy(buf, text);
 

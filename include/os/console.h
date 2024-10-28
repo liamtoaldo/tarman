@@ -23,6 +23,6 @@
 typedef struct {
   size_t rows;
   size_t columns;
-} os_console_sz_t;
+} csz_t;
 
-os_console_sz_t os_console_get_sz();
+csz_t os_console_get_sz();

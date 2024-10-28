@@ -32,4 +32,4 @@ void cli_out_prompt(const char *fmt, ...);
 
 void cli_out_space(size_t num);
 
-void cli_out_tab_words(size_t offset, const char *text, os_console_sz_t csz);
+void cli_out_tab_words(size_t offset, const char *text, csz_t csz);
