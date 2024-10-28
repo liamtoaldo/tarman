@@ -139,6 +139,6 @@ os_fs_tm_dyrecepie(char **dst, const char *repo_name, const char *pkg_name) {
   return posix_fs_tm_dyrecepie(dst, repo_name, pkg_name);
 }
 
-bool os_fs_tm_dyinit() {
-  return posix_fs_tm_dyinit();
+bool os_fs_tm_init() {
+  return posix_fs_tm_init();
 }

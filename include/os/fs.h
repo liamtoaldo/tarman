@@ -78,4 +78,4 @@ size_t os_fs_tm_dypkg(char **dst, const char *pkg_name);
 size_t os_fs_tm_dycached(char **dst, const char *item_name);
 size_t
 os_fs_tm_dyrecepie(char **dst, const char *repo_name, const char *pkg_name);
-bool os_fs_tm_dyinit();
+bool os_fs_tm_init();

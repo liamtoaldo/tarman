@@ -80,7 +80,7 @@ static bool test_dirs() {
 
 static bool test_init() {
   cli_out_progress("Testing fs init...");
-  return os_fs_tm_dyinit();
+  return os_fs_tm_init();
 }
 
 int cli_cmd_test(cli_info_t info) {

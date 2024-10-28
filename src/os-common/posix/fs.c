@@ -34,27 +34,27 @@
 #include "os/fs.h"
 #include "os/posix/fs.h"
 
-#define TMLINUX_ASSERT(p, d) \
-  if (NULL == p) {           \
-    *d = NULL;               \
-    return 0;                \
+#define TMASSERT(p, d) \
+  if (NULL == p) {     \
+    *d = NULL;         \
+    return 0;          \
   }
 
-#define TMLINUX_CLEANUP(p, d) \
-  if (NULL == p) {            \
-    *d = NULL;                \
-    goto cleanup;             \
+#define TMCLEANUP(p, d) \
+  if (NULL == p) {      \
+    *d = NULL;          \
+    goto cleanup;       \
   }
 
 typedef struct {
   char  *buf;
   size_t len;
-} str_t;
+} tmstr_t;
 
-static str_t tmLinuxHome    = {0};
-static str_t tmLinuxRepos   = {0};
-static str_t tmLinuxPkgs    = {0};
-static str_t tmLinuxExtract = {0};
+static tmstr_t Home    = {0};
+static tmstr_t Repos   = {0};
+static tmstr_t Pkgs    = {0};
+static tmstr_t Extract = {0};
 
 static const char *get_home_directory() {
   struct passwd *pw = getpwuid(getuid());
@@ -378,58 +378,57 @@ size_t posix_fs_path_dyparent(char **dst, const char *path) {
 }
 
 size_t posix_fs_tm_dyhome(char **dst) {
-  char *tm_home = (char *)malloc((tmLinuxHome.len + 1) * sizeof(char));
-  TMLINUX_ASSERT(tm_home, dst);
-  strcpy(tm_home, tmLinuxHome.buf);
+  char *tm_home = (char *)malloc((Home.len + 1) * sizeof(char));
+  TMASSERT(tm_home, dst);
+  strcpy(tm_home, Home.buf);
   *dst = tm_home;
-  return tmLinuxHome.len;
+  return Home.len;
 }
 
 size_t posix_fs_tm_dyrepos(char **dst) {
-  char *tm_repos = (char *)malloc((tmLinuxRepos.len + 1) * sizeof(char));
-  TMLINUX_ASSERT(tm_repos, dst);
-  strcpy(tm_repos, tmLinuxRepos.buf);
+  char *tm_repos = (char *)malloc((Repos.len + 1) * sizeof(char));
+  TMASSERT(tm_repos, dst);
+  strcpy(tm_repos, Repos.buf);
   *dst = tm_repos;
-  return tmLinuxRepos.len;
+  return Repos.len;
 }
 
 size_t posix_fs_tm_dypkgs(char **dst) {
-  char *tm_pkgs = (char *)malloc((tmLinuxPkgs.len + 1) * sizeof(char));
-  TMLINUX_ASSERT(tm_pkgs, dst);
-  strcpy(tm_pkgs, tmLinuxPkgs.buf);
+  char *tm_pkgs = (char *)malloc((Pkgs.len + 1) * sizeof(char));
+  TMASSERT(tm_pkgs, dst);
+  strcpy(tm_pkgs, Pkgs.buf);
   *dst = tm_pkgs;
-  return tmLinuxPkgs.len;
+  return Pkgs.len;
 }
 
 size_t posix_fs_tm_dyextract(char **dst) {
-  char *tm_extract = (char *)malloc((tmLinuxExtract.len + 1) * sizeof(char));
-  TMLINUX_ASSERT(tm_extract, dst);
-  strcpy(tm_extract, tmLinuxExtract.buf);
+  char *tm_extract = (char *)malloc((Extract.len + 1) * sizeof(char));
+  TMASSERT(tm_extract, dst);
+  strcpy(tm_extract, Extract.buf);
   *dst = tm_extract;
-  return tmLinuxExtract.len;
+  return Extract.len;
 }
 
 size_t posix_fs_tm_dyrepo(char **dst, const char *repo_name) {
   char  *tm_repo;
-  size_t ret = os_fs_path_dyconcat(&tm_repo, 2, tmLinuxRepos.buf, repo_name);
-  TMLINUX_ASSERT(tm_repo, dst);
+  size_t ret = os_fs_path_dyconcat(&tm_repo, 2, Repos.buf, repo_name);
+  TMASSERT(tm_repo, dst);
   *dst = tm_repo;
   return ret;
 }
 
 size_t posix_fs_tm_dypkg(char **dst, const char *pkg_name) {
   char  *tm_pkg;
-  size_t ret = os_fs_path_dyconcat(&tm_pkg, 2, tmLinuxPkgs.buf, pkg_name);
-  TMLINUX_ASSERT(tm_pkg, dst);
+  size_t ret = os_fs_path_dyconcat(&tm_pkg, 2, Pkgs.buf, pkg_name);
+  TMASSERT(tm_pkg, dst);
   *dst = tm_pkg;
   return ret;
 }
 
 size_t posix_fs_tm_dycached(char **dst, const char *item_name) {
   char  *tm_cached;
-  size_t ret =
-      os_fs_path_dyconcat(&tm_cached, 2, tmLinuxExtract.buf, item_name);
-  TMLINUX_ASSERT(tm_cached, dst);
+  size_t ret = os_fs_path_dyconcat(&tm_cached, 2, Extract.buf, item_name);
+  TMASSERT(tm_cached, dst);
   *dst = tm_cached;
   return ret;
 }
@@ -439,13 +438,12 @@ posix_fs_tm_dyrecepie(char **dst, const char *repo_name, const char *pkg_name) {
   size_t ret = 0;
 
   char *rec_name = (char *)malloc((strlen(pkg_name) + 1) * sizeof(char));
-  TMLINUX_ASSERT(rec_name, dst);
+  TMASSERT(rec_name, dst);
   sprintf(rec_name, "%s.tarman", pkg_name);
 
   char *tm_recepie;
-  ret = os_fs_path_dyconcat(
-      &tm_recepie, 3, tmLinuxRepos.buf, repo_name, rec_name);
-  TMLINUX_CLEANUP(tm_recepie, dst);
+  ret = os_fs_path_dyconcat(&tm_recepie, 3, Repos.buf, repo_name, rec_name);
+  TMCLEANUP(tm_recepie, dst);
 
 cleanup:
   safe_free(rec_name);
@@ -453,27 +451,23 @@ cleanup:
   return ret;
 }
 
-bool posix_fs_tm_dyinit() {
+bool posix_fs_tm_init() {
   const char *usr_home = get_home_directory();
 
-  tmLinuxHome.len =
-      os_fs_path_dyconcat(&tmLinuxHome.buf, 2, usr_home, "tarman");
-  tmLinuxRepos.len =
-      os_fs_path_dyconcat(&tmLinuxRepos.buf, 3, usr_home, "tarman", "repos");
-  tmLinuxPkgs.len =
-      os_fs_path_dyconcat(&tmLinuxPkgs.buf, 3, usr_home, "tarman", "pkgs");
-  tmLinuxExtract.len =
-      os_fs_path_dyconcat(&tmLinuxExtract.buf, 3, usr_home, "tarman", "tmp");
+  Home.len    = os_fs_path_dyconcat(&Home.buf, 2, usr_home, "tarman");
+  Repos.len   = os_fs_path_dyconcat(&Repos.buf, 3, usr_home, "tarman", "repos");
+  Pkgs.len    = os_fs_path_dyconcat(&Pkgs.buf, 3, usr_home, "tarman", "pkgs");
+  Extract.len = os_fs_path_dyconcat(&Extract.buf, 3, usr_home, "tarman", "tmp");
 
-  if (NULL == tmLinuxHome.buf || NULL == tmLinuxRepos.buf ||
-      NULL == tmLinuxPkgs.buf || NULL == tmLinuxExtract.buf) {
+  if (NULL == Home.buf || NULL == Repos.buf || NULL == Pkgs.buf ||
+      NULL == Extract.buf) {
     return false;
   }
 
-  if (TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(tmLinuxHome.buf)) ||
-      TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(tmLinuxRepos.buf)) ||
-      TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(tmLinuxPkgs.buf)) ||
-      TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(tmLinuxExtract.buf))) {
+  if (TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(Home.buf)) ||
+      TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(Repos.buf)) ||
+      TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(Pkgs.buf)) ||
+      TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(Extract.buf))) {
     return false;
   }
 
