@@ -88,14 +88,14 @@ static cli_cmd_desc_t options[] = {
     {TARMAN_SOPT_FROM_URL,
      TARMAN_FOPT_FROM_URL,
      cli_opt_from_url,
-     true,
+     false,
      NULL,
      "Use URL as package input and perform download"},
 
     {TARMAN_SOPT_FROM_REPO,
      TARMAN_FOPT_FROM_REPO,
      cli_opt_from_repo,
-     true,
+     false,
      NULL,
      "Use simple package name as input and perform repo lookup"},
 
