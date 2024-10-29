@@ -53,10 +53,13 @@
 
 typedef struct {
   const char *input;
+  bool        from_url;
   bool        from_repo;
+  const char *pkg_name;
   const char *app_name;
   const char *exec_path;
   const char *working_dir;
+  const char *icon_path;
   bool        add_path;
   bool        add_desktop;
 } cli_info_t;
