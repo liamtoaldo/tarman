@@ -56,6 +56,10 @@ fs_fileop_status_t os_fs_file_rm(const char *path) {
   return posix_fs_file_rm(path);
 }
 
+fs_fileop_status_t os_fs_file_gettype(fs_filetype_t *dst, const char *path) {
+  return posix_fs_file_gettype(dst, path);
+}
+
 size_t os_fs_path_vlen(size_t num_args, va_list args) {
   return posix_fs_path_vlen(num_args, args);
 }

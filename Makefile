@@ -42,7 +42,7 @@ all: info obj $(OBJ) $(EXEC)
 tarman: $(EXEC)
 
 info:
-	@echo Compiling for $(HTMC_OS)
+	@echo Compiling for $(TARMAN_OS)
 
 $(EXEC): obj $(OBJ)
 	$(CC) -flto $(OBJ) -o $(EXEC)

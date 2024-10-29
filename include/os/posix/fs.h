@@ -31,6 +31,7 @@ fs_dirop_status_t posix_fs_dir_next(os_fs_dirstream_t stream, fs_dirent_t *ent);
 fs_fileop_status_t posix_fs_file_mv(const char *dst, const char *src);
 fs_fileop_status_t posix_fs_file_cp(const char *dst, const char *src);
 fs_fileop_status_t posix_fs_file_rm(const char *path);
+fs_fileop_status_t posix_fs_file_gettype(fs_filetype_t *dst, const char *path);
 
 size_t posix_fs_path_vlen(size_t num_args, va_list args);
 size_t posix_fs_path_vconcat(char *dst, size_t num_args, va_list args);

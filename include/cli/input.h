@@ -18,19 +18,10 @@
 
 #pragma once
 
-#pragma once
-
+#include <stdbool.h>
 #include <stdlib.h>
 
-#include "os/console.h"
-
-void cli_out_newline();
-void cli_out_progress(const char *fmt, ...);
-void cli_out_success(const char *fmt, ...);
-void cli_out_error(const char *fmt, ...);
-void cli_out_warning(const char *fmt, ...);
-void cli_out_prompt(const char *fmt, ...);
-
-void cli_out_space(size_t num);
-
-void cli_out_tab_words(size_t offset, const char *text, csz_t csz);
+int    cli_in_int(const char *msg, int range_min, int range_max);
+bool   cli_in_bool(const char *msg);
+void   cli_in_str(const char *msg, char *buf, size_t len);
+size_t cli_in_dystr(const char *msg, char **dst);

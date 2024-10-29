@@ -261,7 +261,7 @@ fs_dirop_status_t posix_fs_dir_next(os_fs_dirstream_t stream,
     if (!stat_done && 0 > fstatat(dird, next->d_name, &st, 0)) {
       return TM_FS_DIROP_STATUS_ERR;
     }
-    if (S_IXGRP & st.st_mode) {
+    if (S_IXUSR & st.st_mode) {
       m_ent.file_type = TM_FS_FILETYPE_EXEC;
     } else {
       m_ent.file_type = TM_FS_FILETYPE_REGULAR;
@@ -293,6 +293,31 @@ fs_fileop_status_t posix_fs_file_rm(const char *path) {
   }
 
   return translate_fileerr();
+}
+
+fs_fileop_status_t posix_fs_file_gettype(fs_filetype_t *dst, const char *path) {
+  struct stat st;
+
+  if (0 > stat(path, &st)) {
+    return TM_FS_FILEOP_STATUS_ERR;
+  }
+
+  if (S_ISREG(st.st_mode) && S_IXUSR & st.st_mode) {
+    *dst = TM_FS_FILETYPE_EXEC;
+    return TM_FS_FILEOP_STATUS_OK;
+  }
+
+  if (S_ISREG(st.st_mode)) {
+    *dst = TM_FS_FILETYPE_DIR;
+    return TM_FS_FILEOP_STATUS_OK;
+  }
+
+  if (S_ISDIR(st.st_mode)) {
+    *dst = TM_FS_FILETYPE_DIR;
+    return TM_FS_FILEOP_STATUS_OK;
+  }
+
+  return TM_FS_FILEOP_STATUS_ERR;
 }
 
 size_t posix_fs_path_vlen(size_t num_args, va_list args) {

@@ -30,22 +30,22 @@ typedef struct {
   const char *icon_path;
 } pkg_info_t;
 
-// Contents of .tmrecepie files
+// Contents of .tmrcp files
 // In these files, the "FROM_REPOSITORY" property is not present
 // The "from_repository" struct field, however, may be set at runtime
 typedef struct {
   pkg_info_t pkg_info;
   bool       add_to_path;
   bool       add_to_desktop;
-} recepie_t;
+} recipe_t;
 
 // "Runtime" recepie
 typedef struct {
-  recepie_t   recepie;
+  recipe_t    recepie;
   const char *pkg_name;
-} rt_recepie_t;
+} rt_recipe_t;
 
 typedef struct {
-  pkg_info_t pkg_info;
-  // ...
+  pkg_info_t  pkg_info;
+  const char *pkg_name;
 } pkg_t;

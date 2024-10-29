@@ -41,7 +41,11 @@ static void textcolor(bool bold, color_t fgcolor) {
 }
 
 static void reset_color() {
-  printf("\e[m\n");
+  printf("\e[m");
+}
+
+void cli_out_newline() {
+  puts("");
 }
 
 void prefix(color_t color) {
@@ -59,6 +63,7 @@ void cli_out_progress(const char *fmt, ...) {
   va_end(args);
 
   reset_color();
+  puts("");
 }
 
 void cli_out_success(const char *fmt, ...) {
@@ -71,6 +76,7 @@ void cli_out_success(const char *fmt, ...) {
   va_end(args);
 
   reset_color();
+  puts("");
 }
 
 void cli_out_error(const char *fmt, ...) {
@@ -84,6 +90,7 @@ void cli_out_error(const char *fmt, ...) {
   va_end(args);
 
   reset_color();
+  puts("");
 }
 
 void cli_out_warning(const char *fmt, ...) {
@@ -97,6 +104,7 @@ void cli_out_warning(const char *fmt, ...) {
   va_end(args);
 
   reset_color();
+  puts("");
 }
 
 void cli_out_prompt(const char *fmt, ...) {
@@ -109,6 +117,7 @@ void cli_out_prompt(const char *fmt, ...) {
   va_end(args);
 
   reset_color();
+  putchar(' ');
 }
 
 void cli_out_space(size_t num) {
