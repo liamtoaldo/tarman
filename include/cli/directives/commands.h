@@ -18,9 +18,28 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 #include "cli/directives/types.h"
 
-bool cli_parse(int         argc,
-               char       *argv[],
-               cli_info_t *cli_info,
-               cli_exec_t *handler);
+#define TARMAN_CMD_HELP        "help"
+#define TARMAN_CMD_INSTALL     "install"
+#define TARMAN_CMD_LIST        "list"
+#define TARMAN_CMD_REMOVE      "remove"
+#define TARMAN_CMD_UPDATE      "update"
+#define TARMAN_CMD_UPDATE_ALL  "update-all"
+#define TARMAN_CMD_ADD_REPO    "add-repo"
+#define TARMAN_CMD_REMOVE_REPO "remove-repo"
+#define TARMAN_CMD_LIST_REPOS  "list-repos"
+#define TARMAN_CMD_TEST        "test"
+
+int cli_cmd_help(cli_info_t info);
+int cli_cmd_install(cli_info_t info);
+int cli_cmd_list(cli_info_t info);
+int cli_cmd_remove(cli_info_t info);
+int cli_cmd_update(cli_info_t info);
+int cli_cmd_update_all(cli_info_t info);
+int cli_cmd_add_repo(cli_info_t info);
+int cli_cmd_remove_repo(cli_info_t info);
+int cli_cmd_list_repos(cli_info_t info);
+int cli_cmd_test(cli_info_t info);

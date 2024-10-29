@@ -16,19 +16,25 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#pragma once
+#include "cli/directives/commands.h"
 
-#include <stdbool.h>
-#include <stdlib.h>
+int cli_cmd_list(cli_info_t info) {
+}
 
-#include "cli/commands/commands.h"
+int cli_cmd_remove(cli_info_t info) {
+}
 
-typedef struct {
-  cli_cmd_desc_t *table;
-  size_t          num_entries;
-} cli_lkup_table_t;
+int cli_cmd_update(cli_info_t info) {
+}
 
-bool             cli_lkup_command(const char *command, cli_cmd_desc_t *dst);
-bool             cli_lkup_option(const char *command, cli_cmd_desc_t *dst);
-cli_lkup_table_t cli_lkup_cmdtable();
-cli_lkup_table_t cli_lkup_opttable();
+int cli_cmd_update_all(cli_info_t info) {
+}
+
+int cli_cmd_add_repo(cli_info_t info) {
+}
+
+int cli_cmd_remove_repo(cli_info_t info) {
+}
+
+int cli_cmd_list_repos(cli_info_t info) {
+}

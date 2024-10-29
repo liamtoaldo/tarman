@@ -18,7 +18,8 @@
 
 #include <stdlib.h>
 
-#include "cli/commands/commands.h"
+#include "cli/directives/commands.h"
+#include "cli/directives/types.h"
 #include "cli/parser.h"
 
 int main(int argc, char *argv[]) {

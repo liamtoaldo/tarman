@@ -21,7 +21,7 @@
 #include <stdlib.h>
 
 #include "archive.h"
-#include "cli/commands/commands.h"
+#include "cli/directives/commands.h"
 #include "cli/output.h"
 #include "os/fs.h"
 

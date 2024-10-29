@@ -18,18 +18,7 @@
 
 #pragma once
 
-#include <stdbool.h>
-
-#define TARMAN_CMD_HELP        "help"
-#define TARMAN_CMD_INSTALL     "install"
-#define TARMAN_CMD_LIST        "list"
-#define TARMAN_CMD_REMOVE      "remove"
-#define TARMAN_CMD_UPDATE      "update"
-#define TARMAN_CMD_UPDATE_ALL  "update-all"
-#define TARMAN_CMD_ADD_REPO    "add-repo"
-#define TARMAN_CMD_REMOVE_REPO "remove-repo"
-#define TARMAN_CMD_LIST_REPOS  "list-repos"
-#define TARMAN_CMD_TEST        "test"
+#include "cli/directives/types.h"
 
 #define TARMAN_SOPT_FROM_URL    "-U"
 #define TARMAN_SOPT_FROM_REPO   "-R"
@@ -51,31 +40,6 @@
 #define TARMAN_FOPT_ADD_PATH    "--add-path"
 #define TARMAN_FOPT_ADD_DESKTOP "--add-desktop"
 
-typedef struct {
-  const char *input;
-  bool        from_url;
-  bool        from_repo;
-  const char *pkg_name;
-  const char *app_name;
-  const char *exec_path;
-  const char *working_dir;
-  const char *icon_path;
-  bool        add_path;
-  bool        add_desktop;
-} cli_info_t;
-
-typedef bool (*cli_fcn_t)(cli_info_t *info, const char *next);
-typedef int (*cli_exec_t)(cli_info_t info);
-
-typedef struct {
-  const char *short_option;
-  const char *full_option;
-  cli_fcn_t   handler;
-  bool        has_argument;
-  cli_exec_t  exec_handler;
-  const char *description;
-} cli_cmd_desc_t;
-
 bool cli_opt_from_url(cli_info_t *info, const char *next);
 bool cli_opt_from_repo(cli_info_t *info, const char *next);
 bool cli_opt_pkg_name(cli_info_t *info, const char *next);
@@ -85,15 +49,3 @@ bool cli_opt_wrk_dir(cli_info_t *info, const char *next);
 bool cli_opt_icon(cli_info_t *info, const char *next);
 bool cli_opt_add_path(cli_info_t *info, const char *next);
 bool cli_opt_add_desktop(cli_info_t *info, const char *next);
-
-// Commands
-int cli_cmd_help(cli_info_t info);
-int cli_cmd_install(cli_info_t info);
-int cli_cmd_list(cli_info_t info);
-int cli_cmd_remove(cli_info_t info);
-int cli_cmd_update(cli_info_t info);
-int cli_cmd_update_all(cli_info_t info);
-int cli_cmd_add_repo(cli_info_t info);
-int cli_cmd_remove_repo(cli_info_t info);
-int cli_cmd_list_repos(cli_info_t info);
-int cli_cmd_test(cli_info_t info);

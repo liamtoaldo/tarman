@@ -18,9 +18,17 @@
 
 #pragma once
 
+#include <stdbool.h>
+#include <stdlib.h>
+
 #include "cli/directives/types.h"
 
-bool cli_parse(int         argc,
-               char       *argv[],
-               cli_info_t *cli_info,
-               cli_exec_t *handler);
+typedef struct {
+  cli_drt_desc_t *table;
+  size_t          num_entries;
+} cli_lkup_table_t;
+
+bool             cli_lkup_command(const char *command, cli_drt_desc_t *dst);
+bool             cli_lkup_option(const char *command, cli_drt_desc_t *dst);
+cli_lkup_table_t cli_lkup_cmdtable();
+cli_lkup_table_t cli_lkup_opttable();

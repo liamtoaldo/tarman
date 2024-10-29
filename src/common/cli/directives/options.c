@@ -16,7 +16,8 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#include "cli/commands/commands.h"
+#include "cli/directives/options.h"
+
 #include "cli/output.h"
 
 static bool
@@ -91,26 +92,4 @@ bool cli_opt_add_path(cli_info_t *info, const char *next) {
 bool cli_opt_add_desktop(cli_info_t *info, const char *next) {
   info->add_desktop = true;
   return true;
-}
-
-// Commands
-int cli_cmd_list(cli_info_t info) {
-}
-
-int cli_cmd_remove(cli_info_t info) {
-}
-
-int cli_cmd_update(cli_info_t info) {
-}
-
-int cli_cmd_update_all(cli_info_t info) {
-}
-
-int cli_cmd_add_repo(cli_info_t info) {
-}
-
-int cli_cmd_remove_repo(cli_info_t info) {
-}
-
-int cli_cmd_list_repos(cli_info_t info) {
 }

@@ -19,8 +19,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cli/commands/commands.h"
-#include "cli/commands/lookup.h"
+#include "cli/directives/commands.h"
+#include "cli/directives/lookup.h"
 #include "cli/output.h"
 #include "cli/parser.h"
 
@@ -33,7 +33,7 @@ bool cli_parse(int         argc,
   }
 
   // Descriptor of the command
-  cli_cmd_desc_t cmd_desc;
+  cli_drt_desc_t cmd_desc;
 
   // If no matching command is found, an
   // error is thrown
@@ -51,7 +51,7 @@ bool cli_parse(int         argc,
       next = argv[i + 1];
     }
 
-    cli_cmd_desc_t opt_desc;
+    cli_drt_desc_t opt_desc;
 
     // If no mathcing option was found
     // This argument is treated as the input file

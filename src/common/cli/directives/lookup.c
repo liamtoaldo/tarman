@@ -20,10 +20,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cli/commands/commands.h"
-#include "cli/commands/lookup.h"
+#include "cli/directives/commands.h"
+#include "cli/directives/lookup.h"
+#include "cli/directives/options.h"
+#include "cli/directives/types.h"
 
-static cli_cmd_desc_t commands[] = {
+static cli_drt_desc_t commands[] = {
     {NULL, TARMAN_CMD_HELP, NULL, false, cli_cmd_help, "Show this menu"},
 
     {NULL,
@@ -84,7 +86,7 @@ static cli_cmd_desc_t commands[] = {
 
     {NULL, TARMAN_CMD_TEST, NULL, false, cli_cmd_test, "Test tarman"}};
 
-static cli_cmd_desc_t options[] = {
+static cli_drt_desc_t options[] = {
     {TARMAN_SOPT_FROM_URL,
      TARMAN_FOPT_FROM_URL,
      cli_opt_from_url,
@@ -150,14 +152,14 @@ static cli_cmd_desc_t options[] = {
      "Add package as `.desktop` application during installation"},
 };
 
-static bool find_desc(cli_cmd_desc_t  descriptors[],
+static bool find_desc(cli_drt_desc_t  descriptors[],
                       size_t          num_desc,
                       const char     *arg,
-                      cli_cmd_desc_t *dst) {
+                      cli_drt_desc_t *dst) {
   bool found_matching_option = false;
 
   for (int i = 0; i < num_desc; i++) {
-    cli_cmd_desc_t opt_desc = descriptors[i];
+    cli_drt_desc_t opt_desc = descriptors[i];
 
     if ((NULL == opt_desc.short_option ||
          0 != strcmp(opt_desc.short_option, arg)) &&
@@ -173,23 +175,23 @@ static bool find_desc(cli_cmd_desc_t  descriptors[],
   return false;
 }
 
-bool cli_lkup_command(const char *command, cli_cmd_desc_t *dst) {
+bool cli_lkup_command(const char *command, cli_drt_desc_t *dst) {
   return find_desc(
-      commands, sizeof commands / sizeof(cli_cmd_desc_t), command, dst);
+      commands, sizeof commands / sizeof(cli_drt_desc_t), command, dst);
 }
 
-bool cli_lkup_option(const char *option, cli_cmd_desc_t *dst) {
+bool cli_lkup_option(const char *option, cli_drt_desc_t *dst) {
   return find_desc(
-      options, sizeof options / sizeof(cli_cmd_desc_t), option, dst);
+      options, sizeof options / sizeof(cli_drt_desc_t), option, dst);
 }
 
 cli_lkup_table_t cli_lkup_cmdtable() {
   return (cli_lkup_table_t){.table = commands,
                             .num_entries =
-                                sizeof commands / sizeof(cli_cmd_desc_t)};
+                                sizeof commands / sizeof(cli_drt_desc_t)};
 }
 
 cli_lkup_table_t cli_lkup_opttable() {
   return (cli_lkup_table_t){
-      .table = options, .num_entries = sizeof options / sizeof(cli_cmd_desc_t)};
+      .table = options, .num_entries = sizeof options / sizeof(cli_drt_desc_t)};
 }

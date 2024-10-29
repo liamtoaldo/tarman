@@ -16,10 +16,31 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#include <stdlib.h>
+#pragma once
 
-#include "cli/commands/commands.h"
+#include <stdbool.h>
 
-int cli_cmd_install(cli_info_t info) {
-  return EXIT_SUCCESS;
-}
+typedef struct {
+  const char *input;
+  bool        from_url;
+  bool        from_repo;
+  const char *pkg_name;
+  const char *app_name;
+  const char *exec_path;
+  const char *working_dir;
+  const char *icon_path;
+  bool        add_path;
+  bool        add_desktop;
+} cli_info_t;
+
+typedef bool (*cli_fcn_t)(cli_info_t *info, const char *next);
+typedef int (*cli_exec_t)(cli_info_t info);
+
+typedef struct {
+  const char *short_option;
+  const char *full_option;
+  cli_fcn_t   handler;
+  bool        has_argument;
+  cli_exec_t  exec_handler;
+  const char *description;
+} cli_drt_desc_t;

@@ -16,11 +16,11 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#pragma once
+#include <stdlib.h>
 
+#include "cli/directives/commands.h"
 #include "cli/directives/types.h"
 
-bool cli_parse(int         argc,
-               char       *argv[],
-               cli_info_t *cli_info,
-               cli_exec_t *handler);
+int cli_cmd_install(cli_info_t info) {
+  return EXIT_SUCCESS;
+}

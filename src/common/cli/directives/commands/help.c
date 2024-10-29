@@ -20,8 +20,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cli/commands/commands.h"
-#include "cli/commands/lookup.h"
+#include "cli/directives/commands.h"
+#include "cli/directives/lookup.h"
 #include "cli/output.h"
 #include "os/console.h"
 
@@ -33,7 +33,7 @@ static void print_indent() {
   cli_out_space(BASE_LINE_LEN);
 }
 
-static size_t find_line_len(cli_cmd_desc_t desc) {
+static size_t find_line_len(cli_drt_desc_t desc) {
   size_t cmd_len = BASE_LINE_LEN + COLUMN_SEPARATOR_LEN;
 
   if (NULL != desc.short_option) {
@@ -50,7 +50,7 @@ static size_t find_line_len(cli_cmd_desc_t desc) {
 static size_t find_max_line_len(cli_lkup_table_t table) {
   size_t max_cmd_len = BASE_LINE_LEN + COLUMN_SEPARATOR_LEN;
   for (size_t i = 0; i < table.num_entries; i++) {
-    cli_cmd_desc_t desc    = table.table[i];
+    cli_drt_desc_t desc    = table.table[i];
     size_t         cmd_len = find_line_len(desc);
 
     if (cmd_len > max_cmd_len) {
@@ -62,7 +62,7 @@ static size_t find_max_line_len(cli_lkup_table_t table) {
 }
 
 static void
-print_help_line(cli_cmd_desc_t desc, size_t max_line_len, csz_t csz) {
+print_help_line(cli_drt_desc_t desc, size_t max_line_len, csz_t csz) {
   size_t line_len = find_line_len(desc);
   size_t rem      = max_line_len - line_len;
 
@@ -90,7 +90,7 @@ print_help_list(const char *title, cli_lkup_table_t table, csz_t csz) {
   size_t max_cmd_len = find_max_line_len(table);
 
   for (size_t i = 0; i < table.num_entries; i++) {
-    cli_cmd_desc_t desc = table.table[i];
+    cli_drt_desc_t desc = table.table[i];
     print_help_line(desc, max_cmd_len, csz);
   }
 
