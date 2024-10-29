@@ -38,7 +38,7 @@ bool cli_parse(int         argc,
   // If no matching command is found, an
   // error is thrown
   if (!cli_lkup_command(argv[1], &cmd_desc)) {
-    cli_out_error("Unknown command '%s'", argv[1]);
+    cli_out_error("Unknown command '%s'. Try 'tarman help' for help", argv[1]);
     return false;
   }
 
@@ -56,6 +56,12 @@ bool cli_parse(int         argc,
     // If no mathcing option was found
     // This argument is treated as the input file
     if (!cli_lkup_option(argument, &opt_desc)) {
+      if ('-' == argument[0]) {
+        cli_out_error("Unrecognized option '%s'. Try 'tarman help' for help",
+                      argument);
+        return false;
+      }
+
       if (NULL != cli_info->input) {
         cli_out_error("Too many inputs");
         return false;
