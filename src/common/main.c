@@ -20,6 +20,7 @@
 
 #include "cli/directives/commands.h"
 #include "cli/directives/types.h"
+#include "cli/output.h"
 #include "cli/parser.h"
 
 int main(int argc, char *argv[]) {

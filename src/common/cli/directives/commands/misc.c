@@ -21,9 +21,6 @@
 int cli_cmd_list(cli_info_t info) {
 }
 
-int cli_cmd_remove(cli_info_t info) {
-}
-
 int cli_cmd_update(cli_info_t info) {
 }
 
