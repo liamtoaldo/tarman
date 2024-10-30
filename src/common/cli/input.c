@@ -25,6 +25,12 @@
 #include "cli/input.h"
 #include "cli/output.h"
 
+static void clear_input_stream() {
+  char ch = 0;
+  while (32 < (ch = getchar()) && !feof(stdin))
+    ;
+}
+
 int cli_in_int(const char *msg, int range_min, int range_max) {
   bool use_range = true;
 
@@ -45,9 +51,8 @@ int cli_in_int(const char *msg, int range_min, int range_max) {
       cli_out_prompt("%s:", msg);
     }
 
-    fflush(stdin);
-
     if (1 != scanf("%d", &input)) {
+      clear_input_stream();
       cli_out_error("I/O Error: invalid input");
       continue;
     }
@@ -60,6 +65,7 @@ int cli_in_int(const char *msg, int range_min, int range_max) {
       continue;
     }
 
+    clear_input_stream();
     return input;
   }
 }
@@ -71,14 +77,19 @@ bool cli_in_bool(const char *msg) {
     cli_out_newline();
     cli_out_prompt("%s [Y/n]:", msg);
 
-    fflush(stdin);
-
     if (1 != scanf("%c", &input)) {
+      clear_input_stream();
       cli_out_error("I/O Error: invalid input");
       continue;
     }
 
-    if ('Y' == toupper(input) || '\n' == input) {
+    if ('\n' == input) {
+      return true;
+    }
+
+    clear_input_stream();
+
+    if ('Y' == toupper(input)) {
       return true;
     }
 
@@ -94,8 +105,18 @@ void cli_in_str(const char *msg, char *buf, size_t len) {
   cli_out_newline();
   cli_out_prompt("%s:", msg);
 
-  fflush(stdin);
-  fgets(buf, len, stdin);
+  size_t read = 0;
+  for (; read < len; read++) {
+    char c = getchar();
+
+    if (EOF == c || '\n' == c) {
+      return;
+    }
+
+    buf[read] = c;
+  }
+
+  clear_input_stream();
 }
 
 size_t cli_in_dystr(const char *msg, char **dst) {
@@ -112,8 +133,6 @@ size_t cli_in_dystr(const char *msg, char **dst) {
 
   cli_out_newline();
   cli_out_prompt("%s:", msg);
-
-  fflush(stdin);
 
   while (EOF != (ch = getchar()) && '\n' != ch) {
     if (i == len - 1) {
@@ -132,5 +151,6 @@ size_t cli_in_dystr(const char *msg, char **dst) {
   }
 
   buf[i] = 0;
+  *dst   = buf;
   return i;
 }

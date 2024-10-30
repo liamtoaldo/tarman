@@ -16,11 +16,12 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
+#include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "cli/directives/commands.h"
 #include "cli/directives/types.h"
-#include "cli/output.h"
 #include "cli/parser.h"
 
 int main(int argc, char *argv[]) {
