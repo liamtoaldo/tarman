@@ -66,6 +66,7 @@ int cli_in_int(const char *msg, int range_min, int range_max) {
     }
 
     clear_input_stream();
+    cli_out_newline();
     return input;
   }
 }
@@ -84,16 +85,19 @@ bool cli_in_bool(const char *msg) {
     }
 
     if ('\n' == input) {
+      cli_out_newline();
       return true;
     }
 
     clear_input_stream();
 
     if ('Y' == toupper(input)) {
+      cli_out_newline();
       return true;
     }
 
     if ('n' == tolower(input)) {
+      cli_out_newline();
       return false;
     }
 
@@ -110,12 +114,14 @@ void cli_in_str(const char *msg, char *buf, size_t len) {
     char c = getchar();
 
     if (EOF == c || '\n' == c) {
+      cli_out_newline();
       return;
     }
 
     buf[read] = c;
   }
 
+  cli_out_newline();
   clear_input_stream();
 }
 
@@ -149,6 +155,8 @@ size_t cli_in_dystr(const char *msg, char **dst) {
     buf[i] = ch;
     i++;
   }
+
+  cli_out_newline();
 
   buf[i] = 0;
   *dst   = buf;

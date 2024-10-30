@@ -76,6 +76,10 @@ int cli_cmd_remove(cli_info_t info) {
     goto cleanup;
   }
 
+  if (!cli_in_bool("Proceed with removal?")) {
+    goto cleanup;
+  }
+
   cli_out_progress("Removing package directory '%s'", pkg_path);
 
   if (TM_FS_DIROP_STATUS_OK != os_fs_dir_rm(pkg_path)) {
