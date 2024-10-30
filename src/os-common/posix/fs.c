@@ -345,9 +345,11 @@ size_t posix_fs_path_vconcat(char *dst, size_t num_args, va_list args) {
     // Copy path to dst
     for (; *path; path++, j++) {
       dst[j] = *path;
+      printf("%c", dst[j]);
     }
-    if ('/' != path[j - base]) {
+    if ('/' != path[j - base - 1]) {
       dst[j] = '/'; // Add separator
+      printf("/");
     }
     j++;
   }
