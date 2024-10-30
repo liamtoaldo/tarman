@@ -16,9 +16,9 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#include "os/posix/fs.h"
-
 #include "os/fs.h"
+
+#include "os/posix/fs.h"
 
 fs_dirop_status_t os_fs_mkdir(const char *path) {
   return posix_fs_mkdir(path);

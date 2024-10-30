@@ -339,12 +339,14 @@ size_t posix_fs_path_vconcat(char *dst, size_t num_args, va_list args) {
   size_t j = 0; // Index into dst
 
   for (size_t i = 0; i < num_args; i++) {
-    const char *path = va_arg(args, char *);
+    const size_t base = j;
+    const char  *path = va_arg(args, char *);
+
     // Copy path to dst
     for (; *path; path++, j++) {
       dst[j] = *path;
     }
-    if ('/' != path[j]) {
+    if ('/' != path[j - base]) {
       dst[j] = '/'; // Add separator
     }
     j++;

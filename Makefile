@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 CC=gcc
-CFLAGS=-O2 -std=c2x -Iinclude/ -DEXT_TARMAN_BUILD="\"$(shell date +%y.%m.%d)\""
+CFLAGS=-O0 -std=c2x -Iinclude/ -DEXT_TARMAN_BUILD="\"$(shell date +%y.%m.%d)\""
 BIN=bin
 EXEC=$(BIN)/tarman
 TARMAN_OS?=$(shell uname -s | tr A-Z a-z)
