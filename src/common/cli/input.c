@@ -24,6 +24,7 @@
 
 #include "cli/input.h"
 #include "cli/output.h"
+#include "stream.h"
 
 static void clear_input_stream() {
   char ch = 0;
@@ -126,39 +127,9 @@ void cli_in_str(const char *msg, char *buf, size_t len) {
 }
 
 size_t cli_in_dystr(const char *msg, char **dst) {
-  size_t len = 256;
-  char  *buf = (char *)malloc(len * sizeof(char));
-  size_t i   = 0;
-  char   ch  = 0;
-
-  if (NULL == buf) {
-    cli_out_error("Unable to allocate memory, probably ran out of memory. "
-                  "Exiting now");
-    exit(EXIT_FAILURE);
-  }
-
   cli_out_newline();
   cli_out_prompt("%s:", msg);
-
-  while (EOF != (ch = getchar()) && '\n' != ch) {
-    if (i == len - 1) {
-      len *= 2;
-      buf = realloc(buf, len * sizeof(char));
-
-      if (NULL == buf) {
-        cli_out_error("Unable to allocate memory, probably ran out of memory. "
-                      "Exiting now");
-        exit(EXIT_FAILURE);
-      }
-    }
-
-    buf[i] = ch;
-    i++;
-  }
-
-  cli_out_newline();
-
-  buf[i] = 0;
-  *dst   = buf;
-  return i;
+  size_t ret = stream_readline(stdin, dst);
+  clear_input_stream();
+  return ret;
 }

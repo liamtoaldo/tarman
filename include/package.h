@@ -19,6 +19,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdio.h>
 
 // Contents of .tmpkg files
 typedef struct {
@@ -45,7 +46,28 @@ typedef struct {
   const char *pkg_name;
 } rt_recipe_t;
 
-typedef struct {
-  pkg_info_t  pkg_info;
-  const char *pkg_name;
-} pkg_t;
+typedef enum {
+  TM_PKG_PARSE_STATUS_NOFILE,
+  TM_PKG_PARSE_STATUS_PERM,
+  TM_PKG_PARSE_STATUS_MALFORMED,
+  TM_PKG_PARSE_STATUS_INVKEY,
+  TM_PKG_PARSE_STATUS_INVVAL,
+  TM_PKG_PARSE_STATUS_ERR,
+  TM_PKG_PARSE_STATUS_OK
+} pkg_parse_status_t;
+
+typedef enum {
+  TM_RCP_PARSE_STATUS_NOFILE,
+  TM_RCP_PARSE_STATUS_PERM,
+  TM_RCP_PARSE_STATUS_MALFORMED,
+  TM_RCP_PARSE_STATUS_INVVAL,
+  TM_RCP_PARSE_STATUS_ERR,
+  TM_RCP_PARSE_STATUS_OK
+} rcp_parse_status_t;
+
+pkg_parse_status_t pkg_parse_ftmpkg(pkg_info_t *pkg_info, FILE *pkg_file);
+pkg_parse_status_t pkg_parse_tmpkg(pkg_info_t *pkg_info,
+                                   const char *pkg_file_path);
+
+rcp_parse_status_t pkg_parse_ftmrcp(recipe_t *rcp, FILE *rcp_file);
+rcp_parse_status_t pkg_parse_tmrcp(recipe_t *rcp, const char *rcp_file_path);

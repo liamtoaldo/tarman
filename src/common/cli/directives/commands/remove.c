@@ -23,12 +23,7 @@
 #include "cli/input.h"
 #include "cli/output.h"
 #include "os/fs.h"
-
-static void safe_free(void *ptr) {
-  if (NULL != ptr) {
-    free(ptr);
-  }
-}
+#include "tm-mem.h"
 
 int cli_cmd_remove(cli_info_t info) {
   int ret = EXIT_FAILURE;
@@ -95,6 +90,6 @@ int cli_cmd_remove(cli_info_t info) {
   ret = EXIT_SUCCESS;
 
 cleanup:
-  safe_free(pkg_path);
+  mem_safe_free(pkg_path);
   return ret;
 }

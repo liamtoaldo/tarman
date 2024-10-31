@@ -33,18 +33,7 @@
 
 #include "os/fs.h"
 #include "os/posix/fs.h"
-
-#define TMASSERT(p, d) \
-  if (NULL == p) {     \
-    *d = NULL;         \
-    return 0;          \
-  }
-
-#define TMCLEANUP(p, d) \
-  if (NULL == p) {      \
-    *d = NULL;          \
-    goto cleanup;       \
-  }
+#include "tm-mem.h"
 
 typedef struct {
   char  *buf;
@@ -59,12 +48,6 @@ static tmstr_t Extract = {0};
 static const char *get_home_directory() {
   struct passwd *pw = getpwuid(getuid());
   return pw->pw_dir;
-}
-
-static void safe_free(void *ptr) {
-  if (ptr) {
-    free(ptr);
-  }
 }
 
 static fs_dirop_status_t simplify(fs_dirop_status_t s) {
@@ -145,7 +128,7 @@ fs_dirop_status_t posix_fs_dir_rm(const char *path) {
     case TM_FS_FILETYPE_DIR: {
       fs_dirop_status_t s = os_fs_dir_rm(full_path);
       if (TM_FS_DIROP_STATUS_OK != s) {
-        safe_free(full_path);
+        mem_safe_free(full_path);
         return s;
       }
       break;
@@ -155,13 +138,13 @@ fs_dirop_status_t posix_fs_dir_rm(const char *path) {
     case TM_FS_FILETYPE_EXEC:
     case TM_FS_FILETYPE_UNKNOWN:
       if (0 != unlink(full_path)) {
-        safe_free(full_path);
+        mem_safe_free(full_path);
         return TM_FS_DIROP_STATUS_ERR;
       }
       break;
     }
 
-    safe_free(full_path);
+    mem_safe_free(full_path);
   }
 
   status = os_fs_dir_close(dir);
@@ -397,10 +380,11 @@ size_t posix_fs_path_dyparent(char **dst, const char *path) {
   size_t buf_len = last_sep_idx + 1;
   char  *buf     = (char *)malloc(buf_len * sizeof(char));
 
-  if (NULL == buf) {
-    *dst = NULL;
-    return 0;
-  }
+  mem_chkoom(buf);
+  // if (NULL == buf) {
+  //   *dst = NULL;
+  //   return 0;
+  // }
 
   strncpy(buf, target_path, last_sep_idx);
   buf[last_sep_idx] = 0; // Add string terminator
@@ -411,7 +395,7 @@ size_t posix_fs_path_dyparent(char **dst, const char *path) {
 
 size_t posix_fs_tm_dyhome(char **dst) {
   char *tm_home = (char *)malloc((Home.len + 1) * sizeof(char));
-  TMASSERT(tm_home, dst);
+  mem_chkoom(tm_home);
   strcpy(tm_home, Home.buf);
   *dst = tm_home;
   return Home.len;
@@ -419,7 +403,7 @@ size_t posix_fs_tm_dyhome(char **dst) {
 
 size_t posix_fs_tm_dyrepos(char **dst) {
   char *tm_repos = (char *)malloc((Repos.len + 1) * sizeof(char));
-  TMASSERT(tm_repos, dst);
+  mem_chkoom(tm_repos);
   strcpy(tm_repos, Repos.buf);
   *dst = tm_repos;
   return Repos.len;
@@ -427,7 +411,7 @@ size_t posix_fs_tm_dyrepos(char **dst) {
 
 size_t posix_fs_tm_dypkgs(char **dst) {
   char *tm_pkgs = (char *)malloc((Pkgs.len + 1) * sizeof(char));
-  TMASSERT(tm_pkgs, dst);
+  mem_chkoom(tm_pkgs);
   strcpy(tm_pkgs, Pkgs.buf);
   *dst = tm_pkgs;
   return Pkgs.len;
@@ -435,7 +419,7 @@ size_t posix_fs_tm_dypkgs(char **dst) {
 
 size_t posix_fs_tm_dyextract(char **dst) {
   char *tm_extract = (char *)malloc((Extract.len + 1) * sizeof(char));
-  TMASSERT(tm_extract, dst);
+  mem_chkoom(tm_extract);
   strcpy(tm_extract, Extract.buf);
   *dst = tm_extract;
   return Extract.len;
@@ -444,7 +428,7 @@ size_t posix_fs_tm_dyextract(char **dst) {
 size_t posix_fs_tm_dyrepo(char **dst, const char *repo_name) {
   char  *tm_repo;
   size_t ret = os_fs_path_dyconcat(&tm_repo, 2, Repos.buf, repo_name);
-  TMASSERT(tm_repo, dst);
+  mem_chkoom(tm_repo);
   *dst = tm_repo;
   return ret;
 }
@@ -452,7 +436,7 @@ size_t posix_fs_tm_dyrepo(char **dst, const char *repo_name) {
 size_t posix_fs_tm_dypkg(char **dst, const char *pkg_name) {
   char  *tm_pkg;
   size_t ret = os_fs_path_dyconcat(&tm_pkg, 2, Pkgs.buf, pkg_name);
-  TMASSERT(tm_pkg, dst);
+  mem_chkoom(tm_pkg);
   *dst = tm_pkg;
   return ret;
 }
@@ -460,7 +444,7 @@ size_t posix_fs_tm_dypkg(char **dst, const char *pkg_name) {
 size_t posix_fs_tm_dycached(char **dst, const char *item_name) {
   char  *tm_cached;
   size_t ret = os_fs_path_dyconcat(&tm_cached, 2, Extract.buf, item_name);
-  TMASSERT(tm_cached, dst);
+  mem_chkoom(tm_cached);
   *dst = tm_cached;
   return ret;
 }
@@ -470,15 +454,13 @@ posix_fs_tm_dyrecepie(char **dst, const char *repo_name, const char *pkg_name) {
   size_t ret = 0;
 
   char *rec_name = (char *)malloc((strlen(pkg_name) + 1) * sizeof(char));
-  TMASSERT(rec_name, dst);
+  mem_chkoom(rec_name);
   sprintf(rec_name, "%s.tarman", pkg_name);
 
   char *tm_recepie;
   ret = os_fs_path_dyconcat(&tm_recepie, 3, Repos.buf, repo_name, rec_name);
-  TMCLEANUP(tm_recepie, dst);
 
-cleanup:
-  safe_free(rec_name);
+  mem_safe_free(rec_name);
   *dst = tm_recepie;
   return ret;
 }

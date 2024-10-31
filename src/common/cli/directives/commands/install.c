@@ -25,12 +25,7 @@
 #include "cli/output.h"
 #include "os/fs.h"
 #include "package.h"
-
-static void safe_free(void *ptr) {
-  if (NULL != ptr) {
-    free(ptr);
-  }
-}
+#include "tm-mem.h"
 
 static void override_if_set(const char **dst, const char *src) {
   if (NULL != src) {
@@ -100,6 +95,6 @@ int cli_cmd_install(cli_info_t info) {
   ret = EXIT_SUCCESS;
 
 cleanup:
-  safe_free(pkg_path);
+  mem_safe_free(pkg_path);
   return ret;
 }
