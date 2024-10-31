@@ -164,7 +164,7 @@ fs_dirop_status_t posix_fs_dir_rm(const char *path) {
     safe_free(full_path);
   }
 
-  status = posix_fs_dir_close(dir);
+  status = os_fs_dir_close(dir);
   if (TM_FS_DIROP_STATUS_OK != status) {
     return status;
   }
