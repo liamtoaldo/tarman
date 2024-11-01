@@ -201,7 +201,7 @@ static bool generic_parse(FILE             *stream,
                           generic_status_t *status) {
   char *line_buffer;
 
-  while (0 != stream_readline(stream, &line_buffer)) {
+  while (0 != stream_dyreadline(stream, &line_buffer)) {
     const char *key   = NULL;
     const char *value = NULL;
 

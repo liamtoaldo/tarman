@@ -129,7 +129,7 @@ void cli_in_str(const char *msg, char *buf, size_t len) {
 size_t cli_in_dystr(const char *msg, char **dst) {
   cli_out_newline();
   cli_out_prompt("%s:", msg);
-  size_t ret = stream_readline(stdin, dst);
+  size_t ret = stream_dyreadline(stdin, dst);
   clear_input_stream();
   return ret;
 }

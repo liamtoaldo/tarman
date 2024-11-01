@@ -20,4 +20,4 @@
 
 #include <stdio.h>
 
-size_t stream_readline(FILE *stream, char **dst);
+size_t stream_dyreadline(FILE *stream, char **dst);

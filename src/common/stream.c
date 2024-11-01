@@ -23,7 +23,7 @@
 #include "stream.h"
 #include "tm-mem.h"
 
-size_t stream_readline(FILE *stream, char **dst) {
+size_t stream_dyreadline(FILE *stream, char **dst) {
   size_t len = 256;
   char  *buf = (char *)malloc(len * sizeof(char));
   size_t i   = 0;
