@@ -44,6 +44,7 @@ typedef struct {
 typedef struct {
   recipe_t    recepie;
   const char *pkg_name;
+  bool        is_remote;
 } rt_recipe_t;
 
 typedef enum {
