@@ -25,11 +25,12 @@ Following is an example of a plugin that writes "Hello, world!" to the destinati
 int tarman_plugin(const char *src, const char *dst, const char *cfg) {
     FILE *fp = fopen(dst, "w");
 
-    if (NULL == FP) {
+    if (NULL == fp) {
         return EXIT_FAILURE;
     }
 
     fprintf(fp, "Hello, world!\n");
+    fclose(fp);
 
     return EXIT_SUCCESS;
 }
