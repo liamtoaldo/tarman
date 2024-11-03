@@ -15,14 +15,27 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 CC=gcc
-CFLAGS=-O0 -std=c2x -Iinclude/ -DEXT_TARMAN_BUILD="\"$(shell date +%y.%m.%d)\""
-BIN=bin
-EXEC=$(BIN)/tarman
+CFLAGS=-std=c2x -Iinclude/ -DEXT_TARMAN_BUILD="\"$(shell date +%y.%m.%d)\""
+LDFLAGS=
+
+DEBUG_CFLAGS=-O0 -fsanitize=undefined -fsanitize=address -g
+DEBUG_LDFLAGS=
+RELEASE_CLFAGS=-O3
+RELEASE_LDFLAGS=-flto
+
+CUSTOM_CFLAGS?=
+CUSTOM_LDFLAGS?=
+
 TARMAN_OS?=$(shell uname -s | tr A-Z a-z)
 CFLAGS+=-Iinclude/os/$(TARMAN_OS)
+CFLAGS+=$(CUSTOM_CFLAGS)
+LDFLAGS+=$(CUSTOM_LDFLAGS)
+
+BIN=bin
+EXEC=$(BIN)/tarman
 
 ifeq ($(OS),Windows_NT)
-	TARMAN_OS=windows
+	TARMAN_OS=window
 	EXEC+=.exe
 endif
 
@@ -34,22 +47,33 @@ include src/os-specific/$(TARMAN_OS)/Makefile
 
 OBJ=$(patsubst src/%.c,obj/%.o, $(SRC))
 
+.PHONEY: debug
+debug:
+	@echo =========== COMPILING IN DEBUG MODE ===========
+	@make all CUSTOM_CFLAGS="$(DEBUG_CFLAGS)" "CUSTOM_LDFLAGS=$(DEBUG_LDFLAGS)"
+
+.PHONEY: release
+release:
+	@echo =========== COMPILING IN DEBUG MODE ===========
+	@make CUSTOM_CFLAGS=$(RELEASE_CLFAGS) CUSTOM_LDFLAGS=$(RELEASE_LDFLAGS) all
+
 .PHONEY: all
 all: info obj $(OBJ) $(EXEC)
-	@echo Finished!
-
-.PHONEY: tarman
-tarman: $(EXEC)
+	@echo
+	@echo All done!
 
 info:
 	@echo Compiling for $(TARMAN_OS)
+	@echo
 
 $(EXEC): obj $(OBJ)
-	$(CC) -flto $(OBJ) -o $(EXEC)
+	@echo
+	$(CC) $(LDFLAGS) $(CFLAGS) $(OBJ) -o $(EXEC)
 
 obj/%.o: src/%.c
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -flto -c $^ -o $@
+	$(CC) $(CFLAGS) -c $^ -o $@
+	@echo
 
 lib/%.o: src/%.c
 	@mkdir -p $(@D)
