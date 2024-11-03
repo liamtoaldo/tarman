@@ -34,6 +34,9 @@ LDFLAGS+=$(CUSTOM_LDFLAGS)
 BIN=bin
 EXEC=$(BIN)/tarman
 
+PLUGINS=$(wildcard plugins/*)
+PLUGIN_MAKEFILES=$(foreach dir,$(PLUGINS),$(wildcard $(dir)/Makefile))
+
 ifeq ($(OS),Windows_NT)
 	TARMAN_OS=window
 	EXEC+=.exe
@@ -47,42 +50,44 @@ include src/os-specific/$(TARMAN_OS)/Makefile
 
 OBJ=$(patsubst src/%.c,obj/%.o, $(SRC))
 
-.PHONEY: debug
 debug:
 	@echo =========== COMPILING IN DEBUG MODE ===========
 	@make all CUSTOM_CFLAGS="$(DEBUG_CFLAGS)" "CUSTOM_LDFLAGS=$(DEBUG_LDFLAGS)"
 
-.PHONEY: release
 release:
 	@echo =========== COMPILING IN DEBUG MODE ===========
 	@make CUSTOM_CFLAGS=$(RELEASE_CLFAGS) CUSTOM_LDFLAGS=$(RELEASE_LDFLAGS) all
 
-.PHONEY: all
-all: info obj $(OBJ) $(EXEC)
+all: info obj $(OBJ) $(EXEC) plugins
 	@echo
 	@echo All done!
+
+plugins: $(PLUGIN_MAKEFILES)
 
 info:
 	@echo Compiling for $(TARMAN_OS)
 	@echo
 
 $(EXEC): obj $(OBJ)
-	@echo
 	$(CC) $(LDFLAGS) $(CFLAGS) $(OBJ) -o $(EXEC)
+	@echo
 
 obj/%.o: src/%.c
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $^ -o $@
 	@echo
 
-lib/%.o: src/%.c
-	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -fPIC -g -w -c $^ -o $@
+$(PLUGIN_MAKEFILES): force
+	@echo Compiling plugin "'$(@D)'"
+	@$(MAKE) -C $(@D) DIST="../../$(BIN)/plugins" CC=$(CC) SDK="../../src/plugin-sdk.c" > /dev/null
+
+force: ;
 
 obj:
 	@mkdir -p obj/
 	@mkdir -p $(BIN)
 	@mkdir -p lib/
+	@mkdir -p $(BIN)/plugins
 
 clean:
 	rm -rf obj/; \
