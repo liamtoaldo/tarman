@@ -22,18 +22,20 @@
 #include <string.h>
 
 #include "archive.h"
+#include "tm-mem.h"
 
 bool archive_tar_extract(const char *dst, const char *src) {
-  size_t dst_len = strlen(dst);
-  size_t src_len = strlen(src);
-  size_t cmd_len = dst_len + src_len + strlen("tar -xf -C ") + 1;
+  const char *tar_cmd = "tar -xf";
+  const char *tar_opt = "-C";
+  size_t      dst_len = strlen(dst);
+  size_t      src_len = strlen(src);
+  size_t      cmd_len =
+      dst_len + src_len + strlen(tar_cmd) + strlen(tar_opt) + 3 + 1;
 
   char *command = (char *)malloc(cmd_len);
-  if (NULL == command) {
-    return false;
-  }
+  mem_chkoom(command);
 
-  sprintf(command, "tar -xf %s -C %s", src, dst);
+  sprintf(command, "%s %s %s %s", tar_cmd, src, tar_opt, dst);
   int ecode = system(command);
   free(command);
   return !ecode;
