@@ -87,7 +87,7 @@ static char *load_config_file(rt_recipe_t *recipe, char *pkg_path) {
 
   switch (status) {
   case TM_PKG_PARSE_STATUS_NOFILE:
-    cli_out_warning("Package configuration '%s' file does not exist",
+    cli_out_warning("Package configuration file '%s' does not exist",
                     tmpkg_file_path);
     return tmpkg_file_path;
 
