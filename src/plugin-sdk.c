@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
 
   fclose(stdin);
   fclose(stdout);
+  fclose(stderr);
 
   const char *src_file = argv[1];
   const char *dst_path = argv[2];
