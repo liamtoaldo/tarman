@@ -15,7 +15,7 @@ Plugins are launched by tarman with three command-line arguments in this order:
 Plugins are expected to return an integer exit code equal to the system's `EXIT_SUCCESS` upon successful completion and equal to the system's `EXIT_FAILURE` otherwise. Plugins are expected not to perform any I/O operation outside interacting with the configuration file and the subjects of the transformation. In particular, plugins are expected not to read from `stdin` or write to `stdout` and `stderr`. 
 
 ### Writing a plugin
-A basic SDK/launcher is provided in the tarman source tree at [src/plugin-sdk.c](). This launcher expects to be linked with one or more other files (wether source files, object files, static library archives, etc.) that provide an implementation of the `tarman_plugin` symbol that takes three `char` pointers as arguments and returns an integer type.
+A basic SDK/launcher is provided in the tarman source tree at [src/plugin-sdk.c](../src/plugin-sdk.c). This launcher expects to be linked with one or more other files (wether source files, object files, static library archives, etc.) that provide a definition for the `tarman_plugin` symbol that takes three `char` pointers as arguments and returns an integer value.
 
 Following is an example of a plugin that writes "Hello, world!" to the destination file:
 ```c
@@ -37,7 +37,7 @@ int tarman_plugin(const char *src, const char *dst, const char *cfg) {
 ```
 
 ### Binary names
-The name of the binary for a tarman plugin is **EXTREMELY** important. The following names are reserved for special features (OS-specific file extensions excluded):
+The name of the binary for a tarman plugin is **EXTREMELY** important. The following names are reserved for special features (OS-specific file extensions are excluded):
 
 | Name              | Description                                  | Source | Destination                          |
 | ----------------- | -------------------------------------------- | ------ | ------------------------------------ |
@@ -48,7 +48,7 @@ Plugins with reserved names **CAN** be overriden. In fact, the reserved name is 
 Plugins that do not match any reserved name are invoked if they match the file extension of a package to be installed. For example, a plugin with a binary names `zip` will be used to extract packages that use the `.zip` format.
 
 ### Structure of the `plugin/` directory
-The [plugin/]() directory contains the source code for all built-in tarman plugins. Built-in plugins are provided to users directly upon installation depending on their platofrm.
+The [plugins/](../plugin/) directory contains the source code for all built-in tarman plugins. Built-in plugins are provided to users directly upon installation depending on their platofrm.
 
 This directory contains one subdirectory for each built-in plugin. Each subdirectory is independent and can be strucutred as desired by the developers as long as it caontains a `Makefile` with a valid first target that can be invoked by the main `Makefile` when compiling the entire project. Plugin Makefiles can be as simple as:
 ```Makefile
