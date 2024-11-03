@@ -37,5 +37,5 @@ int tarman_plugin(const char *src, const char *dst, const char *cfg) {
   sprintf(command, "%s %s %s %s", tar_cmd, src, tar_opt, dst);
   int ecode = system(command);
   free(command);
-  return !ecode;
+  return ecode;
 }
