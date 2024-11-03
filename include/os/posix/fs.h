@@ -46,4 +46,7 @@ size_t posix_fs_tm_dypkg(char **dst, const char *pkg_name);
 size_t posix_fs_tm_dycached(char **dst, const char *item_name);
 size_t
 posix_fs_tm_dyrecepie(char **dst, const char *repo_name, const char *pkg_name);
-bool posix_fs_tm_init();
+size_t posix_fs_tm_dyplugins(const char **dst);
+size_t posix_fs_tm_dyplugin(const char **dst, const char *plugin);
+size_t posix_fs_tm_dyplugconf(const char **dst, const char *plugin);
+bool   posix_fs_tm_init();

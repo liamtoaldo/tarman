@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "archive.h"
 #include "cli/directives/commands.h"
@@ -28,29 +29,47 @@
 #include "package.h"
 #include "tm-mem.h"
 
-static void override_if_src_set(const char **dst, const char *src) {
+static bool override_if_src_set(const char **dst, const char *src, bool copy) {
   if (NULL != src && 0 != src[0]) {
+    if (copy) {
+      char *buf = (char *)malloc(strlen(src) + 1);
+      mem_chkoom(buf);
+      strcpy(buf, src);
+      *dst = buf;
+      return true;
+    }
+
     *dst = src;
+    return true;
   }
+
+  return false;
 }
 
 static void override_if_dst_unset(const char **dst, const char *src) {
   if (NULL == *dst || 0 == *dst[0]) {
-    override_if_src_set(dst, src);
+    const char *back = *dst;
+
+    if (override_if_src_set(dst, src, false)) {
+      mem_safe_free(back);
+    }
   }
 }
 
 static void override_recipe(rt_recipe_t *recipe, cli_info_t cli_info) {
-  override_if_src_set(&recipe->pkg_name, cli_info.pkg_name);
-  override_if_src_set(&recipe->recepie.pkg_info.application_name,
-                      cli_info.app_name);
-  override_if_src_set(&recipe->recepie.pkg_info.executable_path,
-                      cli_info.exec_path);
-  override_if_src_set(&recipe->recepie.pkg_info.working_directory,
-                      cli_info.working_dir);
-  override_if_src_set(&recipe->recepie.pkg_info.icon_path, cli_info.icon_path);
+  override_if_src_set(&recipe->pkg_name, cli_info.pkg_name, true);
+  override_if_src_set(
+      &recipe->recepie.pkg_info.application_name, cli_info.app_name, true);
+  override_if_src_set(
+      &recipe->recepie.pkg_info.executable_path, cli_info.exec_path, true);
+  override_if_src_set(
+      &recipe->recepie.pkg_info.working_directory, cli_info.working_dir, true);
+  override_if_src_set(
+      &recipe->recepie.pkg_info.icon_path, cli_info.icon_path, true);
 
-  // Add override for PATH and DESKTOP
+  recipe->recepie.add_to_path    = cli_info.add_path;
+  recipe->recepie.add_to_desktop = cli_info.add_desktop;
+  recipe->recepie.add_to_tarman  = cli_info.add_tarman;
 }
 
 static char *load_config_file(rt_recipe_t *recipe, char *pkg_path) {
@@ -127,8 +146,9 @@ int cli_cmd_install(cli_info_t info) {
 
   // Variables to be cleaned up
   // Declartion is here to avoid issues with goto
-  char *pkg_path        = NULL;
-  char *tmpkg_file_path = NULL;
+  char       *pkg_path        = NULL;
+  char       *tmpkg_file_path = NULL;
+  const char *archive_path    = NULL;
 
   cli_out_progress("Initializing host file system");
 
@@ -146,9 +166,21 @@ int cli_cmd_install(cli_info_t info) {
 
   // Check if -U is set and do stuff
 
+  if (NULL == archive_path) {
+    // Contents of cli_info_t are not heap-allocated
+    // However, archive_path and others may be overriden using heap-allocated
+    // strings as such, they would have to be freed. If free is called on a
+    // pointer outside the heap it leads to undefined behaviour. As such, all
+    // non-heap things are copied
+    override_if_src_set(&archive_path, info.input, true);
+  }
+
   override_recipe(&recipe, info);
 
-  const char *archive_path = info.input;
+  if (NULL == recipe.pkg_name) {
+    cli_in_dystr("Enter package name", (char **)&recipe.pkg_name);
+  }
+
   os_fs_tm_dypkg(&pkg_path, recipe.pkg_name);
 
   cli_out_progress("Creating package in '%s'", pkg_path);
@@ -159,8 +191,9 @@ int cli_cmd_install(cli_info_t info) {
 
   cli_out_progress("Extracting archive '%s' to '%s'", archive_path, pkg_path);
 
-  if (!archive_tar_extract(pkg_path, archive_path)) {
-    cli_out_error("Unable to extract archive");
+  if (!archive_extract(pkg_path, archive_path, NULL)) {
+    cli_out_error("Unable to extract archive. You may be missing the plugin "
+                  "for this archive type");
     goto cleanup;
   }
 
@@ -174,7 +207,15 @@ int cli_cmd_install(cli_info_t info) {
   ret = EXIT_SUCCESS;
 
 cleanup:
+  mem_safe_free(archive_path);
   mem_safe_free(pkg_path);
   mem_safe_free(tmpkg_file_path);
+  mem_safe_free(recipe.pkg_name);
+  mem_safe_free(recipe.recepie.pkg_info.url);
+  mem_safe_free(recipe.recepie.pkg_info.from_repoistory);
+  mem_safe_free(recipe.recepie.pkg_info.executable_path);
+  mem_safe_free(recipe.recepie.pkg_info.application_name);
+  mem_safe_free(recipe.recepie.pkg_info.working_directory);
+  mem_safe_free(recipe.recepie.pkg_info.icon_path);
   return ret;
 }

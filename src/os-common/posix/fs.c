@@ -40,10 +40,12 @@ typedef struct {
   size_t len;
 } tmstr_t;
 
-static tmstr_t Home    = {0};
-static tmstr_t Repos   = {0};
-static tmstr_t Pkgs    = {0};
-static tmstr_t Extract = {0};
+static tmstr_t Home       = {0};
+static tmstr_t Repos      = {0};
+static tmstr_t Pkgs       = {0};
+static tmstr_t Extract    = {0};
+static tmstr_t Plugins    = {0};
+static tmstr_t PluginConf = {0};
 
 static const char *get_home_directory() {
   struct passwd *pw = getpwuid(getuid());
@@ -453,7 +455,8 @@ size_t
 posix_fs_tm_dyrecepie(char **dst, const char *repo_name, const char *pkg_name) {
   size_t ret = 0;
 
-  char *rec_name = (char *)malloc((strlen(pkg_name) + 1) * sizeof(char));
+  char *rec_name =
+      (char *)malloc((strlen(pkg_name) + strlen(".tarman") + 1) * sizeof(char));
   mem_chkoom(rec_name);
   sprintf(rec_name, "%s.tarman", pkg_name);
 
@@ -465,6 +468,38 @@ posix_fs_tm_dyrecepie(char **dst, const char *repo_name, const char *pkg_name) {
   return ret;
 }
 
+size_t posix_fs_tm_dyplugins(const char **dst) {
+  char *tm_plugins = (char *)malloc((Plugins.len + 1) * sizeof(char));
+  mem_chkoom(tm_plugins);
+  strcpy(tm_plugins, Plugins.buf);
+  *dst = tm_plugins;
+  return Plugins.len;
+}
+
+size_t posix_fs_tm_dyplugin(const char **dst, const char *plugin) {
+  char  *tm_plugin;
+  size_t ret = os_fs_path_dyconcat(&tm_plugin, 2, Plugins.buf, plugin);
+  mem_chkoom(tm_plugin);
+  *dst = tm_plugin;
+  return ret;
+}
+
+size_t posix_fs_tm_dyplugconf(const char **dst, const char *plugin) {
+  size_t ret = 0;
+
+  char *conf_name =
+      (char *)malloc((strlen(plugin) + strlen(".txt") + 1) * sizeof(char));
+  mem_chkoom(conf_name);
+  sprintf(conf_name, "%s.txt", plugin);
+
+  char *tm_plugconf;
+  ret = os_fs_path_dyconcat(&tm_plugconf, 2, PluginConf.buf, conf_name);
+
+  mem_safe_free(conf_name);
+  *dst = tm_plugconf;
+  return ret;
+}
+
 bool posix_fs_tm_init() {
   const char *usr_home = get_home_directory();
 
@@ -472,16 +507,22 @@ bool posix_fs_tm_init() {
   Repos.len   = os_fs_path_dyconcat(&Repos.buf, 3, usr_home, "tarman", "repos");
   Pkgs.len    = os_fs_path_dyconcat(&Pkgs.buf, 3, usr_home, "tarman", "pkgs");
   Extract.len = os_fs_path_dyconcat(&Extract.buf, 3, usr_home, "tarman", "tmp");
+  Plugins.len =
+      os_fs_path_dyconcat(&Plugins.buf, 3, usr_home, "tarman", "plugins");
+  PluginConf.len =
+      os_fs_path_dyconcat(&PluginConf.buf, 3, usr_home, "tarman", "conf");
 
   if (NULL == Home.buf || NULL == Repos.buf || NULL == Pkgs.buf ||
-      NULL == Extract.buf) {
+      NULL == Extract.buf || NULL == Plugins.buf || NULL == PluginConf.buf) {
     return false;
   }
 
   if (TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(Home.buf)) ||
       TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(Repos.buf)) ||
       TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(Pkgs.buf)) ||
-      TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(Extract.buf))) {
+      TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(Extract.buf)) ||
+      TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(Plugins.buf)) ||
+      TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(PluginConf.buf))) {
     return false;
   }
 

@@ -38,6 +38,7 @@ typedef struct {
   pkg_info_t pkg_info;
   bool       add_to_path;
   bool       add_to_desktop;
+  bool       add_to_tarman;
 } recipe_t;
 
 // "Runtime" recepie

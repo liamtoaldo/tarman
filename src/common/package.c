@@ -142,12 +142,15 @@ static bool rcp_translator(const char         *key,
 
   const char *add_to_path    = NULL;
   const char *add_to_desktop = NULL;
+  const char *add_to_tarman  = NULL;
 
   prop_match_t match = eval_matches(
-      2,
+      3,
       set_property("ADD_TO_PATH", key, value, &add_to_path, 2, "true", "false"),
       set_property(
-          "ADD_TO_DESKTOP", key, value, &add_to_desktop, 2, "true", "false"));
+          "ADD_TO_DESKTOP", key, value, &add_to_desktop, 2, "true", "false"),
+      set_property(
+          "ADD_TO_TARMAN", key, value, &add_to_tarman, 2, "true", "false"));
 
   if (PROP_MATCH_ERR == match) {
     *status = TM_RCP_PARSE_STATUS_INVVAL;
@@ -162,6 +165,11 @@ static bool rcp_translator(const char         *key,
   if (NULL != add_to_desktop && 0 == strcmp(add_to_desktop, "true")) {
     mem_safe_free(add_to_desktop);
     rcp->add_to_desktop = true;
+  }
+
+  if (NULL != add_to_tarman && 0 == strcmp(add_to_tarman, "true")) {
+    mem_safe_free(add_to_tarman);
+    rcp->add_to_tarman = true;
   }
 
   *status = TM_RCP_PARSE_STATUS_OK;

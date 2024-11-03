@@ -21,4 +21,4 @@
 #include <stdbool.h>
 
 bool archive_tar_extract(const char *dst, const char *src);
-bool archive_zip_extract(const char *dst, const char *src);
+bool archive_extract(const char *dst, const char *src, const char *file_type);

@@ -18,34 +18,47 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "stream.h"
+#include "os/fs.h"
+#include "plugin/plugin.h"
 #include "tm-mem.h"
 
-size_t stream_dyreadline(FILE *stream, char **dst) {
-  size_t len = 256;
-  char  *buf = (char *)malloc(len * sizeof(char));
-  size_t i   = 0;
-  char   ch  = 0;
+#define LQUOTE 1
+#define RQUOTE 1
+#define SPACE  1
 
-  mem_chkoom(buf);
+bool plugin_exists(const char *plugin) {
+  const char *plugin_path = NULL;
+  os_fs_tm_dyplugin(&plugin_path, plugin);
 
-  while (EOF != (ch = fgetc(stream)) && '\n' != ch) {
-    if ('\r' == ch) {
-      continue;
-    }
+  fs_filetype_t      ftype;
+  fs_fileop_status_t op_status = os_fs_file_gettype(&ftype, plugin_path);
 
-    if (len - 1 == i) {
-      len *= 2;
-      buf = realloc(buf, len * sizeof(char));
-      mem_chkoom(buf);
-    }
+  mem_safe_free(plugin_path);
+  return TM_FS_FILETYPE_EXEC == ftype && TM_FS_FILEOP_STATUS_OK == op_status;
+}
 
-    buf[i] = ch;
-    i++;
-  }
+int plugin_run(const char *plugin, const char *dst, const char *src) {
+  const char *plugin_path       = NULL;
+  const char *plugconf_path     = NULL;
+  size_t      plugin_path_len   = os_fs_tm_dyplugin(&plugin_path, plugin);
+  size_t      plugconf_path_len = os_fs_tm_dyplugconf(&plugconf_path, plugin);
 
-  buf[i] = 0;
-  *dst   = buf;
-  return i;
+  size_t cmd_len = plugin_path_len + SPACE + LQUOTE + strlen(src) + RQUOTE +
+                   SPACE + LQUOTE + strlen(dst) + RQUOTE + SPACE + LQUOTE +
+                   plugconf_path_len + RQUOTE + 1;
+
+  char *command = (char *)malloc(cmd_len * sizeof(char));
+  mem_chkoom(command);
+
+  sprintf(
+      command, "%s \"%s\" \"%s\" \"%s\"", plugin_path, src, dst, plugconf_path);
+
+  int ret = system(command);
+
+  mem_safe_free(plugin_path);
+  mem_safe_free(plugconf_path);
+  mem_safe_free(command);
+  return ret;
 }

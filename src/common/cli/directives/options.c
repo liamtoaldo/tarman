@@ -93,3 +93,8 @@ bool cli_opt_add_desktop(cli_info_t *info, const char *next) {
   info->add_desktop = true;
   return true;
 }
+
+bool cli_opt_add_tarman(cli_info_t *info, const char *next) {
+  info->add_tarman = true;
+  return true;
+}

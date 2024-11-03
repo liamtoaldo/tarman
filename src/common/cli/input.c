@@ -130,6 +130,6 @@ size_t cli_in_dystr(const char *msg, char **dst) {
   cli_out_newline();
   cli_out_prompt("%s:", msg);
   size_t ret = stream_dyreadline(stdin, dst);
-  clear_input_stream();
+  cli_out_newline();
   return ret;
 }

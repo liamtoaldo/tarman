@@ -143,6 +143,18 @@ os_fs_tm_dyrecepie(char **dst, const char *repo_name, const char *pkg_name) {
   return posix_fs_tm_dyrecepie(dst, repo_name, pkg_name);
 }
 
+size_t os_fs_tm_dyplugins(const char **dst) {
+  return posix_fs_tm_dyplugins(dst);
+}
+
+size_t os_fs_tm_dyplugin(const char **dst, const char *plugin) {
+  return posix_fs_tm_dyplugin(dst, plugin);
+}
+
+size_t os_fs_tm_dyplugconf(const char **dst, const char *plugin) {
+  return posix_fs_tm_dyplugconf(dst, plugin);
+}
+
 bool os_fs_tm_init() {
   return posix_fs_tm_init();
 }
