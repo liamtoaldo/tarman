@@ -503,14 +503,15 @@ size_t posix_fs_tm_dyplugconf(const char **dst, const char *plugin) {
 bool posix_fs_tm_init() {
   const char *usr_home = get_home_directory();
 
-  Home.len    = os_fs_path_dyconcat(&Home.buf, 2, usr_home, "tarman");
-  Repos.len   = os_fs_path_dyconcat(&Repos.buf, 3, usr_home, "tarman", "repos");
-  Pkgs.len    = os_fs_path_dyconcat(&Pkgs.buf, 3, usr_home, "tarman", "pkgs");
-  Extract.len = os_fs_path_dyconcat(&Extract.buf, 3, usr_home, "tarman", "tmp");
+  Home.len  = os_fs_path_dyconcat(&Home.buf, 2, usr_home, ".tarman");
+  Repos.len = os_fs_path_dyconcat(&Repos.buf, 3, usr_home, ".tarman", "repos");
+  Pkgs.len  = os_fs_path_dyconcat(&Pkgs.buf, 3, usr_home, ".tarman", "pkgs");
+  Extract.len =
+      os_fs_path_dyconcat(&Extract.buf, 3, usr_home, ".tarman", "tmp");
   Plugins.len =
-      os_fs_path_dyconcat(&Plugins.buf, 3, usr_home, "tarman", "plugins");
+      os_fs_path_dyconcat(&Plugins.buf, 3, usr_home, ".tarman", "plugins");
   PluginConf.len =
-      os_fs_path_dyconcat(&PluginConf.buf, 3, usr_home, "tarman", "conf");
+      os_fs_path_dyconcat(&PluginConf.buf, 3, usr_home, ".tarman", "conf");
 
   if (NULL == Home.buf || NULL == Repos.buf || NULL == Pkgs.buf ||
       NULL == Extract.buf || NULL == Plugins.buf || NULL == PluginConf.buf) {

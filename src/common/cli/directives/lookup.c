@@ -151,12 +151,12 @@ static cli_drt_desc_t options[] = {
      NULL,
      "Add package as `.desktop` application during installation"},
 
-    {TARMAN_SOPT_ADD_DESKTOP,
-     TARMAN_FOPT_ADD_DESKTOP,
-     cli_opt_add_desktop,
+    {TARMAN_SOPT_ADD_TARMAN,
+     TARMAN_FOPT_ADD_TARMAN,
+     cli_opt_add_tarman,
      false,
      NULL,
-     "Add package as `.desktop` application during installation"},
+     "Add package to tarman plugins"},
 };
 
 static bool find_desc(cli_drt_desc_t  descriptors[],
