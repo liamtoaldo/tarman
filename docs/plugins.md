@@ -48,7 +48,7 @@ Plugins with reserved names **CAN** be overriden. In fact, the reserved name is 
 Plugins that do not match any reserved name are invoked if they match the file extension of a package to be installed. For example, a plugin with a binary names `zip` will be used to extract packages that use the `.zip` format.
 
 ### Structure of the `plugin/` directory
-The [plugins/](../plugin/) directory contains the source code for all built-in tarman plugins. Built-in plugins are provided to users directly upon installation depending on their platofrm.
+The [plugins/](../plugins/) directory contains the source code for all built-in tarman plugins. Built-in plugins are provided to users directly upon installation depending on their platofrm.
 
 This directory contains one subdirectory for each built-in plugin. Each subdirectory is independent and can be strucutred as desired by the developers as long as it caontains a `Makefile` with a valid first target that can be invoked by the main `Makefile` when compiling the entire project. Plugin Makefiles can be as simple as:
 ```Makefile
