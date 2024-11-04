@@ -44,6 +44,9 @@ static prop_match_t set_property(const char  *prop,
                                  const char **target,
                                  size_t       num_args,
                                  ...) {
+  // Declared here for backwards compatibility
+  char *value_cpy = NULL;
+
   if (0 != strcmp(prop, key)) {
     return PROP_MATCH_FALSE;
   }
@@ -72,7 +75,7 @@ fail:
   return PROP_MATCH_ERR;
 
 success:
-  char *value_cpy = (char *)malloc((strlen(value) + 1) * sizeof(char));
+  value_cpy = (char *)malloc((strlen(value) + 1) * sizeof(char));
   mem_chkoom(value_cpy);
   strcpy(value_cpy, value);
   *target = value_cpy;
