@@ -2,7 +2,11 @@
 Tarman is designed to be easily portable to any Operating System that supports basic userspace functionality.
 
 ## Requirements
-                      |
+| Type      | Requirement                   | Details                                                                                |
+| --------- | ----------------------------- | -------------------------------------------------------------------------------------- |
+| Mandatory | `libc` port                   | Must support all `libc` features used in the source code                               |
+| Mandatory | Disk file system support      | Must implement all functions in [include/os/fs.h](../include/os/fs.h)                  |
+| Mandatory | Spawning processes            | Must support the `system` interface from `stdlib.h`                                    |
 | Mandatory | Environment variables         | Must implement all functions in [include/os/env.h]                                     |
 | Optional  | Querying the console/terminal | Shall implement `os_console_get_sz` in [include/os/console.h](../include/os/console.h) |
 | Optional  | Changing console text color   | Shall implement all functions in [include/os/console.h](../include/os/console.h)       |
