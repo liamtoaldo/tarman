@@ -16,39 +16,60 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+// MUST BE HERE
+#include <tm-os-defs.h>
 
-#include "os/exec.h"
-#include "os/fs.h"
-#include "plugin/plugin.h"
+// Other includes
+#include <stdarg.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+#include "os/posix/exec.h"
 #include "tm-mem.h"
 
-#define LQUOTE 1
-#define RQUOTE 1
-#define SPACE  1
-
-bool plugin_exists(const char *plugin) {
-  const char *plugin_path = NULL;
-  os_fs_tm_dyplugin(&plugin_path, plugin);
-
-  fs_filetype_t      ftype;
-  fs_fileop_status_t op_status = os_fs_file_gettype(&ftype, plugin_path);
-
-  mem_safe_free(plugin_path);
-  return TM_FS_FILETYPE_EXEC == ftype && TM_FS_FILEOP_STATUS_OK == op_status;
+static size_t count_args(va_list args) {
+  va_list copy;
+  va_copy(copy, args);
+  size_t count = 0;
+  for (; NULL != va_arg(copy, char *); count++)
+    ;
+  va_end(copy);
+  return count + 1 + 1; // Add 1 for NULL and for the program
 }
 
-int plugin_run(const char *plugin, const char *dst, const char *src) {
-  const char *plugin_path   = NULL;
-  const char *plugconf_path = NULL;
-  os_fs_tm_dyplugin(&plugin_path, plugin);
-  os_fs_tm_dyplugconf(&plugconf_path, plugin);
+int posix_vexec(const char *executable, va_list args) {
+  size_t       arg_count = count_args(args);
+  const char **argv      = (const char **)malloc(arg_count * sizeof(char *));
+  mem_chkoom(argv);
 
-  int ret = os_exec(plugin_path, src, dst, plugconf_path, NULL);
+  argv[0] = executable;
+  for (size_t i = 1; i < arg_count; i++) {
+    char *arg = va_arg(args, char *);
+    argv[i]   = arg;
+  }
 
-  mem_safe_free(plugin_path);
-  mem_safe_free(plugconf_path);
+  pid_t pid = fork();
+
+  if (0 > pid) {
+    return EXIT_FAILURE;
+  }
+
+  // When fork gets here it means
+  // that this is the child process
+  if (0 == pid) {
+    return execvp(executable, (char **)argv);
+  }
+
+  int status;
+  int ret = EXIT_FAILURE;
+  waitpid(pid, &status, 0);
+
+  if (WIFEXITED(status)) {
+    ret = WEXITSTATUS(status);
+  }
+
+  mem_safe_free(argv);
   return ret;
 }

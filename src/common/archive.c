@@ -23,8 +23,8 @@
 #include <string.h>
 
 #include "archive.h"
+#include "os/exec.h"
 #include "plugin/plugin.h"
-#include "tm-mem.h"
 
 typedef bool (*extract_handler_t)(const char *dst, const char *src);
 
@@ -49,20 +49,7 @@ extcmp(const char *src, const char *ft, size_t src_tail, size_t ft_tail) {
 }
 
 bool archive_tar_extract(const char *dst, const char *src) {
-  const char *tar_cmd = "tar -xf";
-  const char *tar_opt = "-C";
-  size_t      dst_len = strlen(dst);
-  size_t      src_len = strlen(src);
-  size_t      cmd_len =
-      dst_len + src_len + strlen(tar_cmd) + strlen(tar_opt) + 3 + 1;
-
-  char *command = (char *)malloc(cmd_len);
-  mem_chkoom(command);
-
-  sprintf(command, "%s %s %s %s", tar_cmd, src, tar_opt, dst);
-  int ecode = system(command);
-  free(command);
-  return EXIT_SUCCESS == ecode;
+  return EXIT_SUCCESS == os_exec("tar", "-xf", src, "-C", dst, NULL);
 }
 
 bool archive_extract(const char *dst, const char *src, const char *file_type) {

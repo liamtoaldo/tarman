@@ -17,11 +17,11 @@
 *************************************************************************/
 
 // MUST BE HERE
-#include <stdio.h>
 #include <tm-os-defs.h>
 
 // General includes
 #include <fcntl.h>
+#include <stdio.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
