@@ -12,6 +12,9 @@ Tarman is designed to be easily portable to any Operating System that supports b
 | Optional  | Changing console text color   | Shall implement all functions in [include/os/console.h](../include/os/console.h)       |
 | Optional  | Network support               | Shall provide a plugin `download-plugin` that can download files from a URL            |
 
+> [!IMPORTANT]
+> Optional requirements for symbol definitions may still have to be implemented. This is to avoid linking issues with undefined symbols. Empty definitions for optional functions are provided in [src/os-common/no-optional](../src/os-common/no-optional).
+
 ## Providing concrete implementations
 To port tarman to another OS, as detailed in the previous section, implementations must be provided for a range of tarman interface functions. Generally, implementations should be provided for all functions under the [include/os](../include/os/) directory (**sudirectories excluded**).
 
@@ -56,4 +59,14 @@ A Makefile must be provided in `src/os-specific/$TARMAN_OS/Makefile`. This file 
 SRC+=$(call rwildcard, src/os-common/posix, *.c) # Adds POSIX sources
 ```
 
-The `SRC` variable is provided by the root Makefile, just like the `rwildcard` (recursive wildcard) function.
+The root Makefile provides a number of variables that OS-specific Makefiles can read and write to.
+
+| Variable    | Access     | Description                                |
+| ----------- | ---------- | ------------------------------------------ |
+| `SRC`       | Read/Write | All C source files                         |
+| `CFLAGS`    | Read/Write | Flags passed to the C Compiler             |
+| `LDFLAGS`   | Read/Write | Flags passed to the C Compiler for linking |
+| `rwildcard` | Execute    | Recursive wildcard function                |
+
+> [!NOTE]
+> OS-specific Makefiles can make use of files in [src/os-common/no-optional](../src/os-common/no-optional) by adding them to the `SRC` variable much like any other OS Common implemenation.
