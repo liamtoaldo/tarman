@@ -17,6 +17,9 @@ To port tarman to another OS, as detailed in the previous section, implementatio
 
 All symbols that rely on OS-specific implementations start with `os_` (e.g., `os_fs_path_len`). All functions that take a `va_list` as argument have the last word in their name start with a `v` (e.g., `os_fs_path_vlen`). All functions that perform dynamic memory allocations and return the allocated buffer to the caller use the first parameter (of type pointer-pointer, e.g., `void **`) to return the buffer pointer and have the last word in their name start with `dy` (e.g., `os_fs_path_dyconcat`).
 
+### Common implementations
+Some platforms share specifications that describe how to interact with them. For example, both macOS (Darwin) and Linux implement the POSIX specification. In these cases, new symbols can be declared and defined in a directory `include/os/$TARMAN_OSCOMMON/` (where `$TARMAN_OSCOMMON` is the spec name, e.g. `posix`). Implementations for the symbols declared in `include/os$TARMAN_OSCOMMON/*.h` shall be provided in `src/os-common/$TARMAN_OSCOMMON/*.c`.
+
 All files under `src/os-common/$TARMAN_OSCOMMON` shall be structured as follows:
 ```c
 // License here
@@ -29,9 +32,6 @@ All files under `src/os-common/$TARMAN_OSCOMMON` shall be structured as follows:
 
 // Code here
 ```
-
-### Common implementations
-Some platforms share specifications that describe how to interact with them. For example, both macOS (Darwin) and Linux implement the POSIX specification. In these cases, new symbols can be declared and defined in a directory `include/os/$TARMAN_OSCOMMON/` (where `$TARMAN_OSCOMMON` is the spec name, e.g. `posix`). Implementations for the symbols declared in `include/os$TARMAN_OSCOMMON/*.h` shall be provided in `src/os-common/$TARMAN_OSCOMMON/*.c`.
 
 **Example:** tarman implements POSIX support with symbols declared in [include/os/posix/](../include/os/posix/) that can then be called by OS-specific implementations. Implmeentations for all symbols declared by tarman's POSX headers are found in [src/os-common/posix/](../include/os/posix/).
 
