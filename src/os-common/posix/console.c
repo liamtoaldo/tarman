@@ -17,6 +17,7 @@
 *************************************************************************/
 
 // MUST BE HERE
+#include <stdio.h>
 #include <tm-os-defs.h>
 
 // General includes
@@ -31,4 +32,46 @@ csz_t posix_console_get_sz() {
   struct winsize size;
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
   return (csz_t){.rows = size.ws_row, .columns = size.ws_col};
+}
+
+void posix_console_set_color(color_t color, bool bold) {
+  if (!isatty(fileno(stdout))) {
+    return;
+  }
+
+  int ansi_color = -1;
+
+  switch (color) {
+  case TM_COLOR_RED:
+    ansi_color = 31;
+    break;
+  case TM_COLOR_GREEN:
+    ansi_color = 32;
+    break;
+  case TM_COLOR_YELLOW:
+    ansi_color = 33;
+    break;
+  case TM_COLOR_MAGENTA:
+    ansi_color = 35;
+    break;
+  case TM_COLOR_CYAN:
+    ansi_color = 36;
+    break;
+  case TM_COLOR_TEXT:
+    ansi_color = 37;
+    break;
+  case TM_COLOR_RESET:
+    printf("\e[m");
+    return;
+
+  default:
+    return;
+  }
+
+  if (!bold) {
+    printf("\e[0;%dm", ansi_color);
+    return;
+  }
+
+  printf("\e[1;%dm", ansi_color);
 }

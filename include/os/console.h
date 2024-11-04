@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <stdbool.h>
 #include <stdlib.h>
 
 typedef struct {
@@ -25,4 +26,15 @@ typedef struct {
   size_t columns;
 } csz_t;
 
+typedef enum {
+  TM_COLOR_RED,
+  TM_COLOR_GREEN,
+  TM_COLOR_YELLOW,
+  TM_COLOR_MAGENTA,
+  TM_COLOR_CYAN,
+  TM_COLOR_TEXT,
+  TM_COLOR_RESET
+} color_t;
+
 csz_t os_console_get_sz();
+void  os_console_set_color(color_t color, bool bold);

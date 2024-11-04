@@ -21,94 +21,73 @@
 #include <string.h>
 
 #include "cli/output.h"
-
-typedef enum {
-  COLOR_Red     = 31,
-  COLOR_Green   = 32,
-  COLOR_Yellow  = 33,
-  COLOR_Magenta = 35,
-  COLOR_Cyan    = 36,
-  COLOR_White   = 37
-} color_t;
-
-static void textcolor(bool bold, color_t fgcolor) {
-  if (!bold) {
-    printf("\e[0;%dm", fgcolor);
-    return;
-  }
-
-  printf("\e[1;%dm", fgcolor);
-}
-
-static void reset_color() {
-  printf("\e[m");
-}
+#include "os/console.h"
 
 void cli_out_newline() {
   puts("");
 }
 
 void prefix(color_t color) {
-  textcolor(false, color);
+  os_console_set_color(color, false);
   printf("=> ");
 }
 
 void cli_out_progress(const char *fmt, ...) {
-  prefix(COLOR_Magenta);
+  prefix(TM_COLOR_MAGENTA);
 
   va_list args;
   va_start(args, fmt);
-  textcolor(true, COLOR_White);
+  os_console_set_color(TM_COLOR_TEXT, true);
   vprintf(fmt, args);
   va_end(args);
 
-  reset_color();
+  os_console_set_color(TM_COLOR_RESET, false);
   puts("");
 }
 
 void cli_out_success(const char *fmt, ...) {
-  prefix(COLOR_Green);
+  prefix(TM_COLOR_GREEN);
 
   va_list args;
   va_start(args, fmt);
-  textcolor(true, COLOR_Green);
+  os_console_set_color(TM_COLOR_GREEN, true);
   vprintf(fmt, args);
   va_end(args);
 
-  reset_color();
+  os_console_set_color(TM_COLOR_RESET, false);
   puts("");
 }
 
 void cli_out_error(const char *fmt, ...) {
-  prefix(COLOR_Red);
+  prefix(TM_COLOR_RED);
 
   va_list args;
   va_start(args, fmt);
-  textcolor(true, COLOR_Red);
+  os_console_set_color(TM_COLOR_RED, true);
   printf("ERROR: ");
   vprintf(fmt, args);
   va_end(args);
 
-  reset_color();
+  os_console_set_color(TM_COLOR_RESET, false);
   puts("");
 }
 
 void cli_out_warning(const char *fmt, ...) {
-  prefix(COLOR_Yellow);
+  prefix(TM_COLOR_YELLOW);
 
   va_list args;
   va_start(args, fmt);
-  textcolor(true, COLOR_Yellow);
+  os_console_set_color(TM_COLOR_YELLOW, true);
   printf("WARNING: ");
   vprintf(fmt, args);
   va_end(args);
 
-  reset_color();
+  os_console_set_color(TM_COLOR_RESET, false);
   puts("");
 }
 
 void cli_out_prompt(const char *fmt, ...) {
-  textcolor(true, COLOR_Cyan);
+  os_console_set_color(TM_COLOR_CYAN, true);
   printf(":: ");
 
   va_list args;
@@ -116,7 +95,7 @@ void cli_out_prompt(const char *fmt, ...) {
   vprintf(fmt, args);
   va_end(args);
 
-  reset_color();
+  os_console_set_color(TM_COLOR_RESET, false);
   putchar(' ');
 }
 

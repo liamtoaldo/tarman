@@ -23,3 +23,7 @@
 csz_t os_console_get_sz() {
   return posix_console_get_sz();
 }
+
+void os_console_set_color(color_t color, bool bold) {
+  posix_console_set_color(color, bold);
+}

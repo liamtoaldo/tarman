@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 #include "os/console.h"
 
 csz_t posix_console_get_sz();
+void  posix_console_set_color(color_t color, bool bold);
