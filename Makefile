@@ -50,6 +50,10 @@ include src/os-specific/$(TARMAN_OS)/Makefile
 
 OBJ=$(patsubst src/%.c,obj/%.o, $(SRC))
 
+SDK_SRC=$(wildcard src/plugin-sdk/*.c)
+SDK_OBJ=$(filter-out obj/common/main.o,$(OBJ))
+SDK_OBJ+=$(patsubst src/%.c,obj/%.o, $(SDK_SRC))
+
 debug:
 	@echo =========== COMPILING IN DEBUG MODE ===========
 	@make all CUSTOM_CFLAGS="$(DEBUG_CFLAGS)" "CUSTOM_LDFLAGS=$(DEBUG_LDFLAGS)"
@@ -62,7 +66,7 @@ all: info dirs $(OBJ) $(EXEC) plugins
 	@echo
 	@echo All done!
 
-plugins: $(PLUGIN_MAKEFILES)
+plugins: plugin-sdk $(PLUGIN_MAKEFILES)
 
 info:
 	@echo Compiling for $(TARMAN_OS)
@@ -77,9 +81,13 @@ obj/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $^ -o $@
 	@echo
 
+plugin-sdk: $(SDK_OBJ)
+	@echo Compiling Plugin SDK
+	@$(CC) -r $(SDK_OBJ) -o $(BIN)/plugin-sdk.o
+
 $(PLUGIN_MAKEFILES): force
 	@echo Compiling plugin "'$(@D)'"
-	@$(MAKE) -C $(@D) DIST="../../$(BIN)/plugins" CC=$(CC) SDK="../../src/plugin-sdk.c" > /dev/null
+	@$(MAKE) -C $(@D) DIST="../../$(BIN)/plugins" CC=$(CC) SDK="../../$(BIN)/plugin-sdk.o" SDK_FLAGS="$(CUSTOM_CFLAGS) $(CUSTOM_LDFLAGS)" > /dev/null
 
 force: ;
 

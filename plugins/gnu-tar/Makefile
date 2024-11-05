@@ -15,4 +15,4 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 $(DIST)/gnu-tar: plugin.c
-	@$(CC) plugin.c $(SDK) -o $(DIST)/gnu-tar
+	@$(CC) plugin.c $(SDK) $(SDK_FLAGS) -o $(DIST)/gnu-tar
