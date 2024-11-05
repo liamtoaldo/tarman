@@ -179,9 +179,8 @@ int cli_cmd_install(cli_info_t info) {
   override_recipe(&recipe, info);
 
   if (NULL == recipe.pkg_name) {
-    while (0 == cli_in_dystr("Enter package name", (char **)&recipe.pkg_name)) {
-      mem_safe_free(recipe.pkg_name);
-    }
+    while (0 == cli_in_dystr("Enter package name", (char **)&recipe.pkg_name))
+      ;
   }
 
   os_fs_tm_dypkg(&pkg_path, recipe.pkg_name);
