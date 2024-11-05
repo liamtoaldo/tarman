@@ -18,41 +18,38 @@
 
 #pragma once
 
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-#include "config.h"
+typedef enum {
+  TM_CFG_PARSE_STATUS_NOFILE,
+  TM_CFG_PARSE_STATUS_PERM,
+  TM_CFG_PARSE_STATUS_MALFORMED,
+  TM_CFG_PARSE_STATUS_INVKEY,
+  TM_CFG_PARSE_STATUS_INVVAL,
+  TM_CFG_PARSE_STATUS_ERR,
+  TM_CFG_PARSE_STATUS_OK
+} cfg_parse_status_t;
 
-// Contents of .tmpkg files
-typedef struct {
-  const char *url;
-  const char *from_repoistory;
-  const char *application_name;
-  const char *executable_path;
-  const char *working_directory;
-  const char *icon_path;
-} pkg_info_t;
+typedef enum {
+  TM_CFG_PROP_MATCH_FALSE,
+  TM_CFG_PROP_MATCH_OK,
+  TM_CFG_PROP_MATCH_ERR
+} cfg_prop_match_t;
 
-// Contents of .tmrcp files
-// In these files, the "FROM_REPOSITORY" property is not present
-// The "from_repository" struct field, however, may be set at runtime
-typedef struct {
-  pkg_info_t pkg_info;
-  bool       add_to_path;
-  bool       add_to_desktop;
-  bool       add_to_tarman;
-} recipe_t;
+typedef void cfg_generic_info_t;
+typedef cfg_parse_status_t (*cfg_translator_t)(const char         *key,
+                                               const char         *value,
+                                               cfg_generic_info_t *info);
 
-// "Runtime" recepie
-typedef struct {
-  recipe_t    recepie;
-  const char *pkg_name;
-  bool        is_remote;
-} rt_recipe_t;
-
-cfg_parse_status_t pkg_parse_ftmpkg(pkg_info_t *pkg_info, FILE *pkg_file);
-cfg_parse_status_t pkg_parse_tmpkg(pkg_info_t *pkg_info,
-                                   const char *pkg_file_path);
-
-cfg_parse_status_t pkg_parse_ftmrcp(recipe_t *rcp, FILE *rcp_file);
-cfg_parse_status_t pkg_parse_tmrcp(recipe_t *rcp, const char *rcp_file_path);
+cfg_prop_match_t cfg_eval_prop(const char  *prop,
+                               const char  *key,
+                               const char  *value,
+                               const char **target,
+                               size_t       num_args,
+                               ...);
+cfg_prop_match_t cfg_eval_prop_matches(size_t num_args, ...);
+cfg_parse_status_t
+cfg_parse(FILE *stream, cfg_translator_t translator, cfg_generic_info_t *info);

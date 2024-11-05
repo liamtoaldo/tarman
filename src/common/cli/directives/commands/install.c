@@ -25,6 +25,7 @@
 #include "cli/directives/types.h"
 #include "cli/input.h"
 #include "cli/output.h"
+#include "config.h"
 #include "os/fs.h"
 #include "package.h"
 #include "tm-mem.h"
@@ -82,23 +83,23 @@ static char *load_config_file(rt_recipe_t *recipe, char *pkg_path) {
 
   os_fs_path_dyconcat(&tmpkg_file_path, 2, pkg_path, "info.tmpkg");
 
-  pkg_parse_status_t status =
+  cfg_parse_status_t status =
       pkg_parse_tmpkg(&tmpkg_file_data, tmpkg_file_path);
 
   switch (status) {
-  case TM_PKG_PARSE_STATUS_NOFILE:
+  case TM_CFG_PARSE_STATUS_NOFILE:
     cli_out_warning("Package configuration file '%s' does not exist",
                     tmpkg_file_path);
     return tmpkg_file_path;
 
-  case TM_PKG_PARSE_STATUS_INVVAL:
-  case TM_PKG_PARSE_STATUS_MALFORMED:
+  case TM_CFG_PARSE_STATUS_INVVAL:
+  case TM_CFG_PARSE_STATUS_MALFORMED:
     cli_out_warning("Ignoring malformed package configuration file at '%s'",
                     tmpkg_file_path);
     return tmpkg_file_path;
 
-  case TM_PKG_PARSE_STATUS_ERR:
-  case TM_PKG_PARSE_STATUS_PERM:
+  case TM_CFG_PARSE_STATUS_ERR:
+  case TM_CFG_PARSE_STATUS_PERM:
     cli_out_error(
         "Unable to read contents of package configuration file at '%s'",
         tmpkg_file_path);
