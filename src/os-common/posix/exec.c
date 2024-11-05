@@ -17,6 +17,7 @@
 *************************************************************************/
 
 // MUST BE HERE
+#include <stdio.h>
 #include <tm-os-defs.h>
 
 // Other includes
@@ -59,6 +60,9 @@ int posix_vexec(const char *executable, va_list args) {
   // When fork gets here it means
   // that this is the child process
   if (0 == pid) {
+    fclose(stdout);
+    fclose(stderr);
+    fclose(stdin);
     return execvp(executable, (char **)argv);
   }
 

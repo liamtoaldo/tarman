@@ -22,6 +22,7 @@
 
 #define TARMAN_SOPT_FROM_URL    "-u"
 #define TARMAN_SOPT_FROM_REPO   "-r"
+#define TARMAN_SOPT_PKG_FMT     "-f"
 #define TARMAN_SOPT_PKG_NAME    "-n"
 #define TARMAN_SOPT_APP_NAME    "-a"
 #define TARMAN_SOPT_EXEC        "-x"
@@ -33,6 +34,7 @@
 
 #define TARMAN_FOPT_FROM_URL    "--from-url"
 #define TARMAN_FOPT_FROM_REPO   "--from-repo"
+#define TARMAN_FOPT_PKG_FMT     "--pkg-format"
 #define TARMAN_FOPT_PKG_NAME    "--pkg-name"
 #define TARMAN_FOPT_APP_NAME    "--app-name"
 #define TARMAN_FOPT_EXEC        "--exec"
@@ -44,6 +46,7 @@
 
 bool cli_opt_from_url(cli_info_t *info, const char *next);
 bool cli_opt_from_repo(cli_info_t *info, const char *next);
+bool cli_opt_pkg_fmt(cli_info_t *info, const char *next);
 bool cli_opt_pkg_name(cli_info_t *info, const char *next);
 bool cli_opt_app_name(cli_info_t *info, const char *next);
 bool cli_opt_exec(cli_info_t *info, const char *next);

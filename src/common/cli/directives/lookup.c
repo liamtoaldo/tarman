@@ -101,6 +101,13 @@ static cli_drt_desc_t options[] = {
      NULL,
      "Use simple package name as input and perform repo lookup"},
 
+    {TARMAN_SOPT_PKG_FMT,
+     TARMAN_FOPT_PKG_FMT,
+     cli_opt_pkg_fmt,
+     true,
+     NULL,
+     "Specify package format (e.g., tar.gz, tar.xz, zip)"},
+
     {TARMAN_SOPT_PKG_NAME,
      TARMAN_FOPT_PKG_NAME,
      cli_opt_pkg_name,

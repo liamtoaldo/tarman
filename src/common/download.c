@@ -20,7 +20,6 @@
 #include <stdlib.h>
 
 #include "os/exec.h"
-#include "os/fs.h"
 #include "plugin/plugin.h"
 
 bool download(const char *dst, const char *url) {
@@ -28,5 +27,5 @@ bool download(const char *dst, const char *url) {
     return EXIT_SUCCESS == plugin_run("download-plugin", dst, url);
   }
 
-  // do stuff here
+  return EXIT_SUCCESS == os_exec("curl", "-L", url, "-o", dst, NULL);
 }

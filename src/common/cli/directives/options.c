@@ -64,6 +64,10 @@ bool cli_opt_from_repo(cli_info_t *info, const char *next) {
   return true;
 }
 
+bool cli_opt_pkg_fmt(cli_info_t *info, const char *next) {
+  return set_opt_using_next(TARMAN_FOPT_PKG_FMT, &info->pkg_fmt, next);
+}
+
 bool cli_opt_pkg_name(cli_info_t *info, const char *next) {
   return set_opt_using_next(TARMAN_FOPT_PKG_NAME, &info->pkg_name, next);
 }

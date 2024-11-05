@@ -26,6 +26,7 @@
 #include "cli/input.h"
 #include "cli/output.h"
 #include "config.h"
+#include "download.h"
 #include "os/fs.h"
 #include "package.h"
 #include "tm-mem.h"
@@ -57,7 +58,13 @@ static void override_if_dst_unset(const char **dst, const char *src) {
   }
 }
 
+static void override_and_free(const char **dst, const char *src) {
+  mem_safe_free(*dst);
+  override_if_src_set(dst, src, true);
+}
+
 static void override_recipe(rt_recipe_t *recipe, cli_info_t cli_info) {
+  override_if_src_set(&recipe->recepie.package_format, cli_info.pkg_fmt, true);
   override_if_src_set(&recipe->pkg_name, cli_info.pkg_name, true);
   override_if_src_set(
       &recipe->recepie.pkg_info.application_name, cli_info.app_name, true);
@@ -90,20 +97,20 @@ static char *load_config_file(rt_recipe_t *recipe, char *pkg_path) {
   case TM_CFG_PARSE_STATUS_NOFILE:
     cli_out_warning("Package configuration file '%s' does not exist",
                     tmpkg_file_path);
-    return tmpkg_file_path;
+    goto cleanup;
 
   case TM_CFG_PARSE_STATUS_INVVAL:
   case TM_CFG_PARSE_STATUS_MALFORMED:
     cli_out_warning("Ignoring malformed package configuration file at '%s'",
                     tmpkg_file_path);
-    return tmpkg_file_path;
+    goto cleanup;
 
   case TM_CFG_PARSE_STATUS_ERR:
   case TM_CFG_PARSE_STATUS_PERM:
     cli_out_error(
         "Unable to read contents of package configuration file at '%s'",
         tmpkg_file_path);
-    return tmpkg_file_path;
+    goto cleanup;
 
   default:
     break;
@@ -121,6 +128,8 @@ static char *load_config_file(rt_recipe_t *recipe, char *pkg_path) {
   override_if_dst_unset(&recipe->recepie.pkg_info.icon_path,
                         tmpkg_file_data.icon_path);
 
+cleanup:
+  mem_safe_free(tmpkg_file_path);
   return tmpkg_file_path;
 }
 
@@ -142,14 +151,18 @@ static bool create_pkg_dir(char *pkg_path) {
 }
 
 int cli_cmd_install(cli_info_t info) {
+  if (NULL == info.input) {
+    cli_out_error("Missing necessary input for command 'install'");
+    return EXIT_FAILURE;
+  }
+
   rt_recipe_t recipe = {0};
   int         ret    = EXIT_FAILURE;
 
   // Variables to be cleaned up
   // Declartion is here to avoid issues with goto
-  char       *pkg_path        = NULL;
-  char       *tmpkg_file_path = NULL;
-  const char *archive_path    = NULL;
+  char       *pkg_path     = NULL;
+  const char *archive_path = NULL;
 
   cli_out_progress("Initializing host file system");
 
@@ -160,27 +173,62 @@ int cli_cmd_install(cli_info_t info) {
 
   cli_out_progress("Initiating installation process");
 
+  override_recipe(&recipe, info);
+
+  if (info.from_url && NULL == recipe.recepie.package_format) {
+    cli_out_warning(
+        "Package format not specified for remote download, using 'tar.gz'");
+    override_if_src_set(&recipe.recepie.package_format, "tar.gz", true);
+  }
+
   // Check if -R is set and do stuff
   if (info.from_repo) {
     recipe.is_remote = true;
   }
 
-  // Check if -U is set and do stuff
+  if (NULL == recipe.pkg_name) {
+    while (0 == cli_in_dystr("Enter package name", (char **)&recipe.pkg_name))
+      ;
+  }
+
+  if (info.from_url) {
+    override_if_src_set(&recipe.recepie.pkg_info.url, info.input, true);
+
+    size_t slen =
+        strlen(recipe.pkg_name) + 1 + strlen(recipe.recepie.package_format);
+    size_t bufsz     = slen + 1;
+    char  *pkg_fname = (char *)malloc(bufsz * sizeof(char));
+    mem_chkoom(pkg_fname);
+    snprintf(pkg_fname,
+             bufsz,
+             "%s.%s",
+             recipe.pkg_name,
+             recipe.recepie.package_format);
+
+    if (0 == os_fs_tm_dycached((char **)&archive_path, pkg_fname)) {
+      mem_safe_free(pkg_fname);
+      cli_out_error("Unable to determine path to temporary archive");
+      goto cleanup;
+    }
+
+    mem_safe_free(pkg_fname);
+    cli_out_progress("Downloading package from '%s' to '%s'",
+                     recipe.recepie.pkg_info.url,
+                     archive_path);
+
+    if (!download(archive_path, recipe.recepie.pkg_info.url)) {
+      cli_out_error("Unable to download package");
+      goto cleanup;
+    }
+  }
 
   if (NULL == archive_path) {
     // Contents of cli_info_t are not heap-allocated
-    // However, archive_path and others may be overriden using heap-allocated
+    // However, archive_path and others may be overridden using heap-allocated
     // strings as such, they would have to be freed. If free is called on a
     // pointer outside the heap it leads to undefined behaviour. As such, all
     // non-heap things are copied
     override_if_src_set(&archive_path, info.input, true);
-  }
-
-  override_recipe(&recipe, info);
-
-  if (NULL == recipe.pkg_name) {
-    while (0 == cli_in_dystr("Enter package name", (char **)&recipe.pkg_name))
-      ;
   }
 
   os_fs_tm_dypkg(&pkg_path, recipe.pkg_name);
@@ -199,11 +247,19 @@ int cli_cmd_install(cli_info_t info) {
     goto cleanup;
   }
 
-  tmpkg_file_path = load_config_file(&recipe, pkg_path);
+  load_config_file(&recipe, pkg_path);
 
   // Infer additional information
 
   // Create new .trpkg file in package directory
+
+  if (info.from_url || info.from_repo && NULL != archive_path) {
+    cli_out_progress("Removing cache '%s'", archive_path);
+
+    if (TM_FS_FILEOP_STATUS_OK != os_fs_file_rm(archive_path)) {
+      cli_out_warning("Unable to delete cache");
+    }
+  }
 
   cli_out_success("Package '%s' installed successfully", recipe.pkg_name);
   ret = EXIT_SUCCESS;
@@ -211,8 +267,8 @@ int cli_cmd_install(cli_info_t info) {
 cleanup:
   mem_safe_free(archive_path);
   mem_safe_free(pkg_path);
-  mem_safe_free(tmpkg_file_path);
   mem_safe_free(recipe.pkg_name);
+  mem_safe_free(recipe.recepie.package_format);
   mem_safe_free(recipe.recepie.pkg_info.url);
   mem_safe_free(recipe.recepie.pkg_info.from_repoistory);
   mem_safe_free(recipe.recepie.pkg_info.executable_path);

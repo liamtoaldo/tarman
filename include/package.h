@@ -37,10 +37,11 @@ typedef struct {
 // In these files, the "FROM_REPOSITORY" property is not present
 // The "from_repository" struct field, however, may be set at runtime
 typedef struct {
-  pkg_info_t pkg_info;
-  bool       add_to_path;
-  bool       add_to_desktop;
-  bool       add_to_tarman;
+  pkg_info_t  pkg_info;
+  const char *package_format;
+  bool        add_to_path;
+  bool        add_to_desktop;
+  bool        add_to_tarman;
 } recipe_t;
 
 // "Runtime" recepie

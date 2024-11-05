@@ -61,7 +61,8 @@ rcp_translator(const char *key, const char *value, recipe_t *rcp) {
   const char *add_to_tarman  = NULL;
 
   cfg_prop_match_t match = cfg_eval_prop_matches(
-      3,
+      4,
+      cfg_eval_prop("PACKAGE_FORMAT", key, value, &rcp->package_format, 0),
       cfg_eval_prop(
           "ADD_TO_PATH", key, value, &add_to_path, 2, "true", "false"),
       cfg_eval_prop(

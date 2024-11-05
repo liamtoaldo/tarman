@@ -19,7 +19,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cli/directives/commands.h"
 #include "cli/directives/lookup.h"
 #include "cli/output.h"
 #include "cli/parser.h"
@@ -47,7 +46,7 @@ bool cli_parse(int         argc,
   for (int i = 2; i < argc; i++) {
     const char *argument = argv[i];
     const char *next     = NULL;
-    if (argc - i != i) {
+    if (argc - 1 != i) {
       next = argv[i + 1];
     }
 
