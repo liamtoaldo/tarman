@@ -104,7 +104,8 @@ int cli_cmd_help(cli_info_t info) {
   cli_lkup_table_t opt_table = cli_lkup_opttable();
 
   puts("tarman by Alessandro Salerno");
-  puts("Portable tar.gz package manager\n");
+  puts(
+      "The portable, cross-platform, extensible, and simple package manager\n");
 
   printf("Usage: tarman <command> [<options>] [<package|url|repo>]\n\n");
 
