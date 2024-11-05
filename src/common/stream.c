@@ -23,15 +23,20 @@
 #include "tm-mem.h"
 
 size_t stream_dyreadline(FILE *stream, char **dst) {
-  size_t len = 256;
-  char  *buf = (char *)malloc(len * sizeof(char));
-  size_t i   = 0;
-  char   ch  = 0;
+  size_t len        = 256;
+  char  *buf        = (char *)malloc(len * sizeof(char));
+  size_t i          = 0;
+  char   ch         = 0;
+  bool   found_chrs = false;
 
   mem_chkoom(buf);
 
   while (EOF != (ch = fgetc(stream)) && '\n' != ch) {
     if ('\r' == ch) {
+      continue;
+    }
+
+    if (!found_chrs && ' ' == ch) {
       continue;
     }
 
@@ -41,7 +46,8 @@ size_t stream_dyreadline(FILE *stream, char **dst) {
       mem_chkoom(buf);
     }
 
-    buf[i] = ch;
+    found_chrs = true;
+    buf[i]     = ch;
     i++;
   }
 

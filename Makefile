@@ -58,7 +58,7 @@ release:
 	@echo =========== COMPILING IN DEBUG MODE ===========
 	@make CUSTOM_CFLAGS=$(RELEASE_CLFAGS) CUSTOM_LDFLAGS=$(RELEASE_LDFLAGS) all
 
-all: info obj $(OBJ) $(EXEC) plugins
+all: info dirs $(OBJ) $(EXEC) plugins
 	@echo
 	@echo All done!
 
@@ -83,10 +83,9 @@ $(PLUGIN_MAKEFILES): force
 
 force: ;
 
-obj:
+dirs:
 	@mkdir -p obj/
 	@mkdir -p $(BIN)
-	@mkdir -p lib/
 	@mkdir -p $(BIN)/plugins
 
 clean:

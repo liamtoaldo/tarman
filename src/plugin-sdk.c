@@ -26,9 +26,9 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  // fclose(stdin);
-  // fclose(stdout);
-  // fclose(stderr);
+  fclose(stdin);
+  fclose(stdout);
+  fclose(stderr);
 
   const char *src_file = argv[1];
   const char *dst_path = argv[2];
