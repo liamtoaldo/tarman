@@ -21,10 +21,14 @@
 #include "os/exec.h"
 #include "os/posix/exec.h"
 
+int os_vexec(const char *executable, va_list args) {
+  return posix_vexec(executable, args);
+}
+
 int os_exec(const char *executable, ...) {
   va_list args;
   va_start(args, executable);
-  int ret = posix_vexec(executable, args);
+  int ret = os_vexec(executable, args);
   va_end(args);
   return ret;
 }

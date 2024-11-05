@@ -18,4 +18,7 @@
 
 #pragma once
 
+#include <stdarg.h>
+
+int os_vexec(const char *executable, va_list args);
 int os_exec(const char *executable, ...);

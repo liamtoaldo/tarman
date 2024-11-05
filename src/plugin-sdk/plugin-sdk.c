@@ -16,10 +16,20 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "os/exec.h"
 #include "plugin/sdk.h"
+
+int sdk_exec(const char *executable, ...) {
+  va_list args;
+  va_start(args, executable);
+  int ret = os_vexec(executable, args);
+  va_end(args);
+  return ret;
+}
 
 int main(int argc, char *argv[]) {
   if (4 != argc) {

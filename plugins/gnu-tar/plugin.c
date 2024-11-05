@@ -23,25 +23,5 @@
 #include "plugin/sdk.h"
 
 int plugin_main(sdk_handover_t *handover) {
-  const char *src = handover->src;
-  const char *dst = handover->dst;
-  const char *cfg = handover->cfg;
-
-  const char *tar_cmd = "tar -xf";
-  const char *tar_opt = "-C";
-  size_t      dst_len = strlen(dst);
-  size_t      src_len = strlen(src);
-  size_t      cmd_len =
-      dst_len + src_len + strlen(tar_cmd) + strlen(tar_opt) + 3 + 1;
-
-  char *command = (char *)malloc(cmd_len);
-
-  if (NULL == command) {
-    return EXIT_FAILURE;
-  }
-
-  sprintf(command, "%s %s %s %s", tar_cmd, src, tar_opt, dst);
-  int ecode = system(command);
-  free(command);
-  return ecode;
+  return sdk_exec("tar", "-xf", handover->src, "-C", handover->dst, NULL);
 }
