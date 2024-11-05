@@ -32,3 +32,7 @@ typedef struct {
   const char *dst;
   const char *cfg;
 } __attribute__((aligned(16))) sdk_handover_t;
+
+int sdk_exec(const char *executable, ...);
+
+int plugin_main(sdk_handover_t *handover);

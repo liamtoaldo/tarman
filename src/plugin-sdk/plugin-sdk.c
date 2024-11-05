@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern int tarman_plugin(const char *src, const char *dst, const char *cfg);
+#include "plugin/sdk.h"
 
 int main(int argc, char *argv[]) {
   if (4 != argc) {
@@ -30,9 +30,7 @@ int main(int argc, char *argv[]) {
   fclose(stdout);
   fclose(stderr);
 
-  const char *src_file = argv[1];
-  const char *dst_path = argv[2];
-  const char *config   = argv[3];
+  sdk_handover_t handover = {.src = argv[1], .dst = argv[2], .cfg = argv[3]};
 
-  return tarman_plugin(src_file, dst_path, config);
+  return plugin_main(&handover);
 }

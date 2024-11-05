@@ -65,7 +65,7 @@ static bool test_dirs() {
   if (TM_FS_DIROP_STATUS_OK != os_fs_dir_count(&count, "test")) {
     return false;
   }
-  printf("Count: %d, expected: %d\n", count, 0);
+  printf("Count: %ld, expected: %ld\n", count, 0);
   if (0 != count) {
     return false;
   }

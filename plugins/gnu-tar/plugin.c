@@ -20,7 +20,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-int tarman_plugin(const char *src, const char *dst, const char *cfg) {
+#include "plugin/sdk.h"
+
+int plugin_main(sdk_handover_t *handover) {
+  const char *src = handover->src;
+  const char *dst = handover->dst;
+  const char *cfg = handover->cfg;
+
   const char *tar_cmd = "tar -xf";
   const char *tar_opt = "-C";
   size_t      dst_len = strlen(dst);
