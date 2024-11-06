@@ -78,7 +78,7 @@ size_t os_fs_tm_dyrepo(char **dst, const char *repo_name);
 size_t os_fs_tm_dypkg(char **dst, const char *pkg_name);
 size_t os_fs_tm_dycached(char **dst, const char *item_name);
 size_t
-os_fs_tm_dyrecepie(char **dst, const char *repo_name, const char *pkg_name);
+os_fs_tm_dyrecipe(char **dst, const char *repo_name, const char *pkg_name);
 size_t os_fs_tm_dyplugins(const char **dst);
 size_t os_fs_tm_dyplugin(const char **dst, const char *plugin);
 size_t os_fs_tm_dyplugconf(const char **dst, const char *plugin);

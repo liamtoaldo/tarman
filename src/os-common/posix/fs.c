@@ -452,7 +452,7 @@ size_t posix_fs_tm_dycached(char **dst, const char *item_name) {
 }
 
 size_t
-posix_fs_tm_dyrecepie(char **dst, const char *repo_name, const char *pkg_name) {
+posix_fs_tm_dyrecipe(char **dst, const char *repo_name, const char *pkg_name) {
   size_t ret = 0;
 
   char *rec_name =
@@ -460,11 +460,11 @@ posix_fs_tm_dyrecepie(char **dst, const char *repo_name, const char *pkg_name) {
   mem_chkoom(rec_name);
   sprintf(rec_name, "%s.tarman", pkg_name);
 
-  char *tm_recepie;
-  ret = os_fs_path_dyconcat(&tm_recepie, 3, Repos.buf, repo_name, rec_name);
+  char *tm_recipe;
+  ret = os_fs_path_dyconcat(&tm_recipe, 3, Repos.buf, repo_name, rec_name);
 
   mem_safe_free(rec_name);
-  *dst = tm_recepie;
+  *dst = tm_recipe;
   return ret;
 }
 

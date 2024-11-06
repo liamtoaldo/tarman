@@ -139,8 +139,8 @@ size_t os_fs_tm_dycached(char **dst, const char *item_name) {
 }
 
 size_t
-os_fs_tm_dyrecepie(char **dst, const char *repo_name, const char *pkg_name) {
-  return posix_fs_tm_dyrecepie(dst, repo_name, pkg_name);
+os_fs_tm_dyrecipe(char **dst, const char *repo_name, const char *pkg_name) {
+  return posix_fs_tm_dyrecipe(dst, repo_name, pkg_name);
 }
 
 size_t os_fs_tm_dyplugins(const char **dst) {

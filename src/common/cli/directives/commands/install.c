@@ -158,6 +158,153 @@ static void remove_pkg_cache(const char *archive_path) {
   }
 }
 
+static bool load_recipe(rt_recipe_t *recipe) {
+  bool     ret           = false;
+  recipe_t rcp_file_data = {0};
+  char    *rcp_file_path = NULL;
+
+  os_fs_tm_dyrecipe(&rcp_file_path,
+                    recipe->recepie.pkg_info.from_repoistory,
+                    recipe->pkg_name);
+
+  cfg_parse_status_t status = pkg_parse_tmrcp(&rcp_file_data, rcp_file_path);
+
+  switch (status) {
+  case TM_CFG_PARSE_STATUS_INVVAL:
+  case TM_CFG_PARSE_STATUS_MALFORMED:
+    cli_out_error(
+        "Recipe file for package '%s' in repository '%s' is malformed",
+        recipe->pkg_name,
+        recipe->recepie.pkg_info.from_repoistory);
+    goto cleanup;
+
+  case TM_CFG_PARSE_STATUS_ERR:
+  case TM_CFG_PARSE_STATUS_PERM:
+    cli_out_error("Unable to read contents of recipe file '%s'", rcp_file_path);
+    goto cleanup;
+
+  default:
+    break;
+  }
+
+  cli_out_progress("Using recipe file '%s'", rcp_file_path);
+
+  override_if_dst_unset(&recipe->recepie.pkg_info.url,
+                        rcp_file_data.pkg_info.url);
+  override_if_dst_unset(&recipe->recepie.pkg_info.application_name,
+                        rcp_file_data.pkg_info.application_name);
+  override_if_dst_unset(&recipe->recepie.pkg_info.executable_path,
+                        rcp_file_data.pkg_info.executable_path);
+  override_if_dst_unset(&recipe->recepie.pkg_info.working_directory,
+                        rcp_file_data.pkg_info.working_directory);
+  override_if_dst_unset(&recipe->recepie.pkg_info.icon_path,
+                        rcp_file_data.pkg_info.icon_path);
+  override_if_dst_unset(&recipe->recepie.package_format,
+                        rcp_file_data.package_format);
+
+  ret = true;
+
+cleanup:
+  mem_safe_free(rcp_file_path);
+  return ret;
+}
+
+static void find_repository(rt_recipe_t *recipe) {
+  const char *repos_path = NULL;
+
+  if (0 == os_fs_tm_dyrepos((char **)&repos_path)) {
+    cli_out_error("Unable to determine path to repositories directory");
+    goto cleanup;
+  }
+
+  os_fs_dirstream_t repos_stream;
+  fs_dirop_status_t open_status = os_fs_dir_open(&repos_stream, repos_path);
+
+  if (TM_FS_DIROP_STATUS_OK != open_status) {
+    cli_out_error("Unable to open repositories directory");
+    goto cleanup;
+  }
+
+  fs_dirent_t ent;
+
+  size_t repos_buf_sz = 16;
+  char **repos        = (char **)malloc(16 * sizeof(char *));
+  size_t repos_i      = 0;
+  mem_chkoom(repos);
+
+  while (TM_FS_DIROP_STATUS_OK == os_fs_dir_next(repos_stream, &ent)) {
+    if (TM_FS_FILETYPE_DIR != ent.file_type) {
+      continue;
+    }
+
+    char *pkg_recipe = NULL;
+
+    if (0 == os_fs_tm_dyrecipe(&pkg_recipe, ent.name, recipe->pkg_name)) {
+      cli_out_error("Unable to determine recipe path for repository '%s'",
+                    ent.name);
+      os_fs_dir_close(repos_stream);
+      goto cleanup;
+    }
+
+    fs_filetype_t rcp_file_type;
+
+    if (TM_FS_FILEOP_STATUS_OK ==
+        os_fs_file_gettype(&rcp_file_type, pkg_recipe)) {
+      if (repos_buf_sz - 1 == repos_i) {
+        repos_buf_sz *= 2;
+        repos = (char **)realloc(repos, repos_buf_sz);
+        mem_chkoom(repos);
+      }
+
+      override_if_src_set((const char **)&repos[repos_i], ent.name, true);
+      repos_i++;
+    }
+
+    mem_safe_free(pkg_recipe);
+  }
+
+  os_fs_dir_close(repos_stream);
+
+  if (0 == repos_i) {
+    cli_out_error("Package '%s' not found in local repositories",
+                  recipe->pkg_name);
+    goto cleanup;
+  }
+
+  unsigned long user_choice = 0;
+
+  if (1 == repos_i) {
+    user_choice = 1;
+    goto apply;
+  }
+
+  cli_out_newline();
+  printf("Multiple repositories found for package '%s', choose between:",
+         recipe->pkg_name);
+  for (size_t i = 0; i < repos_i; i++) {
+    cli_out_space(8);
+    printf("%ld. %s", i + 1, repos[i]);
+    cli_out_newline();
+  }
+
+  user_choice = cli_in_int("Enter repository identifier", 1, repos_i + 1);
+
+apply:
+  recipe->recepie.pkg_info.from_repoistory = repos[user_choice - 1];
+  if (!load_recipe(recipe)) {
+    goto cleanup;
+  }
+
+cleanup:
+  for (size_t i = 0; i < repos_i; i++) {
+    if (i != user_choice - 1) {
+      mem_safe_free(repos[i]);
+    }
+  }
+  mem_safe_free(repos);
+  mem_safe_free(repos_path);
+}
+
 int cli_cmd_install(cli_info_t info) {
   if (NULL == info.input) {
     cli_out_error("Must specify a package to install'");
@@ -192,6 +339,28 @@ int cli_cmd_install(cli_info_t info) {
   // Check if -r is set and use repositories
   if (info.from_repo) {
     recipe.is_remote = true;
+    override_if_src_set(&recipe.pkg_name, info.input, true);
+    find_repository(&recipe);
+
+    if (NULL == recipe.recepie.pkg_info.url) {
+      cli_out_error("Package URL not found in recipe");
+      goto cleanup;
+    }
+
+    if (!archive_dycreate(
+            &archive_path, recipe.pkg_name, recipe.recepie.package_format)) {
+      cli_out_error("Unable to determine path to temporary archive");
+      goto cleanup;
+    }
+
+    cli_out_progress("Downloading package from '%s' to '%s'",
+                     recipe.recepie.pkg_info.url,
+                     archive_path);
+
+    if (!download(archive_path, recipe.recepie.pkg_info.url)) {
+      cli_out_error("Unable to download package");
+      goto cleanup;
+    }
   }
 
   // Ask user to enter the package name
