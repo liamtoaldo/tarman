@@ -24,7 +24,9 @@
 
 #include "archive.h"
 #include "os/exec.h"
+#include "os/fs.h"
 #include "plugin/plugin.h"
+#include "tm-mem.h"
 
 typedef bool (*extract_handler_t)(const char *dst, const char *src);
 
@@ -106,4 +108,25 @@ search_embedded:
   }
 
   return false;
+}
+
+bool archive_dycreate(const char **archive_path,
+                      const char  *filename,
+                      const char  *filetype) {
+  bool ret = false;
+
+  size_t bufsz      = strlen(filename) + 1 + strlen(filetype) + 1;
+  char  *repo_fname = (char *)malloc(bufsz * sizeof(char));
+  mem_chkoom(repo_fname);
+  snprintf(repo_fname, bufsz, "%s.%s", filename, filetype);
+
+  if (0 == os_fs_tm_dycached((char **)archive_path, repo_fname)) {
+    goto cleanup;
+  }
+
+  ret = true;
+
+cleanup:
+  mem_safe_free(repo_fname);
+  return ret;
 }

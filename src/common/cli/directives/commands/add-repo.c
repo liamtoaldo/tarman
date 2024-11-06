@@ -56,18 +56,11 @@ int cli_cmd_add_repo(cli_info_t info) {
     repo_fmt = "tar.gz";
   }
 
-  size_t bufsz      = strlen("__downloaded_repo") + 1 + strlen(repo_fmt) + 1;
-  char  *repo_fname = (char *)malloc(bufsz * sizeof(char));
-  mem_chkoom(repo_fname);
-  snprintf(repo_fname, bufsz, "%s.%s", "__downloaded_repo", repo_fmt);
-
-  if (0 == os_fs_tm_dycached((char **)&archive_path, repo_fname)) {
-    mem_safe_free(repo_fname);
+  if (!archive_dycreate(&archive_path, "__downloaded_repo", repo_fmt)) {
     cli_out_error("Unable to determine path to temporary archive");
     goto cleanup;
   }
 
-  mem_safe_free(repo_fname);
   cli_out_progress("Fetching repository from '%s'", repo_url);
 
   if (!download(archive_path, repo_url)) {

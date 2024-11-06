@@ -150,6 +150,14 @@ static bool create_pkg_dir(char *pkg_path) {
   }
 }
 
+static void remove_pkg_cache(const char *archive_path) {
+  cli_out_progress("Removing cache '%s'", archive_path);
+
+  if (TM_FS_FILEOP_STATUS_OK != os_fs_file_rm(archive_path)) {
+    cli_out_warning("Unable to delete cache");
+  }
+}
+
 int cli_cmd_install(cli_info_t info) {
   if (NULL == info.input) {
     cli_out_error("Must specify a package to install'");
@@ -181,37 +189,25 @@ int cli_cmd_install(cli_info_t info) {
     override_if_src_set(&recipe.recepie.package_format, "tar.gz", true);
   }
 
-  // Check if -R is set and do stuff
+  // Check if -r is set and use repositories
   if (info.from_repo) {
     recipe.is_remote = true;
   }
 
-  if (NULL == recipe.pkg_name) {
-    while (0 == cli_in_dystr("Enter package name", (char **)&recipe.pkg_name))
-      ;
-  }
+  // Ask user to enter the package name
+  while (NULL == recipe.pkg_name &&
+         0 == cli_in_dystr("Enter package name", (char **)&recipe.pkg_name))
+    ;
 
   if (info.from_url) {
     override_if_src_set(&recipe.recepie.pkg_info.url, info.input, true);
 
-    size_t slen =
-        strlen(recipe.pkg_name) + 1 + strlen(recipe.recepie.package_format);
-    size_t bufsz     = slen + 1;
-    char  *pkg_fname = (char *)malloc(bufsz * sizeof(char));
-    mem_chkoom(pkg_fname);
-    snprintf(pkg_fname,
-             bufsz,
-             "%s.%s",
-             recipe.pkg_name,
-             recipe.recepie.package_format);
-
-    if (0 == os_fs_tm_dycached((char **)&archive_path, pkg_fname)) {
-      mem_safe_free(pkg_fname);
+    if (!archive_dycreate(
+            &archive_path, recipe.pkg_name, recipe.recepie.package_format)) {
       cli_out_error("Unable to determine path to temporary archive");
       goto cleanup;
     }
 
-    mem_safe_free(pkg_fname);
     cli_out_progress("Downloading package from '%s' to '%s'",
                      recipe.recepie.pkg_info.url,
                      archive_path);
@@ -254,11 +250,7 @@ int cli_cmd_install(cli_info_t info) {
   // Create new .trpkg file in package directory
 
   if (info.from_url || info.from_repo && NULL != archive_path) {
-    cli_out_progress("Removing cache '%s'", archive_path);
-
-    if (TM_FS_FILEOP_STATUS_OK != os_fs_file_rm(archive_path)) {
-      cli_out_warning("Unable to delete cache");
-    }
+    remove_pkg_cache(archive_path);
   }
 
   cli_out_success("Package '%s' installed successfully", recipe.pkg_name);
