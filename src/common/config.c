@@ -27,7 +27,6 @@
 #include "tm-mem.h"
 
 static bool tokenize(char *line, const char **key, const char **value) {
-  bool sep_found    = false;
   char first_val_ch = 0;
 
   for (size_t i = 0; line[i]; i++) {
@@ -38,19 +37,15 @@ static bool tokenize(char *line, const char **key, const char **value) {
     }
 
     if ('=' == ch) {
-      if (sep_found) {
-        return false;
-      }
-
       line[i]      = 0;
       *key         = line;
       *value       = &line[i + 1];
       first_val_ch = line[i + 1];
-      sep_found    = true;
+      return true;
     }
   }
 
-  return sep_found;
+  return false;
 }
 
 cfg_prop_match_t cfg_eval_prop(const char  *prop,
@@ -128,7 +123,7 @@ cfg_parse(FILE *stream, cfg_translator_t translator, cfg_generic_info_t *info) {
   while (0 != stream_dyreadline(stream, &line_buffer)) {
     const char        *key   = NULL;
     const char        *value = NULL;
-    cfg_parse_status_t s     = TM_CFG_PARSE_STATUS_OK;
+    cfg_parse_status_t s     = TM_CFG_PARSE_STATUS_MALFORMED;
 
     if (!tokenize(line_buffer, &key, &value) ||
         TM_CFG_PARSE_STATUS_OK != (s = translator(key, value, info))) {

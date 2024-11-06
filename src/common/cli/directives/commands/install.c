@@ -281,13 +281,15 @@ static void find_repository(rt_recipe_t *recipe) {
   cli_out_newline();
   printf("Multiple repositories found for package '%s', choose between:",
          recipe->pkg_name);
+  cli_out_newline();
+
   for (size_t i = 0; i < repos_i; i++) {
     cli_out_space(8);
     printf("%ld. %s", i + 1, repos[i]);
     cli_out_newline();
   }
 
-  user_choice = cli_in_int("Enter repository identifier", 1, repos_i + 1);
+  user_choice = cli_in_int("Enter repository identifier", 1, repos_i);
 
 apply:
   recipe->recepie.pkg_info.from_repoistory = repos[user_choice - 1];
