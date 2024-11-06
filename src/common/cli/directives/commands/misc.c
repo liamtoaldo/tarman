@@ -24,9 +24,6 @@ int cli_cmd_update(cli_info_t info) {
 int cli_cmd_update_all(cli_info_t info) {
 }
 
-int cli_cmd_add_repo(cli_info_t info) {
-}
-
 int cli_cmd_remove_repo(cli_info_t info) {
 }
 

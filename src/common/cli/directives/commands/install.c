@@ -152,7 +152,7 @@ static bool create_pkg_dir(char *pkg_path) {
 
 int cli_cmd_install(cli_info_t info) {
   if (NULL == info.input) {
-    cli_out_error("Missing necessary input for command 'install'");
+    cli_out_error("Must specify a package to install'");
     return EXIT_FAILURE;
   }
 
