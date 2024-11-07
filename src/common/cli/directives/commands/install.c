@@ -205,6 +205,10 @@ static bool load_recipe(rt_recipe_t *recipe) {
   override_if_dst_unset(&recipe->recepie.package_format,
                         rcp_file_data.package_format);
 
+  recipe->recepie.add_to_path    = rcp_file_data.add_to_path;
+  recipe->recepie.add_to_desktop = rcp_file_data.add_to_desktop;
+  recipe->recepie.add_to_tarman  = rcp_file_data.add_to_tarman;
+
   ret = true;
 
 cleanup:
