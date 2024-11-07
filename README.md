@@ -65,7 +65,7 @@ Tarman should be fit for Hobby Operating Systems since it leaves most concrete a
 See the [documentation](docs/porting.md) for more information.
 
 ## Extensible?
-Tarman has a tiny core and is very modular. There's no code to extract archives or download files in the core program, instead tarman relies on other programs. By default, it attempts to call `tar` and `curl` from the `PATH` environment variable, but plugins can be writte and installed to support other backends and file formats!
+Tarman has a tiny core and is very modular. There's no code to extract archives or download files in the core program, instead tarman relies on other programs. By default, it attempts to call `tar` and `curl` from the `PATH` environment variable, but plugins can be written and installed to support other backends and file formats!
 
 See the [documentation](docs/plugins.md) for more information.
 
