@@ -19,6 +19,6 @@ jobs:
     - name: configure
       run: sh ./.github/workflows/configure.sh
     - name: Build binaries
-      run: make debug
+      run: make release
     - name: Upload all files
       run: sh ./.github/workflows/upload.sh
