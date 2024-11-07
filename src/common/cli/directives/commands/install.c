@@ -564,9 +564,7 @@ static bool infer_additional_info(rt_recipe_t *recipe,
         cli_in_bool("Do you want to add this package to PATH?");
   }
 
-  if ((recipe->recepie.add_to_path || recipe->recepie.add_to_tarman ||
-       recipe->recepie.add_to_desktop) &&
-      NULL == recipe->recepie.pkg_info.executable_path &&
+  if (NULL == recipe->recepie.pkg_info.executable_path &&
       !infer_exec(recipe, pkg_path)) {
     return false;
   }
@@ -702,8 +700,7 @@ int cli_cmd_install(cli_info_t info) {
   cli_out_progress("Creating recipe artifact in '%s'", pkg_rcp_path);
   pkg_dump_rcp(pkg_rcp_path, recipe.recepie);
 
-  if (NULL != recipe.recepie.pkg_info.executable_path &&
-      recipe.recepie.add_to_path) {
+  if (NULL != recipe.recepie.pkg_info.executable_path) {
     if (0 == os_fs_path_dyconcat((char **)&exec_path,
                                  2,
                                  pkg_path,
@@ -712,10 +709,46 @@ int cli_cmd_install(cli_info_t info) {
       goto cleanup;
     }
 
-    cli_out_progress("Adding executable '%s' to PATH", exec_path);
+    if (recipe.recepie.add_to_path) {
+      cli_out_progress("Adding executable '%s' to PATH", exec_path);
 
-    if (!os_env_path_add(exec_path)) {
-      cli_out_warning("Could not add executable to PATH");
+      if (!os_env_path_add(exec_path)) {
+        cli_out_warning("Could not add executable to PATH");
+      }
+    }
+
+    if (recipe.recepie.add_to_desktop) {
+      cli_out_progress("Adding app '%s' to installed apps",
+                       recipe.recepie.pkg_info.application_name);
+
+      const char *full_icon_path = NULL;
+      const char *full_wrk_dir   = NULL;
+
+      if (NULL == recipe.recepie.pkg_info.icon_path ||
+          0 == os_fs_path_dyconcat((char **)&full_icon_path,
+                                   2,
+                                   pkg_path,
+                                   recipe.recepie.pkg_info.icon_path)) {
+        cli_out_warning("Application has no icon");
+      }
+
+      if (NULL == recipe.recepie.pkg_info.working_directory ||
+          0 == os_fs_path_dyconcat((char **)&full_wrk_dir,
+                                   2,
+                                   pkg_path,
+                                   recipe.recepie.pkg_info.working_directory)) {
+        cli_out_warning("Application has no explicit working directory");
+      }
+
+      if (!os_env_desktop_add(recipe.recepie.pkg_info.application_name,
+                              exec_path,
+                              full_icon_path,
+                              full_wrk_dir)) {
+        cli_out_warning("Unable to add app to system applications");
+      }
+
+      mem_safe_free(full_icon_path);
+      mem_safe_free(full_wrk_dir);
     }
   }
 

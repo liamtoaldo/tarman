@@ -24,5 +24,6 @@ bool os_env_path_add(const char *executable);
 bool os_env_path_rm(const char *executable);
 bool os_env_desktop_add(const char *app_name,
                         const char *executable_path,
-                        const char *icon_path);
+                        const char *icon_path,
+                        const char *wkr_dir);
 bool os_env_desktop_rm(const char *app_name);
