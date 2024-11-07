@@ -18,4 +18,6 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 bool download(const char *dst, const char *url);
