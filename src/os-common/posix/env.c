@@ -43,6 +43,10 @@ static const char *get_name(const char *path) {
 }
 
 bool posix_env_path_add(const char *executable) {
+  if (NULL == executable) {
+    return false;
+  }
+
   const char *path_item = NULL;
   const char *exec_name = get_name(executable);
 
@@ -60,6 +64,10 @@ bool posix_env_path_add(const char *executable) {
 }
 
 bool posix_env_path_rm(const char *executable) {
+  if (NULL == executable) {
+    return false;
+  }
+
   const char *path_item = NULL;
   const char *exec_name = get_name(executable);
 

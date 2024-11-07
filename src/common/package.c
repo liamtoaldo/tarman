@@ -75,20 +75,20 @@ rcp_translator(const char *key, const char *value, recipe_t *rcp) {
   }
 
   if (NULL != add_to_path && 0 == strcmp(add_to_path, "true")) {
-    mem_safe_free(add_to_path);
     rcp->add_to_path = true;
   }
 
   if (NULL != add_to_desktop && 0 == strcmp(add_to_desktop, "true")) {
-    mem_safe_free(add_to_desktop);
     rcp->add_to_desktop = true;
   }
 
   if (NULL != add_to_tarman && 0 == strcmp(add_to_tarman, "true")) {
-    mem_safe_free(add_to_tarman);
     rcp->add_to_tarman = true;
   }
 
+  mem_safe_free(add_to_path);
+  mem_safe_free(add_to_desktop);
+  mem_safe_free(add_to_tarman);
   return TM_CFG_PARSE_STATUS_OK;
 }
 

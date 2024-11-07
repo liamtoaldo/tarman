@@ -43,6 +43,10 @@ bool os_env_desktop_add(const char *app_name,
                         const char *executable_path,
                         const char *icon_path,
                         const char *wrk_dir) {
+  if (NULL == app_name) {
+    return false;
+  }
+
   const char *usr_home      = get_home_directory();
   const char *app_file_path = NULL;
 
@@ -99,6 +103,10 @@ cleanup:
 }
 
 bool os_env_desktop_rm(const char *app_name) {
+  if (NULL == app_name) {
+    return false;
+  }
+
   const char *usr_home      = get_home_directory();
   const char *app_file_path = NULL;
 
