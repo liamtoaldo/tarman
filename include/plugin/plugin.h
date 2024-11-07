@@ -18,5 +18,7 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 bool plugin_exists(const char *plugin);
 int  plugin_run(const char *plugin, const char *dst, const char *src);
