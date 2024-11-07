@@ -49,4 +49,5 @@ posix_fs_tm_dyrecipe(char **dst, const char *repo_name, const char *pkg_name);
 size_t posix_fs_tm_dyplugins(const char **dst);
 size_t posix_fs_tm_dyplugin(const char **dst, const char *plugin);
 size_t posix_fs_tm_dyplugconf(const char **dst, const char *plugin);
+size_t posix_fs_tm_dyexecpath(const char **dst, const char *exec);
 bool   posix_fs_tm_init();

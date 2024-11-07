@@ -46,6 +46,7 @@ static tmstr_t Pkgs       = {0};
 static tmstr_t Extract    = {0};
 static tmstr_t Plugins    = {0};
 static tmstr_t PluginConf = {0};
+static tmstr_t Path       = {0};
 
 static const char *get_home_directory() {
   struct passwd *pw = getpwuid(getuid());
@@ -500,6 +501,14 @@ size_t posix_fs_tm_dyplugconf(const char **dst, const char *plugin) {
   return ret;
 }
 
+size_t posix_fs_tm_dyexecpath(const char **dst, const char *exec) {
+  char  *tm_pathexec;
+  size_t ret = os_fs_path_dyconcat(&tm_pathexec, 2, Path.buf, exec);
+  mem_chkoom(tm_pathexec);
+  *dst = tm_pathexec;
+  return ret;
+}
+
 bool posix_fs_tm_init() {
   const char *usr_home = get_home_directory();
 
@@ -512,9 +521,11 @@ bool posix_fs_tm_init() {
       os_fs_path_dyconcat(&Plugins.buf, 3, usr_home, ".tarman", "plugins");
   PluginConf.len =
       os_fs_path_dyconcat(&PluginConf.buf, 3, usr_home, ".tarman", "conf");
+  Path.len = os_fs_path_dyconcat(&Path.buf, 3, usr_home, ".tarman", "path");
 
   if (NULL == Home.buf || NULL == Repos.buf || NULL == Pkgs.buf ||
-      NULL == Extract.buf || NULL == Plugins.buf || NULL == PluginConf.buf) {
+      NULL == Extract.buf || NULL == Plugins.buf || NULL == PluginConf.buf ||
+      NULL == Path.buf) {
     return false;
   }
 
@@ -523,7 +534,8 @@ bool posix_fs_tm_init() {
       TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(Pkgs.buf)) ||
       TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(Extract.buf)) ||
       TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(Plugins.buf)) ||
-      TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(PluginConf.buf))) {
+      TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(PluginConf.buf)) ||
+      TM_FS_DIROP_STATUS_OK != simplify(os_fs_mkdir(Path.buf))) {
     return false;
   }
 

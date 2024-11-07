@@ -29,6 +29,7 @@
 #include "cli/output.h"
 #include "config.h"
 #include "download.h"
+#include "os/env.h"
 #include "os/fs.h"
 #include "package.h"
 #include "tm-mem.h"
@@ -605,6 +606,7 @@ int cli_cmd_install(cli_info_t info) {
   char       *pkg_path     = NULL;
   const char *archive_path = NULL;
   char       *pkg_rcp_path = NULL;
+  const char *exec_path    = NULL;
 
   cli_out_progress("Initializing host file system");
 
@@ -700,6 +702,23 @@ int cli_cmd_install(cli_info_t info) {
   cli_out_progress("Creating recipe artifact in '%s'", pkg_rcp_path);
   pkg_dump_rcp(pkg_rcp_path, recipe.recepie);
 
+  if (NULL != recipe.recepie.pkg_info.executable_path &&
+      recipe.recepie.add_to_path) {
+    if (0 == os_fs_path_dyconcat((char **)&exec_path,
+                                 2,
+                                 pkg_path,
+                                 recipe.recepie.pkg_info.executable_path)) {
+      cli_out_error("Unable to determine full path to executable");
+      goto cleanup;
+    }
+
+    cli_out_progress("Adding executable '%s' to PATH", exec_path);
+
+    if (!os_env_path_add(exec_path)) {
+      cli_out_warning("Could not add executable to PATH");
+    }
+  }
+
   if (info.from_url || info.from_repo && NULL != archive_path) {
     remove_pkg_cache(archive_path);
   }
@@ -710,6 +729,7 @@ int cli_cmd_install(cli_info_t info) {
 cleanup:
   mem_safe_free(archive_path);
   mem_safe_free(pkg_path);
+  mem_safe_free(exec_path);
   mem_safe_free(pkg_rcp_path);
   mem_safe_free(recipe.pkg_name);
   mem_safe_free(recipe.recepie.package_format);
