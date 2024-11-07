@@ -3,6 +3,7 @@ This is an Open Source project, everybody is welcome to contribute with their kn
 
 ## Some ideas
 This project is in very early development and I'm going to have very little time in the coming months, so here's a list of things that are missing or broken and that should be solved:
+- Fix typos (especially `receipe`) wherever possible
 - Refactor and cleanup (especially [src/common/cli/directives/commands/install.c](src/common/cli/directives/commands/install.c)
 - Prefix `tarman/` to all `#include` statements in quotes, and subsequently rename `tm-mem.h` to `tarman/memory.h`
 - Implement proper unit testing (see [src/common/cli/directives/test.c](src/common/cli/directives/test.c))
@@ -14,6 +15,10 @@ This project is in very early development and I'm going to have very little time
 - Make CLI prettier (**IMPORTANTE:** Must keep everything PORTABLE)
 - Remove code repetition (especially with dynamically allocated arrays that I basically reimplemented everywhere because it was faster)
 - Give OS-specific and OS-common implementations the ability to detect if something wrong is happening (e.g., segmentation faults, termination, etc.) and gracefully terminate the execution. Again, remember that this MUST BE PORTABLE, so if it makes use of any OS-specific features, it should be encapsulated in an interface under [include/os](include/os)
+- POSIX: fix text in white terminals
+- Add meta-recipes (recipes that allow people to download multiple packages at once)
+- Update `.clang-format` to avoid atrocities such as `(0 == <\n>` in conditions   
+- Make includes more efficient (remove duplicates, make it clearer when something is included implicitly, etc.)
 
 ## Repository management
 It's recommended not to commit your changes directly to the main branch. Instead, create a branch with a descriptive name (such as `<my_name>-<my_change>` e.g, `a_salerno-new_parser`) and commit your changes there. Once your changes have been made **AND TESTED**, you can create a Pull Request to merge your code with the official main branch. When writing your Pull Request, please make use of the Pull Request Template.
