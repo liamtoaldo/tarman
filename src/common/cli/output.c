@@ -23,8 +23,17 @@
 #include "cli/output.h"
 #include "os/console.h"
 
+static bool last_is_newline = false;
+
 void cli_out_newline() {
-  puts("");
+  if (!last_is_newline) {
+    puts("");
+    last_is_newline = true;
+  }
+}
+
+void cli_out_reset() {
+  last_is_newline = false;
 }
 
 void prefix(color_t color) {
@@ -43,6 +52,7 @@ void cli_out_progress(const char *fmt, ...) {
 
   os_console_set_color(TM_COLOR_RESET, false);
   puts("");
+  last_is_newline = false;
 }
 
 void cli_out_success(const char *fmt, ...) {
@@ -56,6 +66,7 @@ void cli_out_success(const char *fmt, ...) {
 
   os_console_set_color(TM_COLOR_RESET, false);
   puts("");
+  last_is_newline = false;
 }
 
 void cli_out_error(const char *fmt, ...) {
@@ -70,6 +81,7 @@ void cli_out_error(const char *fmt, ...) {
 
   os_console_set_color(TM_COLOR_RESET, false);
   puts("");
+  last_is_newline = false;
 }
 
 void cli_out_warning(const char *fmt, ...) {
@@ -84,6 +96,7 @@ void cli_out_warning(const char *fmt, ...) {
 
   os_console_set_color(TM_COLOR_RESET, false);
   puts("");
+  last_is_newline = false;
 }
 
 void cli_out_prompt(const char *fmt, ...) {
@@ -97,12 +110,14 @@ void cli_out_prompt(const char *fmt, ...) {
 
   os_console_set_color(TM_COLOR_RESET, false);
   putchar(' ');
+  last_is_newline = false;
 }
 
 void cli_out_space(size_t num) {
   for (size_t i = 0; i < num; i++) {
     printf(" ");
   }
+  last_is_newline = false;
 }
 
 static size_t print_word(char *word, size_t rem, size_t offset, csz_t csz) {
@@ -149,4 +164,5 @@ void cli_out_tab_words(size_t offset, const char *text, csz_t csz) {
 
   free(buf);
   puts("");
+  last_is_newline = false;
 }

@@ -279,13 +279,12 @@ static size_t user_choose(char      **options,
   }
 
   cli_out_newline();
-  // printf("Multiple repositories found for package '%s', choose between:",
-  //        recipe->pkg_name);
   va_list args;
   va_start(args, msg_fmt);
   vprintf(msg_fmt, args);
   va_end(args);
   putchar(':');
+  cli_out_reset();
   cli_out_newline();
 
   size_t range_min = 1;
@@ -301,6 +300,7 @@ static size_t user_choose(char      **options,
     cli_out_space(8);
     printf("%ld. %s", i + 1, options[i]);
     cli_out_newline();
+    cli_out_reset();
   }
 
   return cli_in_int(
@@ -433,16 +433,111 @@ static bool infer_app_name(rt_recipe_t *recipe, const char *pkg_path) {
   return true;
 }
 
+static bool find_executables(char     ***execs,
+                             size_t     *count,
+                             size_t     *bufsz,
+                             const char *base_path,
+                             const char *subdir) {
+  char *dir_path = (char *)base_path;
+
+  if (NULL != subdir &&
+      0 == os_fs_path_dyconcat(&dir_path, 2, base_path, subdir)) {
+    cli_out_error("Unable to determine subdirectory path");
+    return false;
+  }
+
+  os_fs_dirstream_t stream;
+  fs_dirop_status_t open_status = os_fs_dir_open(&stream, dir_path);
+  bool              ret         = false;
+
+  if (TM_FS_DIROP_STATUS_OK != open_status) {
+    cli_out_error("Unable to visit subdirectory '%s'", dir_path);
+    goto cleanup;
+  }
+
+  fs_dirent_t ent;
+
+  while (TM_FS_DIROP_STATUS_OK == os_fs_dir_next(stream, &ent)) {
+    if (TM_FS_FILETYPE_DIR == ent.file_type) {
+      char *sub_subdir = NULL;
+
+      if (NULL == subdir) {
+        if (!find_executables(execs, count, bufsz, base_path, ent.name)) {
+          goto close;
+        }
+        continue;
+      }
+
+      if (0 == os_fs_path_dyconcat(&sub_subdir, 2, subdir, ent.name)) {
+        cli_out_error("Unable to determine path to recursive subdirectory");
+        goto close;
+      }
+
+      if (!find_executables(execs, count, bufsz, base_path, sub_subdir)) {
+        mem_safe_free(sub_subdir);
+        goto close;
+      }
+
+      mem_safe_free(sub_subdir);
+    }
+
+    else if (TM_FS_FILETYPE_EXEC == ent.file_type) {
+      if (*bufsz - 1 == *count) {
+        *bufsz *= 2;
+        *execs = (char **)realloc(*execs, *bufsz);
+        mem_chkoom(*execs);
+      }
+
+      char *exec_path = NULL;
+
+      if (0 == os_fs_path_dyconcat(&exec_path, 2, subdir, ent.name)) {
+        cli_out_error("Unable to determine path to executable");
+        goto close;
+      }
+
+      (*execs)[*count] = exec_path;
+      (*count)++;
+    }
+  }
+
+  ret = true;
+
+close:
+  os_fs_dir_close(stream);
+cleanup:
+  if (NULL != subdir) {
+    mem_safe_free(dir_path);
+  }
+
+  return ret;
+}
+
 static bool infer_exec(rt_recipe_t *recipe, const char *pkg_path) {
-  return true;
+  bool          ret          = false;
+  size_t        execs_buf_sz = 16;
+  char        **execs        = (char **)malloc(execs_buf_sz * sizeof(char *));
+  size_t        count        = 0;
+  unsigned long user_choice  = 0;
+  mem_chkoom(execs);
+
+  if (find_executables(&execs, &count, &execs_buf_sz, pkg_path, NULL)) {
+    user_choice = user_choose(execs, count, true, "Choose an executable");
+    recipe->recepie.pkg_info.executable_path = execs[user_choice - 1];
+    ret                                      = true;
+  }
+
+  for (size_t i = 0; i < count; i++) {
+    if (i != user_choice - 1) {
+      mem_safe_free(execs[i]);
+    }
+  }
+
+  mem_safe_free(execs);
+  return ret;
 }
 
 static bool infer_working_dir(rt_recipe_t *recipe, const char *pkg_path) {
   cli_out_progress("Inferring working directory");
-
-  if (NULL == recipe->recepie.pkg_info.executable_path) {
-    return true;
-  }
 
   char *parent = NULL;
 
@@ -467,16 +562,16 @@ static bool infer_additional_info(rt_recipe_t *recipe,
         cli_in_bool("Do you want to add this package to PATH?");
   }
 
-  if (!recipe->recepie.add_to_desktop && !cli_info.add_desktop) {
-    recipe->recepie.add_to_desktop =
-        cli_in_bool("Do you want to add this package as an app?");
-  }
-
   if ((recipe->recepie.add_to_path || recipe->recepie.add_to_tarman ||
        recipe->recepie.add_to_desktop) &&
       NULL == recipe->recepie.pkg_info.executable_path &&
       !infer_exec(recipe, pkg_path)) {
     return false;
+  }
+
+  if (!recipe->recepie.add_to_desktop && !cli_info.add_desktop) {
+    recipe->recepie.add_to_desktop =
+        cli_in_bool("Do you want to add this package as an app?");
   }
 
   if (recipe->recepie.add_to_desktop &&
@@ -486,6 +581,7 @@ static bool infer_additional_info(rt_recipe_t *recipe,
   }
 
   if (recipe->recepie.add_to_desktop &&
+      NULL != recipe->recepie.pkg_info.executable_path &&
       NULL == recipe->recepie.pkg_info.working_directory &&
       !infer_working_dir(recipe, pkg_path)) {
     return false;
