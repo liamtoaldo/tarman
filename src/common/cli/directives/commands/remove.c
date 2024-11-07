@@ -44,7 +44,7 @@ int cli_cmd_remove(cli_info_t info) {
     goto cleanup;
   }
 
-  volatile char *pkg_path = NULL;
+  char *pkg_path = NULL;
 
   if (0 == os_fs_tm_dypkg(&pkg_path, pkg_name)) {
     cli_out_error("Unable to determine path for package");
@@ -77,8 +77,8 @@ int cli_cmd_remove(cli_info_t info) {
     goto cleanup;
   }
 
-  volatile const char *artifact_path = NULL;
-  recipe_t             recipe_artifact;
+  const char *artifact_path   = NULL;
+  recipe_t    recipe_artifact = {0};
 
   if (0 != os_fs_path_dyconcat(
                (char **)&artifact_path, 2, pkg_path, "recipe.tarman") &&
