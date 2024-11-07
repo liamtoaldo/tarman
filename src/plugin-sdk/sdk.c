@@ -17,8 +17,6 @@
 *************************************************************************/
 
 #include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "os/exec.h"
 #include "plugin/sdk.h"
@@ -29,18 +27,4 @@ int sdk_exec(const char *executable, ...) {
   int ret = os_vexec(executable, args);
   va_end(args);
   return ret;
-}
-
-int main(int argc, char *argv[]) {
-  if (4 != argc) {
-    return EXIT_FAILURE;
-  }
-
-  fclose(stdin);
-  fclose(stdout);
-  fclose(stderr);
-
-  sdk_handover_t handover = {.src = argv[1], .dst = argv[2], .cfg = argv[3]};
-
-  return plugin_main(&handover);
 }

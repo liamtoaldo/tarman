@@ -16,31 +16,17 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#pragma once
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#ifdef TARMAN_PLUGIN_SDK_VERSION
-#warning "Plugin redefines SDK version. This is not supported!"
-#undef TARMAN_PLUGIN_SDK_VERSION
-#endif
+#include "plugin/sdk.h"
 
-// Format: <Major>.<Minor>.<Revision>L
-// Example: 1.0.0 -> 010000L
-#define TARMAN_PLUGIN_SDK_VERSION 010000L
+int main(int argc, char *argv[]) {
+  if (4 != argc) {
+    return EXIT_FAILURE;
+  }
 
-// Structure passed to the `plugin_main` function
-// This structure uses 16-byte alignment to avoid future
-// strict-aliasing issues
-typedef struct {
-  const char *src;
-  const char *dst;
-  const char *cfg;
-} __attribute__((aligned(16))) sdk_handover_t;
-
-// Run a program on the user's computer
-// Invokes tarman `os_exec` indirectly
-// Returns the exit code of the program
-int sdk_exec(const char *executable, ...);
-
-// Plugin entry point
-// Returns the exit code of the plugin
-int plugin_main(sdk_handover_t *handover);
+  sdk_handover_t handover = {.src = argv[1], .dst = argv[2], .cfg = argv[3]};
+  return plugin_main(&handover);
+}
