@@ -1,6 +1,6 @@
 <p align="center">
     <h1 align="center">tarman</h1>
-    <p align="center"> The portable, cross-platform, extensible, and simple package manager for tar/tar.gz/tar.xz (and others!) </p>
+    <p align="center"> The portable, cross-platform, extensible, and simple package manager for tarballs (and others!) </p>
 </p>
 
 <div align="center">
@@ -52,7 +52,7 @@ curl -L "https://github.com/Alessandro-Salerno/tarman/raw/refs/heads/latest-buil
 
 ## How to use tarman
 This is a CLI tool, so the only way to interact with it (at the moment) is through the terminal. After installing it, type `tarman help` for a list of commands and options. To install a package you can use the `tarman install` command with the following options:
-- `-u` Downlaods from a URL (e.g., `tarman install -u https://some.domain/some/path/archive.tar.gz`)
+- `-u` Downloads from a URL (e.g., `tarman install -u https://some.domain/some/path/archive.tar.gz`)
 - `-r` Downloads from a repository using a recipe (e.g., `tarman install -r nvim`)
 - `-f` Is often used with `-u` to set the archive format (e.g., `-f zip`)
 - If neither `-u` nor `-r` are specified, tarman will assume that you have an archive locally (e.g., `tarman install ~/Downloads/program.tar.gz`)
