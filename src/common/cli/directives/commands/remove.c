@@ -28,10 +28,11 @@
 #include "tm-mem.h"
 
 int cli_cmd_remove(cli_info_t info) {
-  int         ret           = EXIT_FAILURE;
-  const char *pkg_name      = info.input;
-  char       *pkg_path      = NULL;
-  const char *artifact_path = NULL;
+  int         ret             = EXIT_FAILURE;
+  const char *pkg_name        = info.input;
+  char       *pkg_path        = NULL;
+  const char *artifact_path   = NULL;
+  recipe_t    recipe_artifact = {0};
 
   if (NULL == pkg_name) {
     cli_out_error("You must specify a package name for it to be removed. Use "
@@ -76,8 +77,6 @@ int cli_cmd_remove(cli_info_t info) {
   if (!cli_in_bool("Proceed with removal?")) {
     goto cleanup;
   }
-
-  recipe_t recipe_artifact = {0};
 
   if (0 != os_fs_path_dyconcat(
                (char **)&artifact_path, 2, pkg_path, "recipe.tarman") &&
