@@ -41,12 +41,12 @@ You can install tarman... with tarman...
 
 On Linux:
 ```sh
-curl "https://github.com/Alessandro-Salerno/tarman/raw/refs/heads/latest-build/linux/tarman-linux.tar.gz" -o ./tarman && ./tarman add-repo "https://github.com/Alessandro-Salerno/tarman-user-repository/raw/refs/heads/latest-repos/linux.tar.gz" && ./tarman install -r tarman && rm ./tarman
+curl "https://github.com/Alessandro-Salerno/tarman/raw/refs/heads/latest-build/linux/tarman" -o ./tarman && chmod +x ./tarman && ./tarman add-repo "https://github.com/Alessandro-Salerno/tarman-user-repository/raw/refs/heads/latest-repos/linux.tar.gz" && ./tarman install -r tarman && rm ./tarman
 ```
 
 On macOS:
 ```sh
-curl "https://github.com/Alessandro-Salerno/tarman/raw/refs/heads/latest-build/macos/tarman-macos.tar.gz" -o ./tarman && ./tarman add-repo "https://github.com/Alessandro-Salerno/tarman-user-repository/raw/refs/heads/latest-repos/macos.tar.gz" && ./tarman install -r tarman && rm ./tarman
+curl "https://github.com/Alessandro-Salerno/tarman/raw/refs/heads/latest-build/macos/tarman" -o ./tarman && chmod +x ./tarman && ./tarman add-repo "https://github.com/Alessandro-Salerno/tarman-user-repository/raw/refs/heads/latest-repos/macos.tar.gz" && ./tarman install -r tarman && rm ./tarman
 ```
 
 > [!IMPORTANT]
