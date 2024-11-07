@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <stdbool.h>
 #include <stdio.h>
 
 size_t stream_dyreadline(FILE *stream, char **dst);
