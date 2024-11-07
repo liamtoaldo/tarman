@@ -26,4 +26,4 @@ rm -rf ./tarman
 git add linux/
 
 git commit -m "new bundle"
-git push --set-upstream origin latest-linux-bundle --force
+git push --set-upstream origin latest-build --force
