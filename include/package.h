@@ -23,7 +23,7 @@
 
 #include "config.h"
 
-// Contents of .tmpkg files
+// Structure for tarman package files (packaage.tarman)
 typedef struct {
   const char *url;
   const char *from_repoistory;
@@ -33,9 +33,7 @@ typedef struct {
   const char *icon_path;
 } pkg_info_t;
 
-// Contents of .tmrcp files
-// In these files, the "FROM_REPOSITORY" property is not present
-// The "from_repository" struct field, however, may be set at runtime
+// Structure of tarman recipe fles (recipe.tarman or <packagename>.tarman)
 typedef struct {
   pkg_info_t  pkg_info;
   const char *package_format;
@@ -57,3 +55,6 @@ cfg_parse_status_t pkg_parse_tmpkg(pkg_info_t *pkg_info,
 
 cfg_parse_status_t pkg_parse_ftmrcp(recipe_t *rcp, FILE *rcp_file);
 cfg_parse_status_t pkg_parse_tmrcp(recipe_t *rcp, const char *rcp_file_path);
+
+bool pkg_dump_frcp(FILE *fp, recipe_t recipe);
+bool pkg_dump_rcp(const char *file_path, recipe_t recipe);

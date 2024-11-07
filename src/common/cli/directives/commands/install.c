@@ -246,7 +246,8 @@ static bool gen_repos_list(char     ***repos_list,
     fs_filetype_t rcp_file_type;
 
     if (TM_FS_FILEOP_STATUS_OK ==
-        os_fs_file_gettype(&rcp_file_type, pkg_recipe)) {
+            os_fs_file_gettype(&rcp_file_type, pkg_recipe) /* &&
+        TM_FS_FILETYPE_REGULAR == rcp_file_type */) {
       if (repos_buf_sz - 1 == i) {
         repos_buf_sz *= 2;
         repos = (char **)realloc(repos, repos_buf_sz);
@@ -603,6 +604,7 @@ int cli_cmd_install(cli_info_t info) {
   // Declartion is here to avoid issues with goto
   char       *pkg_path     = NULL;
   const char *archive_path = NULL;
+  char       *pkg_rcp_path = NULL;
 
   cli_out_progress("Initializing host file system");
 
@@ -690,7 +692,13 @@ int cli_cmd_install(cli_info_t info) {
     goto cleanup;
   }
 
-  // Create new .trpkg file in package directory
+  if (0 == os_fs_path_dyconcat(&pkg_rcp_path, 2, pkg_path, "recipe.tarman")) {
+    cli_out_error("Unable to determine path to package recipe artifact");
+    goto cleanup;
+  }
+
+  cli_out_progress("Creating recipe artifact in '%s'", pkg_rcp_path);
+  pkg_dump_rcp(pkg_rcp_path, recipe.recepie);
 
   if (info.from_url || info.from_repo && NULL != archive_path) {
     remove_pkg_cache(archive_path);
@@ -702,6 +710,7 @@ int cli_cmd_install(cli_info_t info) {
 cleanup:
   mem_safe_free(archive_path);
   mem_safe_free(pkg_path);
+  mem_safe_free(pkg_rcp_path);
   mem_safe_free(recipe.pkg_name);
   mem_safe_free(recipe.recepie.package_format);
   mem_safe_free(recipe.recepie.pkg_info.url);

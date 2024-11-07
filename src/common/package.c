@@ -92,6 +92,20 @@ rcp_translator(const char *key, const char *value, recipe_t *rcp) {
   return TM_CFG_PARSE_STATUS_OK;
 }
 
+static void dump_if_set(FILE *fp, const char *key, const char *value) {
+  if (NULL != value) {
+    fprintf(fp, "%s=%s\n", key, value);
+  }
+}
+
+static void dump_bool(FILE *fp, const char *key, bool value) {
+  if (value) {
+    fprintf(fp, "%s=true\n", key);
+  } else {
+    fprintf(fp, "%s=false\n", key);
+  }
+}
+
 cfg_parse_status_t pkg_parse_ftmpkg(pkg_info_t *pkg_info, FILE *pkg_file) {
   if (NULL == pkg_file) {
     return TM_CFG_PARSE_STATUS_NOFILE;
@@ -128,5 +142,32 @@ cfg_parse_status_t pkg_parse_tmrcp(recipe_t *rcp, const char *rcp_file_path) {
     fclose(fp);
   }
 
+  return ret;
+}
+
+bool pkg_dump_frcp(FILE *fp, recipe_t recipe) {
+  dump_if_set(fp, "URL", recipe.pkg_info.url);
+  dump_if_set(fp, "FROM_REPOSITORY", recipe.pkg_info.from_repoistory);
+  dump_if_set(fp, "APPLICATION_NAME", recipe.pkg_info.application_name);
+  dump_if_set(fp, "EXECUTABLE_PATH", recipe.pkg_info.executable_path);
+  dump_if_set(fp, "WORKING_DIRECTORY", recipe.pkg_info.working_directory);
+  dump_if_set(fp, "ICON_PATH", recipe.pkg_info.icon_path);
+  dump_if_set(fp, "PACKAGE_FORMAT", recipe.package_format);
+  dump_bool(fp, "ADD_TO_PATH", recipe.add_to_path);
+  dump_bool(fp, "ADD_TO_DESKTOP", recipe.add_to_desktop);
+  dump_bool(fp, "ADD_TO_TARMAN", recipe.add_to_tarman);
+
+  return true;
+}
+
+bool pkg_dump_rcp(const char *file_path, recipe_t recipe) {
+  FILE *fp = fopen(file_path, "w");
+
+  if (NULL == fp) {
+    return false;
+  }
+
+  bool ret = pkg_dump_frcp(fp, recipe);
+  fclose(fp);
   return ret;
 }
