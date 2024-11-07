@@ -12,18 +12,20 @@ Plugins are launched by tarman with three command-line arguments in this order:
 - Destination: the destination of the transformation (e.g., path to the destination directory for an archive extraction)
 - Configuration: path to the `txt` config file for this plugin
 
-Plugins are expected to return an integer exit code equal to the system's `EXIT_SUCCESS` upon successful completion and equal to the system's `EXIT_FAILURE` otherwise. Plugins are expected not to perform any I/O operation outside interacting with the configuration file and the subjects of the transformation. In particular, plugins are expected not to read from `stdin` or write to `stdout` and `stderr`. 
+Plugins are expected to return an integer exit code equal to the system's `EXIT_SUCCESS` upon successful completion and equal to the system's `EXIT_FAILURE` otherwise. Plugins are expected **NOT** to perform any I/O operation outside interacting with the configuration file and the subjects of the transformation. In particular, plugins are expected not to read from `stdin` or write to `stdout` and `stderr`. 
 
 ### Writing a plugin
-A basic SDK/launcher is provided in the tarman source tree at [src/plugin-sdk.c](../src/plugin-sdk.c). This launcher expects to be linked with one or more other files (wether source files, object files, static library archives, etc.) that provide a definition for the `tarman_plugin` symbol that takes three `char` pointers as arguments and returns an integer value.
+A basic SDK is provided in the tarman source tree in [src/plugin-sdk](../src/plugin-sdk). The loader expects to be linked with one or more other files (wether source files, object files, static library archives, etc.) that provide a definition for the `plugin_main` symbol that takes a pointer to `sdk_handover_t` as parameter and returns an integer value.
 
 Following is an example of a plugin that writes "Hello, world!" to the destination file:
 ```c
 #include <stdlib.h>
 #include <stdio.h>
 
-int tarman_plugin(const char *src, const char *dst, const char *cfg) {
-    FILE *fp = fopen(dst, "w");
+#include "plugin/sdk.h"
+
+int plugin_main(sdk_handover_t *handover) {
+    FILE *fp = fopen(handover->dst, "w");
 
     if (NULL == fp) {
         return EXIT_FAILURE;
@@ -36,8 +38,10 @@ int tarman_plugin(const char *src, const char *dst, const char *cfg) {
 }
 ```
 
-### Binary names
-The name of the binary for a tarman plugin is **EXTREMELY** important. The following names are reserved for special features (OS-specific file extensions are excluded):
+The SDK is in very early development and most features are not available yet. Documentation on the SDK is provided directly in ther SDK header file at [include/plugin/sdk.h](../include/plugin/sdk.h).
+
+### Executable names
+The name of the executable for a tarman plugin is **EXTREMELY** important. The following names are reserved for special features (OS-specific file extensions are excluded):
 
 | Name              | Description                                  | Source | Destination                          |
 | ----------------- | -------------------------------------------- | ------ | ------------------------------------ |
@@ -45,7 +49,7 @@ The name of the binary for a tarman plugin is **EXTREMELY** important. The follo
 
 Plugins with reserved names **CAN** be overriden. In fact, the reserved name is used to easily allow users to change the implementation they use. For example, to change the download handler, one only has to override the `download-plugin` file.
 
-Plugins that do not match any reserved name are invoked if they match the file extension of a package to be installed. For example, a plugin with a binary names `zip` will be used to extract packages that use the `.zip` format.
+Plugins that do not match any reserved name are invoked if they match the file extension of a package to be installed. For example, a plugin with `zip` as the name of its executable will be used to extract packages that use the `.zip` format.
 
 ### Structure of the `plugins/` directory
 The [plugins/](../plugins/) directory contains the source code for all built-in tarman plugins. Built-in plugins are provided to users directly upon installation depending on their platofrm.
@@ -53,20 +57,24 @@ The [plugins/](../plugins/) directory contains the source code for all built-in 
 This directory contains one subdirectory for each built-in plugin. Each subdirectory is independent and can be strucutred as desired by the developers as long as it caontains a `Makefile` with a valid first target that can be invoked by the main `Makefile` when compiling the entire project. Plugin Makefiles can be as simple as:
 ```Makefile
 $(DIST)/myplugin: plugin.c
-	@$(CC) plugin.c $(SDK) -o $(DIST)/myplugin
+	@$(CC) plugin.c $(SDK) $(SDK_FLAGS) -o $(DIST)/myplugin
 ```
 
 Some Make variables are provided to plugin makefiles by the main one
 
-| Variable | Description                                                          |
-| -------- | -------------------------------------------------------------------- |
-| `DIST`   | Directory meant to contain all plugin binaries (i.e., `bin/plugins`) |
-| `CC`     | C Compiler used to compile the whole project                         |
-| `SDK`    | C source file of the SDK/launcher (i.e., `src/plugin-sdk.c`)         |
+| Variable    | Description                                                              |
+| ----------- | ------------------------------------------------------------------------ |
+| `DIST`      | Directory meant to contain all plugin binaries (i.e., `bin/plugins`)     |
+| `CC`        | C Compiler used to compile the whole project                             |
+| `SDK`       | SDK object file (i.e., `bin/plugin-sdk.o`)                               |
+| `SDK_FLAGS` | Compiler flags used to compile the SDK, likely needed for the plugin too |
 
 ## Plugins as tarman packages
+> [!WARNING]
+> This feature is not fully implemented!
+
 Plugins can be distributed and installed as tarman packages. To add the executable inside a tarman package as a plugin, one only has to add this line to the package's recipe:
 ```
 ADD_TO_TARMAN=true
 ```
-If the recipe does not specify this line or if no recipe is provided, the `-T` and `--add-tarman` command-line options can be used during installation.
+If the recipe does not specify this line or if no recipe is provided, the `-t` and `--add-tarman` command-line options can be used during installation.
