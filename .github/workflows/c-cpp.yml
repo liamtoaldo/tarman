@@ -1,0 +1,24 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions: 
+  contents: write
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: configure
+      run: sh ./.github/workflows/configure.sh
+    - name: Build binaries
+      run: make release
+    - name: Upload all files
+      run: sh ./.github/workflows/upload.sh
