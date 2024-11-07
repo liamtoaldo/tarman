@@ -28,3 +28,32 @@
 <div align="center">
   <img src=".github/screenshots/showcase.gif">
 </div>
+
+## Why tarman?
+Archives are often used in the Linux world to distribute packages that work on all distros, but this often comes with the caveat of having to manually manage the installation and, worst of all, updtes. One notable example is [Discord]() which only provides packages for Debian-abased distros, while everybody else is left with a `tar.gz` archive which contains a version of the program that can't even update itself.
+
+Some distros try to solve the issue by letting their users create and distribute packages (see [Arch User Repository](https://aur.archlinux.org/)), but obviously this means downloading software from unofficial sources which may break the ToS and can potentially be dangerous.
+
+Tarman solves this by automating the steps you would have to follow to install archives as packages. Much like a regular package manager, it is able to install packages from local files, URLs and repositories.
+
+## How to install tarman
+
+## Portable?
+Archives have the advantage of being universal. The `tar` format, for example, is standardized and documented, thus anyone with the right know-how can create their own program to archive and extract tarballs. Tarman is designed to take advantage of this, its source code is structured in a way that should make it very easy to port to operating systems other than GNU/Linux. In fact, there's a working port for macOS (Darwin)!
+
+Tarman should be fit for Hobby Operating Systems since it leaves most concrete aspects to the OS-specific implementation and avoids the use of advanced OS features (e.g., dynamic linking with `dlopen`).
+
+See the [documentation](docs/porting.md) for more information.
+
+## Extensible?
+Tarman has a tiny core and is very modular. There's no code to extract archives or download files in the core program, instead tarman relies on other programs. By default, it attempts to call `tar` and `curl` from the `PATH` environment variable, but plugins can be writte and installed to support other backends and file formats!
+
+See the [documentation](docs/plugins.md) for more information.
+
+## License
+Tarman is distributed under the GNU General Public License v3.0 or later. This only applies to the core source code (and headers) of the program, files added by contributors may be distributed under different licenses. The license is always stated at the beginning of each source file. The copyright notice at the top of each source file states the name of the original creator of the file, copyright for changes and contributions however belong to their authors. 
+
+The list of authors can be found [here](./AUTHORS)
+
+## Contributing
+There's much to be done here, so if you want to contribute, go ahead! Read (and expand) the [documentation](./docs) and the [CONTRIBUTING](./CONTRIBUTING.md) file and take not of the license policy stated above.
