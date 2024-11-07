@@ -22,13 +22,15 @@
 #include "cli/directives/types.h"
 #include "cli/input.h"
 #include "cli/output.h"
+#include "os/env.h"
 #include "os/fs.h"
+#include "package.h"
 #include "tm-mem.h"
 
 int cli_cmd_remove(cli_info_t info) {
-  int ret = EXIT_FAILURE;
-
+  int         ret      = EXIT_FAILURE;
   const char *pkg_name = info.input;
+
   if (NULL == pkg_name) {
     cli_out_error("You must specify a package name for it to be removed. Use "
                   "'tarman remove <pkg name>'");
@@ -75,6 +77,34 @@ int cli_cmd_remove(cli_info_t info) {
     goto cleanup;
   }
 
+  const char *artifact_path = NULL;
+  recipe_t    recipe_artifact;
+
+  if (0 != os_fs_path_dyconcat(
+               (char **)&artifact_path, 2, pkg_path, "recipe.tarman") &&
+      pkg_parse_tmrcp(&recipe_artifact, artifact_path)) {
+    if (recipe_artifact.add_to_path) {
+      cli_out_progress("Removing executable from PATH");
+
+      if (!os_env_path_rm(recipe_artifact.pkg_info.executable_path)) {
+        cli_out_warning("Could not remove executable from PATH");
+      }
+    }
+
+    if (recipe_artifact.add_to_desktop) {
+      cli_out_progress("Removing app from system applications");
+
+      if (!os_env_desktop_rm(recipe_artifact.pkg_info.application_name)) {
+        cli_out_warning("Could not remove app from system applications");
+      }
+    }
+
+    // Remove tarman plugin
+  } else {
+    cli_out_warning("Removing package without metadata (recipe artifact), some "
+                    "files may persist");
+  }
+
   cli_out_progress("Removing package directory '%s'", pkg_path);
 
   if (TM_FS_DIROP_STATUS_OK != os_fs_dir_rm(pkg_path)) {
@@ -91,5 +121,6 @@ int cli_cmd_remove(cli_info_t info) {
 
 cleanup:
   mem_safe_free(pkg_path);
+  mem_safe_free(artifact_path);
   return ret;
 }
