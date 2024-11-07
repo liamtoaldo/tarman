@@ -41,10 +41,10 @@
   cli_out_success("All tests passed");         \
   return EXIT_SUCCESS;
 
-static bool test_tar() {
-  cli_out_progress("Testing tar extraction...");
-  return archive_tar_extract("extract", "archive.tar");
-}
+// static bool test_tar() {
+//   cli_out_progress("Testing tar extraction...");
+//   return archive_tar_extract("extract", "archive.tar");
+// }
 
 static bool test_dypath() {
   cli_out_progress("Testing dypath...");
@@ -65,7 +65,7 @@ static bool test_dirs() {
   if (TM_FS_DIROP_STATUS_OK != os_fs_dir_count(&count, "test")) {
     return false;
   }
-  printf("Count: %ld, expected: %ld\n", count, 0);
+  printf("Count: %ld, expected: %d\n", count, 0);
   if (0 != count) {
     return false;
   }
@@ -84,6 +84,7 @@ static bool test_init() {
 }
 
 int cli_cmd_test(cli_info_t info) {
+  (void)info;
   TARMAN_TEST_INIT();
   // TARMAN_TEST(test_tar);
   TARMAN_TEST(test_init);

@@ -170,9 +170,7 @@ static bool find_desc(cli_drt_desc_t  descriptors[],
                       size_t          num_desc,
                       const char     *arg,
                       cli_drt_desc_t *dst) {
-  bool found_matching_option = false;
-
-  for (int i = 0; i < num_desc; i++) {
+  for (size_t i = 0; i < num_desc; i++) {
     cli_drt_desc_t opt_desc = descriptors[i];
 
     if ((NULL == opt_desc.short_option ||

@@ -98,6 +98,7 @@ print_help_list(const char *title, cli_lkup_table_t table, csz_t csz) {
 }
 
 int cli_cmd_help(cli_info_t info) {
+  (void)info;
   csz_t console_sz = os_console_get_sz();
 
   cli_lkup_table_t cmd_table = cli_lkup_cmdtable();

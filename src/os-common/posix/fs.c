@@ -267,12 +267,6 @@ fs_dirop_status_t posix_fs_dir_next(os_fs_dirstream_t stream,
   return TM_FS_DIROP_STATUS_OK;
 }
 
-fs_fileop_status_t posix_fs_file_mv(const char *dst, const char *src) {
-}
-
-fs_fileop_status_t posix_fs_file_cp(const char *dst, const char *src) {
-}
-
 fs_fileop_status_t posix_fs_file_rm(const char *path) {
   if (0 == unlink(path)) {
     return TM_FS_FILEOP_STATUS_OK;

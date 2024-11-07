@@ -61,11 +61,6 @@ static void override_if_dst_unset(const char **dst, const char *src) {
   }
 }
 
-static void override_and_free(const char **dst, const char *src) {
-  mem_safe_free(*dst);
-  override_if_src_set(dst, src, true);
-}
-
 static void override_recipe(rt_recipe_t *recipe, cli_info_t cli_info) {
   override_if_src_set(&recipe->recepie.package_format, cli_info.pkg_fmt, true);
   override_if_src_set(&recipe->pkg_name, cli_info.pkg_name, true);
@@ -542,7 +537,7 @@ static bool infer_exec(rt_recipe_t *recipe, const char *pkg_path) {
   return ret;
 }
 
-static bool infer_working_dir(rt_recipe_t *recipe, const char *pkg_path) {
+static bool infer_working_dir(rt_recipe_t *recipe) {
   cli_out_progress("Inferring working directory");
 
   char *parent = NULL;
@@ -587,7 +582,7 @@ static bool infer_additional_info(rt_recipe_t *recipe,
   if (recipe->recepie.add_to_desktop &&
       NULL != recipe->recepie.pkg_info.executable_path &&
       NULL == recipe->recepie.pkg_info.working_directory &&
-      !infer_working_dir(recipe, pkg_path)) {
+      !infer_working_dir(recipe)) {
     return false;
   }
 
@@ -756,7 +751,7 @@ int cli_cmd_install(cli_info_t info) {
     }
   }
 
-  if (info.from_url || info.from_repo && NULL != archive_path) {
+  if ((info.from_url || info.from_repo) && NULL != archive_path) {
     remove_pkg_cache(archive_path);
   }
 

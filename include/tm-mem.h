@@ -20,4 +20,4 @@
 
 void mem_safe_free(const void *ptr);
 void mem_oom();
-void mem_chkoom(const void *ptr);
+void mem_chkoom(void *ptr);

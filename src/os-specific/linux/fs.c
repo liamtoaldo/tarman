@@ -44,14 +44,6 @@ fs_dirop_status_t os_fs_dir_next(os_fs_dirstream_t stream, fs_dirent_t *ent) {
   return posix_fs_dir_next(stream, ent);
 }
 
-fs_fileop_status_t os_fs_file_mv(const char *dst, const char *src) {
-  return posix_fs_file_mv(dst, src);
-}
-
-fs_fileop_status_t os_fs_file_cp(const char *dst, const char *src) {
-  return posix_fs_file_cp(dst, src);
-}
-
 fs_fileop_status_t os_fs_file_rm(const char *path) {
   return posix_fs_file_rm(path);
 }

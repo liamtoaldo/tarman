@@ -61,7 +61,7 @@ void posix_console_set_color(color_t color, bool bold) {
     ansi_color = 37;
     break;
   case TM_COLOR_RESET:
-    printf("\e[m");
+    printf("\033[m");
     return;
 
   default:
@@ -69,9 +69,9 @@ void posix_console_set_color(color_t color, bool bold) {
   }
 
   if (!bold) {
-    printf("\e[0;%dm", ansi_color);
+    printf("\033[0;%dm", ansi_color);
     return;
   }
 
-  printf("\e[1;%dm", ansi_color);
+  printf("\033[1;%dm", ansi_color);
 }

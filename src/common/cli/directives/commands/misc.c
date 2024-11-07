@@ -16,16 +16,26 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
+#include <stdlib.h>
+
 #include "cli/directives/commands.h"
 
 int cli_cmd_update(cli_info_t info) {
+  (void)info;
+  return EXIT_FAILURE;
 }
 
 int cli_cmd_update_all(cli_info_t info) {
+  (void)info;
+  return EXIT_FAILURE;
 }
 
 int cli_cmd_remove_repo(cli_info_t info) {
+  (void)info;
+  return EXIT_FAILURE;
 }
 
 int cli_cmd_list_repos(cli_info_t info) {
+  (void)info;
+  return EXIT_FAILURE;
 }

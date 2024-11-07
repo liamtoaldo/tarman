@@ -27,8 +27,6 @@
 #include "tm-mem.h"
 
 static bool tokenize(char *line, const char **key, const char **value) {
-  char first_val_ch = 0;
-
   for (size_t i = 0; line[i]; i++) {
     char ch = line[i];
 
@@ -37,10 +35,9 @@ static bool tokenize(char *line, const char **key, const char **value) {
     }
 
     if ('=' == ch) {
-      line[i]      = 0;
-      *key         = line;
-      *value       = &line[i + 1];
-      first_val_ch = line[i + 1];
+      line[i] = 0;
+      *key    = line;
+      *value  = &line[i + 1];
       return true;
     }
   }
@@ -80,7 +77,8 @@ cfg_prop_match_t cfg_eval_prop(const char  *prop,
     }
   }
 
-fail:
+  // If the code gets here, the functions has failed
+  // This is because of the goto success;
   va_end(args);
   return TM_CFG_PROP_MATCH_ERR;
 

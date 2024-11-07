@@ -1,5 +1,5 @@
 -Iinclude/
 -Iinclude/os/linux
--std=c2x
+-std=c11
 -DHTMC_CGI_INTF
 -DEXT_TARMAN_BUILD="\"PLACEHOLDER\""

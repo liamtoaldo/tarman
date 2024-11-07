@@ -41,6 +41,7 @@ set_opt_using_next(const char *opt, const char **target, const char *next) {
 }
 
 bool cli_opt_from_url(cli_info_t *info, const char *next) {
+  (void)next;
   if (info->from_repo) {
     cli_out_error("Options '%s' and '%s' are not compatible",
                   TARMAN_FOPT_FROM_REPO,
@@ -53,6 +54,7 @@ bool cli_opt_from_url(cli_info_t *info, const char *next) {
 }
 
 bool cli_opt_from_repo(cli_info_t *info, const char *next) {
+  (void)next;
   if (info->from_url) {
     cli_out_error("Options '%s' and '%s' are not compatible",
                   TARMAN_FOPT_FROM_URL,
@@ -89,16 +91,19 @@ bool cli_opt_icon(cli_info_t *info, const char *next) {
 }
 
 bool cli_opt_add_path(cli_info_t *info, const char *next) {
+  (void)next;
   info->add_path = true;
   return true;
 }
 
 bool cli_opt_add_desktop(cli_info_t *info, const char *next) {
+  (void)next;
   info->add_desktop = true;
   return true;
 }
 
 bool cli_opt_add_tarman(cli_info_t *info, const char *next) {
+  (void)next;
   info->add_tarman = true;
   return true;
 }

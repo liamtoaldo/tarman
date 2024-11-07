@@ -123,6 +123,8 @@ static void table_print(size_t max_len, size_t width) {
 }
 
 int cli_cmd_list(cli_info_t info) {
+  (void)info;
+
   if (!os_fs_tm_init()) {
     cli_out_progress("Failed to inizialize host file system");
     return EXIT_FAILURE;

@@ -15,12 +15,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 CC=gcc
-CFLAGS=-std=c2x -Iinclude/ -DEXT_TARMAN_BUILD="\"$(shell date +%y.%m.%d)\""
+CFLAGS=-Wall -Wpedantic -Wextra -std=c11 -Iinclude/ -DEXT_TARMAN_BUILD="\"$(shell date +%y.%m.%d)\""
 LDFLAGS=
 
 DEBUG_CFLAGS=-O0 -fsanitize=undefined -fsanitize=address -g
 DEBUG_LDFLAGS=
-RELEASE_CLFAGS=-O3
+RELEASE_CLFAGS=-O3 -Werror
 RELEASE_LDFLAGS=-flto
 
 CUSTOM_CFLAGS?=
