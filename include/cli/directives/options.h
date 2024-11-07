@@ -34,7 +34,7 @@
 
 #define TARMAN_FOPT_FROM_URL    "--from-url"
 #define TARMAN_FOPT_FROM_REPO   "--from-repo"
-#define TARMAN_FOPT_PKG_FMT     "--pkg-format"
+#define TARMAN_FOPT_PKG_FMT     "--format"
 #define TARMAN_FOPT_PKG_NAME    "--pkg-name"
 #define TARMAN_FOPT_APP_NAME    "--app-name"
 #define TARMAN_FOPT_EXEC        "--exec"
