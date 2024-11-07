@@ -28,10 +28,8 @@
 #include "tm-mem.h"
 
 int cli_cmd_remove(cli_info_t info) {
-  int         ret           = EXIT_FAILURE;
-  const char *pkg_name      = info.input;
-  char       *pkg_path      = NULL;
-  const char *artifact_path = NULL;
+  int         ret      = EXIT_FAILURE;
+  const char *pkg_name = info.input;
 
   if (NULL == pkg_name) {
     cli_out_error("You must specify a package name for it to be removed. Use "
@@ -45,6 +43,8 @@ int cli_cmd_remove(cli_info_t info) {
     cli_out_progress("Failed to inizialize host file system");
     goto cleanup;
   }
+
+  volatile char *pkg_path = NULL;
 
   if (0 == os_fs_tm_dypkg(&pkg_path, pkg_name)) {
     cli_out_error("Unable to determine path for package");
@@ -77,7 +77,8 @@ int cli_cmd_remove(cli_info_t info) {
     goto cleanup;
   }
 
-  recipe_t recipe_artifact;
+  volatile const char *artifact_path = NULL;
+  recipe_t             recipe_artifact;
 
   if (0 != os_fs_path_dyconcat(
                (char **)&artifact_path, 2, pkg_path, "recipe.tarman") &&
