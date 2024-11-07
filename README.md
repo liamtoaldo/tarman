@@ -47,7 +47,7 @@ curl -L "https://github.com/Alessandro-Salerno/tarman/raw/refs/heads/latest-buil
 > [!IMPORTANT]
 > To use tarman properly, you'll have to add it to your `PATH` environment variable. This procedure depends on you [Shell](https://en.wikipedia.org/wiki/List_of_command-line_interpreters), with bash for example:
 > ```sh
-> echo "export PATH=$PATH:~/.tarman/path/" >> ~/.bashrc
+> echo "export PATH=~/.tarman/path/:\$PATH" >> ~/.bashrc
 > ```
 
 ## How to use tarman
