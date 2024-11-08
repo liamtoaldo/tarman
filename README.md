@@ -44,6 +44,11 @@ On Linux:
 curl -L "https://github.com/Alessandro-Salerno/tarman/raw/refs/heads/latest-build/linux/tarman" -o ./tarman && chmod +x ./tarman && ./tarman add-repo "https://github.com/Alessandro-Salerno/tarman-user-repository/raw/refs/heads/latest-repos/linux.tar.gz" && ./tarman install -r tarman && rm ./tarman
 ```
 
+On macOS:
+```sh
+curl -L "https://github.com/Alessandro-Salerno/tarman/raw/refs/heads/latest-build/macos/tarman" -o ./tarman && chmod +x ./tarman && ./tarman add-repo "https://github.com/Alessandro-Salerno/tarman-user-repository/raw/refs/heads/latest-repos/macos.tar.gz" && ./tarman install -r tarman && rm ./tarman
+```
+
 > [!IMPORTANT]
 > To use tarman properly, you'll have to add it to your `PATH` environment variable. This procedure depends on you [Shell](https://en.wikipedia.org/wiki/List_of_command-line_interpreters), with bash for example:
 > ```sh
