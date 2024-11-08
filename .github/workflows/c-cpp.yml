@@ -20,9 +20,11 @@ jobs:
       run: sh ./.github/workflows/configure.sh
     - name: Build binaries for Linux
       run: make release
-    - name: Upload Linux binaries
-      run: sh ./.github/workflows/upload.sh linux
+    - name: Archive Linux binaries
+      run: sh ./.github/workflows/make-archives.sh linux
     - name: Build binaries for macOS
       run: make clean && make release CC="zig cc -target arm64-macos"
-    - name: Upload macOS binaries
-      run: sh ./.github/workflows/upload.sh macos
+    - name: Archive macOS binaries
+      run: sh ./.github/workflows/make-archives.sh macos
+    - name: Upload all
+      run: sh ./.github/workflows/upload.sh
