@@ -4,7 +4,7 @@ git checkout --orphan latest-build
 
 mkdir $1
 cp ./bin/tarman $1/tarman
-cp -r ./bin/plugin $1/plugins
+cp -r ./bin/plugins $1/plugins
 cp -r ./bin/plugin-sdk.o $1/plugin-sdk.o
 
 mkdir tarman
