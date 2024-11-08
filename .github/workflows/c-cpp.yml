@@ -23,7 +23,7 @@ jobs:
     - name: Archive Linux binaries
       run: sh ./.github/workflows/make-archives.sh linux
     - name: Build binaries for macOS
-      run: make clean && make release CC="zig cc -target aarch64-macos" TARMAN_OS=darwin
+      run: make clean && make release CC="zig cc -target aarch64-macos" TARMAN_OS=darwin RELEASE_LDFLAGS=""
     - name: Archive macOS binaries
       run: sh ./.github/workflows/make-archives.sh macos
     - name: Upload all
