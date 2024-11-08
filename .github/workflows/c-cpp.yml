@@ -18,7 +18,11 @@ jobs:
     - uses: actions/checkout@v4
     - name: configure
       run: sh ./.github/workflows/configure.sh
-    - name: Build binaries
+    - name: Build binaries for Linux
       run: make release
-    - name: Upload all files
+    - name: Upload Linux binaries
       run: sh ./.github/workflows/upload.sh linux
+    - name: Build binaries for macOS
+      run: make clean && make release CC="zig cc -target arm64-macos"
+    - name: Upload macOS binaries
+      run: sh ./.github/workflows/upload.sh macos
