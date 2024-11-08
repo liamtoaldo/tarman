@@ -84,7 +84,7 @@ make plugins      # Compile the Pugin SDK and all built-in plugins
 ```
 
 ## License
-Tarman is distributed under the GNU General Public License v3.0 or later. This only applies to the core source code (and headers) of the program, files added by contributors may be distributed under different licenses. The license is always stated at the beginning of each source file. The copyright notice at the top of each source file states the name of the original creator of the file, copyright for changes and contributions however belong to their authors. 
+Tarman is distributed under the GNU General Public License v3.0 or later. This only applies to the core source code (and headers) of the program, files added by contributors may be distributed under different licenses. The license is always stated at the beginning of each source file. The copyright notice at the top of each source file states the name of the original creator of the file, copyright for changes and contributions however belongs to their authors. 
 
 The list of authors can be found [here](./AUTHORS)
 
