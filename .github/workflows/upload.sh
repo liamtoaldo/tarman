@@ -6,7 +6,7 @@ git rm -rf .gitattributes
 git rm -rf .gitignore
 git rm -rf .clang-format
 git rm -rf Makefile
-git rm -rf plugins
+git rm -rf ./plugins
 git rm -rf compile_flags.txt
 
 git commit -m "new bundle"
