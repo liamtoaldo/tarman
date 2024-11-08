@@ -403,7 +403,7 @@ static bool infer_app_name(rt_recipe_t *recipe, const char *pkg_path) {
 
       if (names_buf_sz - 1 == count) {
         names_buf_sz *= 2;
-        names = (char **)realloc(names, names_buf_sz);
+        names = (char **)realloc(names, names_buf_sz * sizeof(char *));
         mem_chkoom(names);
       }
 
@@ -485,7 +485,7 @@ static bool find_executables(char     ***execs,
     else if (TM_FS_FILETYPE_EXEC == ent.file_type) {
       if (*bufsz - 1 == *count) {
         *bufsz *= 2;
-        *execs = (char **)realloc(*execs, *bufsz);
+        *execs = (char **)realloc(*execs, *bufsz * sizeof(char *));
         mem_chkoom(*execs);
       }
 
