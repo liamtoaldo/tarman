@@ -87,7 +87,7 @@ plugin-sdk: $(SDK_OBJ)
 
 $(PLUGIN_MAKEFILES): force
 	@echo Compiling plugin "'$(@D)'"
-	@$(MAKE) -C $(@D) DIST="../../$(BIN)/plugins" CC="$(CC)"" SDK="../../$(BIN)/plugin-sdk.o" SDK_FLAGS="$(CUSTOM_CFLAGS) $(CUSTOM_LDFLAGS) -I../../include/" > /dev/null
+	@$(MAKE) -C $(@D) DIST="../../$(BIN)/plugins" CC="$(CC)" SDK="../../$(BIN)/plugin-sdk.o" SDK_FLAGS="$(CUSTOM_CFLAGS) $(CUSTOM_LDFLAGS) -I../../include/" > /dev/null
 
 force: ;
 
