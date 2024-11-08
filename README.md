@@ -39,14 +39,14 @@ Tarman solves this by automating the steps you would have to follow to install a
 ## How to install tarman
 You can install tarman... with tarman...
 
-On Linux:
+On Linux (x86-64):
 ```sh
-curl -L "https://github.com/Alessandro-Salerno/tarman/raw/refs/heads/latest-build/linux/tarman" -o ./tarman && chmod +x ./tarman && ./tarman add-repo "https://github.com/Alessandro-Salerno/tarman-user-repository/raw/refs/heads/latest-repos/linux.tar.gz" && ./tarman install -r tarman && rm ./tarman
+curl -L "https://github.com/Alessandro-Salerno/tarman/raw/refs/heads/latest-build/linux-x86_64/tarman" -o ./tarman && chmod +x ./tarman && ./tarman add-repo "https://github.com/Alessandro-Salerno/tarman-user-repository/raw/refs/heads/latest-repos/linux-x86_64.tar.gz" && ./tarman install -r tarman && rm ./tarman
 ```
 
-On macOS:
+On macOS (Apple Silicon - ARM64 - AARCH64):
 ```sh
-curl -L "https://github.com/Alessandro-Salerno/tarman/raw/refs/heads/latest-build/macos/tarman" -o ./tarman && chmod +x ./tarman && ./tarman add-repo "https://github.com/Alessandro-Salerno/tarman-user-repository/raw/refs/heads/latest-repos/macos.tar.gz" && ./tarman install -r tarman && rm ./tarman
+curl -L "https://github.com/Alessandro-Salerno/tarman/raw/refs/heads/latest-build/macos-arm64/tarman" -o ./tarman && chmod +x ./tarman && ./tarman add-repo "https://github.com/Alessandro-Salerno/tarman-user-repository/raw/refs/heads/latest-repos/macos-arm64.tar.gz" && ./tarman install -r tarman && rm ./tarman
 ```
 
 > [!IMPORTANT]
