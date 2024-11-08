@@ -21,4 +21,4 @@ jobs:
     - name: Build binaries
       run: make release
     - name: Upload all files
-      run: sh ./.github/workflows/upload.sh
+      run: sh ./.github/workflows/upload.sh linux
