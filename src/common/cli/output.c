@@ -25,101 +25,6 @@
 
 static bool last_is_newline = false;
 
-void cli_out_newline() {
-  if (!last_is_newline) {
-    puts("");
-    last_is_newline = true;
-  }
-}
-
-void cli_out_reset() {
-  last_is_newline = false;
-}
-
-void prefix(color_t color) {
-  os_console_set_color(color, false);
-  printf("=> ");
-}
-
-void cli_out_progress(const char *fmt, ...) {
-  prefix(TM_COLOR_MAGENTA);
-
-  va_list args;
-  va_start(args, fmt);
-  os_console_set_color(TM_COLOR_TEXT, true);
-  vprintf(fmt, args);
-  va_end(args);
-
-  os_console_set_color(TM_COLOR_RESET, false);
-  puts("");
-  last_is_newline = false;
-}
-
-void cli_out_success(const char *fmt, ...) {
-  prefix(TM_COLOR_GREEN);
-
-  va_list args;
-  va_start(args, fmt);
-  os_console_set_color(TM_COLOR_GREEN, true);
-  vprintf(fmt, args);
-  va_end(args);
-
-  os_console_set_color(TM_COLOR_RESET, false);
-  puts("");
-  last_is_newline = false;
-}
-
-void cli_out_error(const char *fmt, ...) {
-  prefix(TM_COLOR_RED);
-
-  va_list args;
-  va_start(args, fmt);
-  os_console_set_color(TM_COLOR_RED, true);
-  printf("ERROR: ");
-  vprintf(fmt, args);
-  va_end(args);
-
-  os_console_set_color(TM_COLOR_RESET, false);
-  puts("");
-  last_is_newline = false;
-}
-
-void cli_out_warning(const char *fmt, ...) {
-  prefix(TM_COLOR_YELLOW);
-
-  va_list args;
-  va_start(args, fmt);
-  os_console_set_color(TM_COLOR_YELLOW, true);
-  printf("WARNING: ");
-  vprintf(fmt, args);
-  va_end(args);
-
-  os_console_set_color(TM_COLOR_RESET, false);
-  puts("");
-  last_is_newline = false;
-}
-
-void cli_out_prompt(const char *fmt, ...) {
-  os_console_set_color(TM_COLOR_CYAN, true);
-  printf(":: ");
-
-  va_list args;
-  va_start(args, fmt);
-  vprintf(fmt, args);
-  va_end(args);
-
-  os_console_set_color(TM_COLOR_RESET, false);
-  putchar(' ');
-  last_is_newline = false;
-}
-
-void cli_out_space(size_t num) {
-  for (size_t i = 0; i < num; i++) {
-    printf(" ");
-  }
-  last_is_newline = false;
-}
-
 static size_t print_word(char *word, size_t rem, size_t offset, csz_t csz) {
   size_t len = strlen(word);
 
@@ -142,6 +47,132 @@ static size_t print_word(char *word, size_t rem, size_t offset, csz_t csz) {
   }
 
   return rem;
+}
+
+static size_t aligned_putch(char c, size_t cwidth, size_t pad, size_t used) {
+  if (used == cwidth) {
+    cli_out_newline();
+    cli_out_space(pad);
+    used = pad;
+  }
+
+  putchar(c);
+  return used + 1;
+}
+
+static void aligned_vprintf(const char *fmt, va_list args, size_t pad) {
+  size_t used   = pad;
+  size_t cwidth = os_console_get_sz().columns;
+
+  for (size_t i = 0; fmt[i]; i++) {
+    if ('%' == fmt[i] && 's' == fmt[i + 1]) {
+      char *str = va_arg(args, char *);
+
+      for (size_t j = 0; str[j]; j++) {
+        used = aligned_putch(str[j], cwidth, pad, used);
+      }
+
+      i++;
+      continue;
+    }
+
+    used = aligned_putch(fmt[i], cwidth, pad, used);
+  }
+}
+
+void cli_out_newline() {
+  if (!last_is_newline) {
+    puts("");
+    last_is_newline = true;
+  }
+}
+
+void cli_out_reset() {
+  last_is_newline = false;
+}
+
+void prefix(color_t color) {
+  os_console_set_color(color, false);
+  printf("=> ");
+}
+
+void cli_out_progress(const char *fmt, ...) {
+  prefix(TM_COLOR_MAGENTA);
+
+  va_list args;
+  va_start(args, fmt);
+  os_console_set_color(TM_COLOR_TEXT, true);
+  aligned_vprintf(fmt, args, 3);
+  va_end(args);
+
+  os_console_set_color(TM_COLOR_RESET, false);
+  puts("");
+  last_is_newline = false;
+}
+
+void cli_out_success(const char *fmt, ...) {
+  prefix(TM_COLOR_GREEN);
+
+  va_list args;
+  va_start(args, fmt);
+  os_console_set_color(TM_COLOR_GREEN, true);
+  aligned_vprintf(fmt, args, 3);
+  va_end(args);
+
+  os_console_set_color(TM_COLOR_RESET, false);
+  puts("");
+  last_is_newline = false;
+}
+
+void cli_out_error(const char *fmt, ...) {
+  prefix(TM_COLOR_RED);
+
+  va_list args;
+  va_start(args, fmt);
+  os_console_set_color(TM_COLOR_RED, true);
+  printf("ERROR: ");
+  aligned_vprintf(fmt, args, 10);
+  va_end(args);
+
+  os_console_set_color(TM_COLOR_RESET, false);
+  puts("");
+  last_is_newline = false;
+}
+
+void cli_out_warning(const char *fmt, ...) {
+  prefix(TM_COLOR_YELLOW);
+
+  va_list args;
+  va_start(args, fmt);
+  os_console_set_color(TM_COLOR_YELLOW, true);
+  printf("WARNING: ");
+  aligned_vprintf(fmt, args, 12);
+  va_end(args);
+
+  os_console_set_color(TM_COLOR_RESET, false);
+  puts("");
+  last_is_newline = false;
+}
+
+void cli_out_prompt(const char *fmt, ...) {
+  os_console_set_color(TM_COLOR_CYAN, true);
+  printf(":: ");
+
+  va_list args;
+  va_start(args, fmt);
+  aligned_vprintf(fmt, args, 3);
+  va_end(args);
+
+  os_console_set_color(TM_COLOR_RESET, false);
+  putchar(' ');
+  last_is_newline = false;
+}
+
+void cli_out_space(size_t num) {
+  for (size_t i = 0; i < num; i++) {
+    printf(" ");
+  }
+  last_is_newline = false;
 }
 
 void cli_out_tab_words(size_t offset, const char *text, csz_t csz) {

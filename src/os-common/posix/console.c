@@ -58,7 +58,7 @@ void posix_console_set_color(color_t color, bool bold) {
     ansi_color = 36;
     break;
   case TM_COLOR_TEXT:
-    ansi_color = 37;
+    ansi_color = 39;
     break;
   case TM_COLOR_RESET:
     printf("\033[m");

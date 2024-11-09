@@ -250,7 +250,7 @@ static bool gen_repos_list(char     ***repos_list,
         TM_FS_FILETYPE_REGULAR == rcp_file_type */) {
       if (repos_buf_sz - 1 == i) {
         repos_buf_sz *= 2;
-        repos = (char **)realloc(repos, repos_buf_sz);
+        repos = (char **)realloc(repos, repos_buf_sz * sizeof(char *));
         mem_chkoom(repos);
       }
 
