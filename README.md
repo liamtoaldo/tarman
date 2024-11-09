@@ -26,7 +26,7 @@
 </div>
 
 <div align="center">
-  <img src=".github/screenshots/showcase.gif">
+  <img src=".github/screenshots/showcase.gif" width="100%">
 </div>
 
 ## Why tarman?
