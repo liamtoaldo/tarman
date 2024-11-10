@@ -30,5 +30,5 @@ typedef struct {
 
 bool             cli_lkup_command(const char *command, cli_drt_desc_t *dst);
 bool             cli_lkup_option(const char *command, cli_drt_desc_t *dst);
-cli_lkup_table_t cli_lkup_cmdtable();
-cli_lkup_table_t cli_lkup_opttable();
+cli_lkup_table_t cli_lkup_cmdtable(void);
+cli_lkup_table_t cli_lkup_opttable(void);

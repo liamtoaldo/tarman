@@ -20,5 +20,5 @@
 
 #include "os/console.h"
 
-csz_t noopt_console_get_sz();
+csz_t noopt_console_get_sz(void);
 void  noopt_console_set_color(color_t color, bool bold);

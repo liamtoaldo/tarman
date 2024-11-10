@@ -36,5 +36,5 @@ typedef enum {
   TM_COLOR_RESET
 } color_t;
 
-csz_t os_console_get_sz();
+csz_t os_console_get_sz(void);
 void  os_console_set_color(color_t color, bool bold);

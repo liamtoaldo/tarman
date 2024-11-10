@@ -80,14 +80,14 @@ static void aligned_vprintf(const char *fmt, va_list args, size_t pad) {
   }
 }
 
-void cli_out_newline() {
+void cli_out_newline(void) {
   if (!last_is_newline) {
     puts("");
     last_is_newline = true;
   }
 }
 
-void cli_out_reset() {
+void cli_out_reset(void) {
   last_is_newline = false;
 }
 

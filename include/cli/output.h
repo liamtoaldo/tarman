@@ -24,8 +24,8 @@
 
 #include "os/console.h"
 
-void cli_out_newline();
-void cli_out_reset();
+void cli_out_newline(void);
+void cli_out_reset(void);
 void cli_out_progress(const char *fmt, ...);
 void cli_out_success(const char *fmt, ...);
 void cli_out_error(const char *fmt, ...);

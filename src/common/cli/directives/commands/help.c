@@ -29,7 +29,7 @@
 #define OPT_SEPARATOR_LEN    2
 #define COLUMN_SEPARATOR_LEN 4
 
-static void print_indent() {
+static void print_indent(void) {
   cli_out_space(BASE_LINE_LEN);
 }
 

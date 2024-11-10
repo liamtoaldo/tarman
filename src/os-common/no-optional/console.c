@@ -20,7 +20,7 @@
 
 #include "os/no-optional/console.h"
 
-csz_t noopt_console_get_sz() {
+csz_t noopt_console_get_sz(void) {
   return (csz_t){.rows = 40, .columns = 80};
 }
 

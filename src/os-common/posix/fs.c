@@ -48,7 +48,7 @@ static tmstr_t Plugins    = {0};
 static tmstr_t PluginConf = {0};
 static tmstr_t Path       = {0};
 
-static const char *get_home_directory() {
+static const char *get_home_directory(void) {
   struct passwd *pw = getpwuid(getuid());
   return pw->pw_dir;
 }
@@ -61,7 +61,7 @@ static fs_dirop_status_t simplify(fs_dirop_status_t s) {
   return s;
 }
 
-static fs_dirop_status_t translate_direrr() {
+static fs_dirop_status_t translate_direrr(void) {
   switch (errno) {
   case EACCES:
     return TM_FS_DIROP_STATUS_PERM;
@@ -78,7 +78,7 @@ static fs_dirop_status_t translate_direrr() {
   }
 }
 
-static fs_fileop_status_t translate_fileerr() {
+static fs_fileop_status_t translate_fileerr(void) {
   switch (errno) {
   case EACCES:
     return TM_FS_FILEOP_STATUS_PERM;
@@ -503,7 +503,7 @@ size_t posix_fs_tm_dyexecpath(const char **dst, const char *exec) {
   return ret;
 }
 
-bool posix_fs_tm_init() {
+bool posix_fs_tm_init(void) {
   const char *usr_home = get_home_directory();
 
   Home.len  = os_fs_path_dyconcat(&Home.buf, 2, usr_home, ".tarman");

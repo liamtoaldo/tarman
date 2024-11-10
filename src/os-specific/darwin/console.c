@@ -20,7 +20,7 @@
 
 #include "os/console.h"
 
-csz_t os_console_get_sz() {
+csz_t os_console_get_sz(void) {
   return posix_console_get_sz();
 }
 

@@ -19,5 +19,5 @@
 #pragma once
 
 void mem_safe_free(const void *ptr);
-void mem_oom();
+void mem_oom(void);
 void mem_chkoom(void *ptr);

@@ -197,13 +197,13 @@ bool cli_lkup_option(const char *option, cli_drt_desc_t *dst) {
       options, sizeof options / sizeof(cli_drt_desc_t), option, dst);
 }
 
-cli_lkup_table_t cli_lkup_cmdtable() {
+cli_lkup_table_t cli_lkup_cmdtable(void) {
   return (cli_lkup_table_t){.table = commands,
                             .num_entries =
                                 sizeof commands / sizeof(cli_drt_desc_t)};
 }
 
-cli_lkup_table_t cli_lkup_opttable() {
+cli_lkup_table_t cli_lkup_opttable(void) {
   return (cli_lkup_table_t){
       .table = options, .num_entries = sizeof options / sizeof(cli_drt_desc_t)};
 }

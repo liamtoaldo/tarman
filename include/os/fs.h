@@ -81,4 +81,4 @@ os_fs_tm_dyrecipe(char **dst, const char *repo_name, const char *pkg_name);
 size_t os_fs_tm_dyplugins(const char **dst);
 size_t os_fs_tm_dyplugin(const char **dst, const char *plugin);
 size_t os_fs_tm_dyplugconf(const char **dst, const char *plugin);
-bool   os_fs_tm_init();
+bool   os_fs_tm_init(void);

@@ -26,7 +26,7 @@ void mem_safe_free(void *ptr) {
   }
 }
 
-void mem_oom() {
+void mem_oom(void) {
   cli_out_error("Unable to allocate memory, probably ran out of memory. "
                 "Exiting now");
   exit(EXIT_FAILURE);

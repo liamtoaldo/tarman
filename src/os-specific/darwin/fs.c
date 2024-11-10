@@ -147,6 +147,6 @@ size_t os_fs_tm_dyplugconf(const char **dst, const char *plugin) {
   return posix_fs_tm_dyplugconf(dst, plugin);
 }
 
-bool os_fs_tm_init() {
+bool os_fs_tm_init(void) {
   return posix_fs_tm_init();
 }

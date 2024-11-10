@@ -26,7 +26,7 @@
 #include "os/posix/env.h"
 #include "tm-mem.h"
 
-static const char *get_home_directory() {
+static const char *get_home_directory(void) {
   struct passwd *pw = getpwuid(getuid());
   return pw->pw_dir;
 }

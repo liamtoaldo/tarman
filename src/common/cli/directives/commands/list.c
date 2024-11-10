@@ -58,7 +58,7 @@ cleanup:
   return ret;
 }
 
-static void simple_print() {
+static void simple_print(void) {
   char *pkg_dir = NULL;
   os_fs_tm_dypkgs(&pkg_dir);
 

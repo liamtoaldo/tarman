@@ -41,12 +41,12 @@
   cli_out_success("All tests passed");         \
   return EXIT_SUCCESS;
 
-// static bool test_tar() {
+// static bool test_tar(void) {
 //   cli_out_progress("Testing tar extraction...");
 //   return archive_tar_extract("extract", "archive.tar");
 // }
 
-static bool test_dypath() {
+static bool test_dypath(void) {
   cli_out_progress("Testing dypath...");
   char *path;
   os_fs_tm_dyhome(&path);
@@ -54,7 +54,7 @@ static bool test_dypath() {
   return true;
 }
 
-static bool test_dirs() {
+static bool test_dirs(void) {
   cli_out_progress("Testing dir creation...");
   if (TM_FS_DIROP_STATUS_OK != os_fs_mkdir("test")) {
     return false;
@@ -78,7 +78,7 @@ static bool test_dirs() {
   return true;
 }
 
-static bool test_init() {
+static bool test_init(void) {
   cli_out_progress("Testing fs init...");
   return os_fs_tm_init();
 }

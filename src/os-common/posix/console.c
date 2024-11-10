@@ -28,7 +28,7 @@
 
 #include "os/console.h"
 
-csz_t posix_console_get_sz() {
+csz_t posix_console_get_sz(void) {
   struct winsize size;
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
   return (csz_t){.rows = size.ws_row, .columns = size.ws_col};

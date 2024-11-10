@@ -26,7 +26,7 @@
 #include "cli/output.h"
 #include "stream.h"
 
-static void clear_input_stream() {
+static void clear_input_stream(void) {
   char ch = 0;
   while (32 < (ch = getchar()) && !feof(stdin))
     ;
