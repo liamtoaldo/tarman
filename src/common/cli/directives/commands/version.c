@@ -16,32 +16,43 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#pragma once
-
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "cli/directives/types.h"
+#include "cli/output.h"
 
-#define TARMAN_CMD_HELP        "help"
-#define TARMAN_CMD_INSTALL     "install"
-#define TARMAN_CMD_LIST        "list"
-#define TARMAN_CMD_REMOVE      "remove"
-#define TARMAN_CMD_UPDATE      "update"
-#define TARMAN_CMD_UPDATE_ALL  "update-all"
-#define TARMAN_CMD_ADD_REPO    "add-repo"
-#define TARMAN_CMD_REMOVE_REPO "remove-repo"
-#define TARMAN_CMD_LIST_REPOS  "list-repos"
-#define TARMAN_CMD_TEST        "test"
-#define TARMAN_CMD_VERSION     "version"
+#define STR_HELPER(x) #x
+#define STR(x)        STR_HELPER(x)
 
-int cli_cmd_help(cli_info_t info);
-int cli_cmd_install(cli_info_t info);
-int cli_cmd_list(cli_info_t info);
-int cli_cmd_remove(cli_info_t info);
-int cli_cmd_update(cli_info_t info);
-int cli_cmd_update_all(cli_info_t info);
-int cli_cmd_add_repo(cli_info_t info);
-int cli_cmd_remove_repo(cli_info_t info);
-int cli_cmd_list_repos(cli_info_t info);
-int cli_cmd_test(cli_info_t info);
-int cli_cmd_version(cli_info_t info);
+#ifndef EXT_TARMAN_BUILD
+#define EXT_TARMAN_BUILD "unknown"
+#endif
+
+#ifndef EXT_TARMAN_OS
+#define EXT_TARMAN_OS "unknown"
+#endif
+
+#ifndef EXT_TARMAN_COMPILER
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
+#define EXT_TARMAN_COMPILER \
+  "gcc " STR(__GNUC__) "." STR(__GNUC_MINOR__) "." STR(__GNUC_PATCHLEVEL__)
+#elif defined(_clang_version__)
+#define EXT_TARMAN_COMPILER "clang " __clang_version__
+#elif defined(__llvm__)
+#define EXT_TARMAN_COMPILER "generic llvm"
+#else
+#define EXT_TARMAN_COMPILER "unknown"
+#endif
+#endif // EXT_TARMAN_COMPILER
+
+int cli_cmd_version(cli_info_t info) {
+  (void)info;
+
+  puts("tarman version " EXT_TARMAN_BUILD);
+  puts("target: " EXT_TARMAN_OS);
+  puts("compiled with: " EXT_TARMAN_COMPILER);
+
+  return EXIT_SUCCESS;
+}

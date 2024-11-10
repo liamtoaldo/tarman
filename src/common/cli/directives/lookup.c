@@ -83,6 +83,13 @@ static cli_drt_desc_t commands[] = {
     //  false,
     //  cli_cmd_list_repos,
     //  "List all local repositories"},
+
+    {NULL,
+     TARMAN_CMD_VERSION,
+     NULL,
+     false,
+     cli_cmd_version,
+     "Show version information"},
 };
 // {NULL, TARMAN_CMD_TEST, NULL, false, cli_cmd_test, "Test tarman"}};
 

@@ -42,6 +42,8 @@ ifeq ($(OS),Windows_NT)
 	EXEC+=.exe
 endif
 
+CFLAGS+=-DEXT_TARMAN_OS="\"$(TARMAN_OS)\""
+
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard ,$d, $2) $(filter $(subst *, %, $2),$d))
 SRC=$(call rwildcard, src/common, *.c)
 SRC+=$(call rwildcard, src/os-specific/$(TARMAN_OS), *.c)
