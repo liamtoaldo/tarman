@@ -49,12 +49,12 @@ static cli_drt_desc_t commands[] = {
      cli_cmd_remove,
      "Remove an installed package"},
 
-    // {NULL,
-    //  TARMAN_CMD_UPDATE,
-    //  NULL,
-    //  false,
-    //  cli_cmd_update,
-    //  "Update an installed package"},
+    {NULL,
+     TARMAN_CMD_UPDATE,
+     NULL,
+     false,
+     cli_cmd_update,
+     "Update an installed package"},
 
     // {NULL,
     //  TARMAN_CMD_UPDATE_ALL,

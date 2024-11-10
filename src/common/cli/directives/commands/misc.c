@@ -20,11 +20,6 @@
 
 #include "cli/directives/commands.h"
 
-int cli_cmd_update(cli_info_t info) {
-  (void)info;
-  return EXIT_FAILURE;
-}
-
 int cli_cmd_update_all(cli_info_t info) {
   (void)info;
   return EXIT_FAILURE;

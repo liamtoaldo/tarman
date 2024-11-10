@@ -97,7 +97,7 @@ int cli_cmd_remove(cli_info_t info) {
       }
     }
 
-    // Remove tarman plugin
+    // TODO: Remove tarman plugin
   } else {
     cli_out_warning("Removing package without metadata (recipe artifact), some "
                     "files may persist");
