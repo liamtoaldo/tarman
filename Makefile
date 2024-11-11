@@ -92,7 +92,7 @@ install: release
 	cp ./bin/tarman ./tarman/tarman && \
 	tar -cvzf ./tarman-package.tar.gz ./tarman && \
 	rm -rf ./tarman && \
-	./bin/tarman install -f tar.gz -n tarman -p ./tarman-package.tar.gz && \
+	./bin/tarman install -f tar.gz -n tarman -x tarman/tarman -p ./tarman-package.tar.gz && \
 	rm ./tarman-package.tar.gz
 
 $(PLUGIN_MAKEFILES): force
