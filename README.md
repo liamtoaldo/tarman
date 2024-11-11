@@ -44,6 +44,11 @@ On Linux (x86-64):
 curl -L "https://github.com/Alessandro-Salerno/tarman/raw/refs/heads/latest-build/linux-x86_64/tarman" -o ./tarman && chmod +x ./tarman && ./tarman add-repo "https://github.com/Alessandro-Salerno/tarman-user-repository/raw/refs/heads/latest-repos/linux-x86_64.tar.gz" && ./tarman install -r tarman && rm ./tarman
 ```
 
+On Linux (ARM64 - AARCH64):
+```sh
+curl -L "https://github.com/Alessandro-Salerno/tarman/raw/refs/heads/latest-build/linux-arm64/tarman" -o ./tarman && chmod +x ./tarman && ./tarman add-repo "https://github.com/Alessandro-Salerno/tarman-user-repository/raw/refs/heads/latest-repos/linux-arm64.tar.gz" && ./tarman install -r tarman && rm ./tarman
+```
+
 On macOS (Apple Silicon - ARM64 - AARCH64):
 ```sh
 curl -L "https://github.com/Alessandro-Salerno/tarman/raw/refs/heads/latest-build/macos-arm64/tarman" -o ./tarman && chmod +x ./tarman && ./tarman add-repo "https://github.com/Alessandro-Salerno/tarman-user-repository/raw/refs/heads/latest-repos/macos-arm64.tar.gz" && ./tarman install -r tarman && rm ./tarman
