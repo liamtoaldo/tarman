@@ -27,21 +27,18 @@
 #include "os/fs.h"
 #include "package.h"
 #include "tm-mem.h"
+#include "util/misc.h"
 
 // TODO: this is taken from install.c
 // This should be more generic and the repetition should
 // be removed. Ideally, the same would apply to the entire code
 // used to download and install packages since it will be
 // useful in other parts (e.g., ujpdate all, sync etc)
-static bool fetch_package(const char **archive_path,
-                          const char  *pkg_name,
-                          const char  *pkg_fmt,
-                          const char  *url) {
-  if (!archive_dycreate(archive_path, pkg_name, pkg_fmt)) {
-    cli_out_error("Unable to determine path to temporary archive");
-    return false;
-  }
-
+static bool fetch_package(char      **archive_path,
+                          const char *pkg_name,
+                          const char *pkg_fmt,
+                          const char *url) {
+  util_misc_dytmpfile(archive_path, pkg_name, pkg_fmt);
   cli_out_progress("Downloading package from '%s' to '%s'", url, *archive_path);
 
   if (!download(*archive_path, url)) {
@@ -56,7 +53,7 @@ int cli_cmd_update(cli_info_t info) {
   int         ret              = EXIT_FAILURE;
   const char *pkg_name         = info.input;
   char       *pkg_path         = NULL;
-  const char *tmp_archive_path = NULL;
+  char       *tmp_archive_path = NULL;
   const char *artifact_path    = NULL;
   recipe_t    recipe_artifact  = {0};
 
@@ -78,18 +75,9 @@ int cli_cmd_update(cli_info_t info) {
     return ret;
   }
 
-  if (0 == os_fs_tm_dypkg(&pkg_path, pkg_name)) {
-    cli_out_error("Unable to determine path for package");
-    return ret;
-  }
+  os_fs_tm_dypkg(&pkg_path, pkg_name);
 
-  if (0 == os_fs_path_dyconcat(
-               (char **)&artifact_path, 2, pkg_path, "recipe.tarman")) {
-    cli_out_error(
-        "Unable to determine path to package metadata (recipe artifact)");
-    goto cleanup;
-  }
-
+  os_fs_path_dyconcat((char **)&artifact_path, 2, pkg_path, "recipe.tarman");
   cli_out_progress("Using metadata (recipe artifact) file '%s'", artifact_path);
 
   if (TM_CFG_PARSE_STATUS_OK !=

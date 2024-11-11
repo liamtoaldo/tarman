@@ -26,6 +26,7 @@
 #include "download.h"
 #include "os/fs.h"
 #include "tm-mem.h"
+#include "util/misc.h"
 
 int cli_cmd_add_repo(cli_info_t info) {
   if (NULL == info.input) {
@@ -33,7 +34,7 @@ int cli_cmd_add_repo(cli_info_t info) {
     return EXIT_FAILURE;
   }
 
-  const char *archive_path = NULL;
+  char       *archive_path = NULL;
   const char *repo_url     = info.input;
   const char *repo_fmt     = info.pkg_fmt;
   const char *repos_path   = NULL;
@@ -46,21 +47,14 @@ int cli_cmd_add_repo(cli_info_t info) {
     goto cleanup;
   }
 
-  if (0 == os_fs_tm_dyrepos((char **)&repos_path)) {
-    cli_out_error("Unable to determine path to repos directory");
-    goto cleanup;
-  }
+  os_fs_tm_dyrepos((char **)&repos_path);
 
   if (NULL == repo_fmt) {
     cli_out_warning("Repository format not specified, using 'tar.gz'");
     repo_fmt = "tar.gz";
   }
 
-  if (!archive_dycreate(&archive_path, "__downloaded_repo", repo_fmt)) {
-    cli_out_error("Unable to determine path to temporary archive");
-    goto cleanup;
-  }
-
+  util_misc_dytmpfile(&archive_path, "__downloaded_repo", repo_fmt);
   cli_out_progress("Fetching repository from '%s'", repo_url);
 
   if (!download(archive_path, repo_url)) {

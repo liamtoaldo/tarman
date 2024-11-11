@@ -33,49 +33,53 @@
 #include "os/fs.h"
 #include "package.h"
 #include "tm-mem.h"
+#include "util/misc.h"
 
-static bool override_if_src_set(const char **dst, const char *src, bool copy) {
+static const char *
+override_if_src_set(const char *dst, const char *src, bool copy) {
   if (NULL != src && 0 != src[0]) {
     if (copy) {
       char *buf = (char *)malloc(strlen(src) + 1);
       mem_chkoom(buf);
       strcpy(buf, src);
-      *dst = buf;
-      return true;
+      return buf;
     }
 
-    *dst = src;
-    return true;
+    return src;
   }
 
-  return false;
+  return dst;
 }
 
-static void override_if_dst_unset(const char **dst, const char *src) {
-  if (NULL == *dst || 0 == *dst[0]) {
-    const char *back = *dst;
-
-    if (override_if_src_set(dst, src, false)) {
-      mem_safe_free(back);
-    }
+static const char *override_if_dst_unset(const char *dst, const char *src) {
+  if (NULL == dst || 0 == dst[0]) {
+    return src;
   }
+
+  return dst;
 }
 
 static void override_recipe(rt_recipe_t *recipe, cli_info_t cli_info) {
-  override_if_src_set(&recipe->recipe.package_format, cli_info.pkg_fmt, true);
-  override_if_src_set(&recipe->pkg_name, cli_info.pkg_name, true);
-  override_if_src_set(
-      &recipe->recipe.pkg_info.application_name, cli_info.app_name, true);
-  override_if_src_set(
-      &recipe->recipe.pkg_info.executable_path, cli_info.exec_path, true);
-  override_if_src_set(
-      &recipe->recipe.pkg_info.working_directory, cli_info.working_dir, true);
-  override_if_src_set(
-      &recipe->recipe.pkg_info.icon_path, cli_info.icon_path, true);
+  recipe_t   *rcp = &recipe->recipe;
+  pkg_info_t *pkg = &recipe->recipe.pkg_info;
 
-  recipe->recipe.add_to_path    = cli_info.add_path;
-  recipe->recipe.add_to_desktop = cli_info.add_desktop;
-  recipe->recipe.add_to_tarman  = cli_info.add_tarman;
+  recipe->pkg_name =
+      override_if_src_set(recipe->pkg_name, cli_info.pkg_name, true);
+
+  rcp->package_format =
+      override_if_src_set(rcp->package_format, cli_info.pkg_fmt, true);
+  pkg->url =
+      override_if_src_set(pkg->application_name, cli_info.app_name, true);
+  pkg->executable_path =
+      override_if_src_set(pkg->executable_path, cli_info.exec_path, true);
+  pkg->working_directory =
+      override_if_src_set(pkg->working_directory, cli_info.working_dir, true);
+  pkg->icon_path =
+      override_if_src_set(pkg->icon_path, cli_info.icon_path, true);
+
+  rcp->add_to_path    = cli_info.add_path;
+  rcp->add_to_desktop = cli_info.add_desktop;
+  rcp->add_to_tarman  = cli_info.add_tarman;
 }
 
 static char *load_config_file(rt_recipe_t *recipe, char *pkg_path) {
@@ -116,15 +120,17 @@ static char *load_config_file(rt_recipe_t *recipe, char *pkg_path) {
 
   cli_out_progress("Using package configuration file at '%s'", tmpkg_file_path);
 
-  override_if_dst_unset(&recipe->recipe.pkg_info.url, tmpkg_file_data.url);
-  override_if_dst_unset(&recipe->recipe.pkg_info.application_name,
-                        tmpkg_file_data.application_name);
-  override_if_dst_unset(&recipe->recipe.pkg_info.executable_path,
-                        tmpkg_file_data.executable_path);
-  override_if_dst_unset(&recipe->recipe.pkg_info.working_directory,
-                        tmpkg_file_data.working_directory);
-  override_if_dst_unset(&recipe->recipe.pkg_info.icon_path,
-                        tmpkg_file_data.icon_path);
+  pkg_info_t *pkg = &recipe->recipe.pkg_info;
+
+  pkg->url              = override_if_dst_unset(pkg->url, tmpkg_file_data.url);
+  pkg->application_name = override_if_dst_unset(
+      pkg->application_name, tmpkg_file_data.application_name);
+  pkg->executable_path   = override_if_dst_unset(pkg->executable_path,
+                                               tmpkg_file_data.executable_path);
+  pkg->working_directory = override_if_dst_unset(
+      pkg->working_directory, tmpkg_file_data.working_directory);
+  pkg->icon_path =
+      override_if_dst_unset(pkg->icon_path, tmpkg_file_data.icon_path);
 
 cleanup:
   mem_safe_free(tmpkg_file_path);
@@ -187,22 +193,24 @@ static bool load_recipe(rt_recipe_t *recipe) {
 
   cli_out_progress("Using recipe file '%s'", rcp_file_path);
 
-  override_if_dst_unset(&recipe->recipe.pkg_info.url,
-                        rcp_file_data.pkg_info.url);
-  override_if_dst_unset(&recipe->recipe.pkg_info.application_name,
-                        rcp_file_data.pkg_info.application_name);
-  override_if_dst_unset(&recipe->recipe.pkg_info.executable_path,
-                        rcp_file_data.pkg_info.executable_path);
-  override_if_dst_unset(&recipe->recipe.pkg_info.working_directory,
-                        rcp_file_data.pkg_info.working_directory);
-  override_if_dst_unset(&recipe->recipe.pkg_info.icon_path,
-                        rcp_file_data.pkg_info.icon_path);
-  override_if_dst_unset(&recipe->recipe.package_format,
-                        rcp_file_data.package_format);
+  recipe_t   *rcp = &recipe->recipe;
+  pkg_info_t *pkg = &recipe->recipe.pkg_info;
 
-  recipe->recipe.add_to_path    = rcp_file_data.add_to_path;
-  recipe->recipe.add_to_desktop = rcp_file_data.add_to_desktop;
-  recipe->recipe.add_to_tarman  = rcp_file_data.add_to_tarman;
+  pkg->url = override_if_dst_unset(pkg->url, rcp_file_data.pkg_info.url);
+  pkg->application_name = override_if_dst_unset(
+      pkg->application_name, rcp_file_data.pkg_info.application_name);
+  pkg->executable_path = override_if_dst_unset(
+      pkg->executable_path, rcp_file_data.pkg_info.executable_path);
+  pkg->working_directory = override_if_dst_unset(
+      pkg->working_directory, rcp_file_data.pkg_info.working_directory);
+  pkg->icon_path =
+      override_if_dst_unset(pkg->icon_path, rcp_file_data.pkg_info.icon_path);
+  rcp->package_format =
+      override_if_dst_unset(rcp->package_format, rcp_file_data.package_format);
+
+  rcp->add_to_path    = rcp_file_data.add_to_path;
+  rcp->add_to_desktop = rcp_file_data.add_to_desktop;
+  rcp->add_to_tarman  = rcp_file_data.add_to_tarman;
 
   ret = true;
 
@@ -223,7 +231,6 @@ static bool gen_repos_list(char     ***repos_list,
     return false;
   }
 
-  bool        ret = false;
   fs_dirent_t ent;
   size_t      repos_buf_sz = 16;
   char      **repos        = (char **)malloc(repos_buf_sz * sizeof(char *));
@@ -236,12 +243,7 @@ static bool gen_repos_list(char     ***repos_list,
     }
 
     char *pkg_recipe = NULL;
-
-    if (0 == os_fs_tm_dyrecipe(&pkg_recipe, ent.name, pkg_name)) {
-      cli_out_error("Unable to determine recipe path for repository '%s'",
-                    ent.name);
-      goto cleanup;
-    }
+    os_fs_tm_dyrecipe(&pkg_recipe, ent.name, pkg_name);
 
     fs_filetype_t rcp_file_type;
 
@@ -254,7 +256,7 @@ static bool gen_repos_list(char     ***repos_list,
         mem_chkoom(repos);
       }
 
-      override_if_src_set((const char **)&repos[i], ent.name, true);
+      repos[i] = (char *)override_if_src_set(repos[i], ent.name, true);
       i++;
     }
 
@@ -263,11 +265,8 @@ static bool gen_repos_list(char     ***repos_list,
 
   *repos_count = i;
   *repos_list  = repos;
-  ret          = true;
-
-cleanup:
   os_fs_dir_close(repos_stream);
-  return ret;
+  return true;
 }
 
 static size_t user_choose(char      **options,
@@ -310,11 +309,7 @@ static size_t user_choose(char      **options,
 
 static bool find_repository(rt_recipe_t *recipe) {
   const char *repos_path = NULL;
-
-  if (0 == os_fs_tm_dyrepos((char **)&repos_path)) {
-    cli_out_error("Unable to determine path to repositories directory");
-    return false;
-  }
+  os_fs_tm_dyrepos((char **)&repos_path);
 
   bool   ret         = false;
   char **repos       = NULL;
@@ -356,14 +351,11 @@ cleanup:
   return ret;
 }
 
-static bool fetch_package(const char **archive_path,
-                          const char  *pkg_name,
-                          const char  *pkg_fmt,
-                          const char  *url) {
-  if (!archive_dycreate(archive_path, pkg_name, pkg_fmt)) {
-    cli_out_error("Unable to determine path to temporary archive");
-    return false;
-  }
+static bool fetch_package(char      **archive_path,
+                          const char *pkg_name,
+                          const char *pkg_fmt,
+                          const char *url) {
+  util_misc_dytmpfile(archive_path, pkg_name, pkg_fmt);
 
   cli_out_progress("Downloading package from '%s' to '%s'", url, *archive_path);
 
@@ -392,7 +384,7 @@ static bool infer_app_name(rt_recipe_t *recipe, const char *pkg_path) {
   size_t      count        = 1; // Count is one because there's a default value
   mem_chkoom(names);
 
-  override_if_src_set((const char **)&names[0], recipe->pkg_name, true);
+  names[0]    = (char *)override_if_src_set(names[0], recipe->pkg_name, true);
   names[0][0] = toupper(names[0][0]);
 
   while (TM_FS_DIROP_STATUS_OK == os_fs_dir_next(stream, &ent)) {
@@ -407,7 +399,7 @@ static bool infer_app_name(rt_recipe_t *recipe, const char *pkg_path) {
         mem_chkoom(names);
       }
 
-      override_if_src_set((const char **)&names[count], ent.name, true);
+      names[count] = (char *)override_if_src_set(names[count], ent.name, true);
       count++;
     }
   }
@@ -441,10 +433,8 @@ static bool find_executables(char     ***execs,
                              const char *subdir) {
   char *dir_path = (char *)base_path;
 
-  if (NULL != subdir &&
-      0 == os_fs_path_dyconcat(&dir_path, 2, base_path, subdir)) {
-    cli_out_error("Unable to determine subdirectory path");
-    return false;
+  if (NULL != subdir) {
+    os_fs_path_dyconcat(&dir_path, 2, base_path, subdir);
   }
 
   os_fs_dirstream_t stream;
@@ -469,10 +459,7 @@ static bool find_executables(char     ***execs,
         continue;
       }
 
-      if (0 == os_fs_path_dyconcat(&sub_subdir, 2, subdir, ent.name)) {
-        cli_out_error("Unable to determine path to recursive subdirectory");
-        goto close;
-      }
+      os_fs_path_dyconcat(&sub_subdir, 2, subdir, ent.name);
 
       if (!find_executables(execs, count, bufsz, base_path, sub_subdir)) {
         mem_safe_free(sub_subdir);
@@ -490,11 +477,7 @@ static bool find_executables(char     ***execs,
       }
 
       char *exec_path = NULL;
-
-      if (0 == os_fs_path_dyconcat(&exec_path, 2, subdir, ent.name)) {
-        cli_out_error("Unable to determine path to executable");
-        goto close;
-      }
+      os_fs_path_dyconcat(&exec_path, 2, subdir, ent.name);
 
       (*execs)[*count] = exec_path;
       (*count)++;
@@ -537,18 +520,12 @@ static bool infer_exec(rt_recipe_t *recipe, const char *pkg_path) {
   return ret;
 }
 
-static bool infer_working_dir(rt_recipe_t *recipe) {
+static void infer_working_dir(rt_recipe_t *recipe) {
   cli_out_progress("Inferring working directory");
 
   char *parent = NULL;
-
-  if (0 ==
-      os_fs_path_dyparent(&parent, recipe->recipe.pkg_info.executable_path)) {
-    return false;
-  }
-
+  os_fs_path_dyparent(&parent, recipe->recipe.pkg_info.executable_path);
   recipe->recipe.pkg_info.working_directory = parent;
-  return true;
 }
 
 static bool infer_additional_info(rt_recipe_t *recipe,
@@ -581,9 +558,8 @@ static bool infer_additional_info(rt_recipe_t *recipe,
 
   if (recipe->recipe.add_to_desktop &&
       NULL != recipe->recipe.pkg_info.executable_path &&
-      NULL == recipe->recipe.pkg_info.working_directory &&
-      !infer_working_dir(recipe)) {
-    return false;
+      NULL == recipe->recipe.pkg_info.working_directory) {
+    infer_working_dir(recipe);
   }
 
   return true;
@@ -601,7 +577,7 @@ int cli_cmd_install(cli_info_t info) {
   // Variables to be cleaned up
   // Declartion is here to avoid issues with goto
   char       *pkg_path     = NULL;
-  const char *archive_path = NULL;
+  char       *archive_path = NULL;
   char       *pkg_rcp_path = NULL;
   const char *exec_path    = NULL;
 
@@ -619,13 +595,14 @@ int cli_cmd_install(cli_info_t info) {
   if (info.from_url && NULL == recipe.recipe.package_format) {
     cli_out_warning(
         "Package format not specified for remote download, using 'tar.gz'");
-    override_if_src_set(&recipe.recipe.package_format, "tar.gz", true);
+    recipe.recipe.package_format =
+        override_if_src_set(recipe.recipe.package_format, "tar.gz", true);
   }
 
   // Check if -r is set and use repositories
   if (info.from_repo) {
     recipe.is_remote = true;
-    override_if_src_set(&recipe.pkg_name, info.input, true);
+    recipe.pkg_name  = override_if_src_set(recipe.pkg_name, info.input, true);
 
     if (!find_repository(&recipe)) {
       goto cleanup;
@@ -651,7 +628,8 @@ int cli_cmd_install(cli_info_t info) {
 
   // If -u is used to download from a URL
   if (info.from_url) {
-    override_if_src_set(&recipe.recipe.pkg_info.url, info.input, true);
+    recipe.recipe.pkg_info.url =
+        override_if_src_set(recipe.recipe.pkg_info.url, info.input, true);
 
     if (!fetch_package(&archive_path,
                        recipe.pkg_name,
@@ -662,15 +640,10 @@ int cli_cmd_install(cli_info_t info) {
   }
 
   if (NULL == archive_path) {
-    override_if_src_set(&archive_path, info.input, true);
+    archive_path = (char *)override_if_src_set(archive_path, info.input, true);
   }
 
-  if (0 == os_fs_tm_dypkg(&pkg_path, recipe.pkg_name)) {
-    cli_out_error("Unable to determine path to directory for package '%s'",
-                  recipe.pkg_name);
-    goto cleanup;
-  }
-
+  os_fs_tm_dypkg(&pkg_path, recipe.pkg_name);
   cli_out_progress("Creating package in '%s'", pkg_path);
 
   if (!create_pkg_dir(pkg_path)) {
@@ -691,22 +664,15 @@ int cli_cmd_install(cli_info_t info) {
     goto cleanup;
   }
 
-  if (0 == os_fs_path_dyconcat(&pkg_rcp_path, 2, pkg_path, "recipe.tarman")) {
-    cli_out_error("Unable to determine path to package recipe artifact");
-    goto cleanup;
-  }
-
+  os_fs_path_dyconcat(&pkg_rcp_path, 2, pkg_path, "recipe.tarman");
   cli_out_progress("Creating recipe artifact in '%s'", pkg_rcp_path);
   pkg_dump_rcp(pkg_rcp_path, recipe.recipe);
 
   if (NULL != recipe.recipe.pkg_info.executable_path) {
-    if (0 == os_fs_path_dyconcat((char **)&exec_path,
-                                 2,
-                                 pkg_path,
-                                 recipe.recipe.pkg_info.executable_path)) {
-      cli_out_error("Unable to determine full path to executable");
-      goto cleanup;
-    }
+    os_fs_path_dyconcat((char **)&exec_path,
+                        2,
+                        pkg_path,
+                        recipe.recipe.pkg_info.executable_path);
 
     if (recipe.recipe.add_to_path) {
       cli_out_progress("Adding executable '%s' to PATH", exec_path);
@@ -723,19 +689,21 @@ int cli_cmd_install(cli_info_t info) {
       const char *full_icon_path = NULL;
       const char *full_wrk_dir   = NULL;
 
-      if (NULL == recipe.recipe.pkg_info.icon_path ||
-          0 == os_fs_path_dyconcat((char **)&full_icon_path,
-                                   2,
-                                   pkg_path,
-                                   recipe.recipe.pkg_info.icon_path)) {
+      if (NULL != recipe.recipe.pkg_info.icon_path) {
+        os_fs_path_dyconcat((char **)&full_icon_path,
+                            2,
+                            pkg_path,
+                            recipe.recipe.pkg_info.icon_path);
+      } else {
         cli_out_warning("Application has no icon");
       }
 
-      if (NULL == recipe.recipe.pkg_info.working_directory ||
-          0 == os_fs_path_dyconcat((char **)&full_wrk_dir,
-                                   2,
-                                   pkg_path,
-                                   recipe.recipe.pkg_info.working_directory)) {
+      if (NULL != recipe.recipe.pkg_info.working_directory) {
+        os_fs_path_dyconcat((char **)&full_wrk_dir,
+                            2,
+                            pkg_path,
+                            recipe.recipe.pkg_info.working_directory);
+      } else {
         cli_out_warning("Application has no explicit working directory");
       }
 

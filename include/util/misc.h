@@ -16,9 +16,12 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#pragma once
+#include <stdlib.h>
 
-#include <stdbool.h>
+size_t util_misc_dyfile(char      **dst,
+                        const char *base_path,
+                        const char *filename,
+                        const char *filetype);
 
-bool archive_tar_extract(const char *dst, const char *src);
-bool archive_extract(const char *dst, const char *src, const char *file_type);
+size_t
+util_misc_dytmpfile(char **dst, const char *filename, const char *filetype);
