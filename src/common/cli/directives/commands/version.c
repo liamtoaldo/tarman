@@ -35,13 +35,20 @@
 #endif
 
 #ifndef EXT_TARMAN_COMPILER
-#if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) &&        \
+    defined(__GNUC_PATCHLEVEL__) && !defined(__clang__) && \
+    !defined(__llvm__) && !defined(__INTEL_COMPILER)
 #define EXT_TARMAN_COMPILER \
   "gcc " STR(__GNUC__) "." STR(__GNUC_MINOR__) "." STR(__GNUC_PATCHLEVEL__)
-#elif defined(_clang_version__)
-#define EXT_TARMAN_COMPILER "clang " __clang_version__
+#elif defined(__clang_minor__) && defined(__clang_major__)
+#define EXT_TARMAN_COMPILER \
+  "clang " STR(__clang_major__) "." STR(__clang_minor__)
+#elif defined(__clang__)
+#define EXT_TARMAN_COMPILER "clang (unknown version)"
 #elif defined(__llvm__)
 #define EXT_TARMAN_COMPILER "generic llvm"
+#elif defined(_MSC_VER)
+#define EXT_TARMAN_COMPILER "msc " _MSC_VER
 #else
 #define EXT_TARMAN_COMPILER "unknown"
 #endif
