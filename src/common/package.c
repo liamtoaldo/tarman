@@ -171,3 +171,17 @@ bool pkg_dump_rcp(const char *file_path, recipe_t recipe) {
   fclose(fp);
   return ret;
 }
+
+void pkg_free_pkg(pkg_info_t pkg_info) {
+  mem_safe_free(pkg_info.url);
+  mem_safe_free(pkg_info.from_repoistory);
+  mem_safe_free(pkg_info.executable_path);
+  mem_safe_free(pkg_info.application_name);
+  mem_safe_free(pkg_info.working_directory);
+  mem_safe_free(pkg_info.icon_path);
+}
+
+void pkg_free_rcp(recipe_t recipe) {
+  pkg_free_pkg(recipe.pkg_info);
+  mem_safe_free(recipe.package_format);
+}

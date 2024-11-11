@@ -42,9 +42,9 @@ typedef struct {
   bool        add_to_tarman;
 } recipe_t;
 
-// "Runtime" recepie
+// "Runtime" recipe
 typedef struct {
-  recipe_t    recepie;
+  recipe_t    recipe;
   const char *pkg_name;
   bool        is_remote;
 } rt_recipe_t;
@@ -58,3 +58,6 @@ cfg_parse_status_t pkg_parse_tmrcp(recipe_t *rcp, const char *rcp_file_path);
 
 bool pkg_dump_frcp(FILE *fp, recipe_t recipe);
 bool pkg_dump_rcp(const char *file_path, recipe_t recipe);
+
+void pkg_free_pkg(pkg_info_t pkg_info);
+void pkg_free_rcp(recipe_t recipe);

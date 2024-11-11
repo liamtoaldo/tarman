@@ -120,12 +120,6 @@ int cli_cmd_remove(cli_info_t info) {
 cleanup:
   mem_safe_free(pkg_path);
   mem_safe_free(artifact_path);
-  mem_safe_free(recipe_artifact.package_format);
-  mem_safe_free(recipe_artifact.pkg_info.url);
-  mem_safe_free(recipe_artifact.pkg_info.from_repoistory);
-  mem_safe_free(recipe_artifact.pkg_info.executable_path);
-  mem_safe_free(recipe_artifact.pkg_info.application_name);
-  mem_safe_free(recipe_artifact.pkg_info.working_directory);
-  mem_safe_free(recipe_artifact.pkg_info.icon_path);
+  pkg_free_rcp(recipe_artifact);
   return ret;
 }
