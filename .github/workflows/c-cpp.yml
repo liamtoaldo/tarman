@@ -27,7 +27,7 @@ jobs:
     - name: Archive binaries for target macos-arm64
       run: sh ./.github/workflows/make-archives.sh macos-arm64
     - name: Build binaries for target linux-arm64
-      run: make clean && make release CC="zig cc -target aarch64-linux" TARMAN_OS=darwin RELEASE_LDFLAGS=""
+      run: make clean && make release CC="zig cc -target aarch64-linux" RELEASE_LDFLAGS=""
     - name: Archive binaries for target linux-arm64
       run: sh ./.github/workflows/make-archives.sh linux-arm64
     - name: Upload all
