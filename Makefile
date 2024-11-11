@@ -87,6 +87,14 @@ plugin-sdk: $(SDK_OBJ)
 	@echo Compiling Plugin SDK
 	@$(CC) -r $(SDK_OBJ) -o $(BIN)/plugin-sdk.o
 
+install: release
+	mkdir tarman && \
+	cp ./bin/tarman ./tarman/tarman && \
+	tar -cvzf ./tarman-package.tar.gz ./tarman && \
+	rm -rf ./tarman && \
+	./bin/tarman install -f tar.gz -n tarman -p ./tarman-package.tar.gz && \
+	rm ./tarman-package.tar.gz
+
 $(PLUGIN_MAKEFILES): force
 	@echo Compiling plugin "'$(@D)'"
 	@$(MAKE) -C $(@D) DIST="../../$(BIN)/plugins" CC="$(CC)" SDK="../../$(BIN)/plugin-sdk.o" SDK_FLAGS="$(CUSTOM_CFLAGS) $(CUSTOM_LDFLAGS) -I../../include/" > /dev/null
