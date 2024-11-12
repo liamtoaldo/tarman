@@ -30,7 +30,7 @@
 </div>
 
 ## Why tarman?
-Archives are often used in the Linux world to distribute packages that work on all distros, but this often comes with the caveat of having to manually manage the installation and, worst of all, updtes. One notable example is [Discord](https://discord.com/) which only provides packages for Debian-based distros, while everybody else is left with a `tar.gz` archive which contains a version of the program that can't even update itself.
+Archives are often used in the Linux world to distribute packages that work on all distros, but this often comes with the caveat of having to manually manage the installation and, worst of all, updates. One notable example is [Discord](https://discord.com/) which only provides packages for Debian-based distros, while everybody else is left with a `tar.gz` archive which contains a version of the program that can't even update itself.
 
 Some distros try to solve the issue by letting their users create and distribute packages (see [Arch User Repository](https://aur.archlinux.org/)), but obviously this means downloading software from unofficial sources which may break the ToS and can potentially be dangerous.
 
