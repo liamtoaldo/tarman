@@ -29,11 +29,11 @@
 #include "cli/output.h"
 #include "config.h"
 #include "download.h"
-#include "os/env.h"
 #include "os/fs.h"
 #include "package.h"
 #include "tm-mem.h"
 #include "util/misc.h"
+#include "util/pkg.h"
 
 static const char *
 override_if_src_set(const char *dst, const char *src, bool copy) {
@@ -80,78 +80,6 @@ static void override_recipe(rt_recipe_t *recipe, cli_info_t cli_info) {
   rcp->add_to_path    = cli_info.add_path;
   rcp->add_to_desktop = cli_info.add_desktop;
   rcp->add_to_tarman  = cli_info.add_tarman;
-}
-
-static char *load_config_file(rt_recipe_t *recipe, char *pkg_path) {
-  if (recipe->is_remote) {
-    return NULL;
-  }
-
-  pkg_info_t tmpkg_file_data = {0};
-  char      *tmpkg_file_path = NULL;
-
-  os_fs_path_dyconcat(&tmpkg_file_path, 2, pkg_path, "package.tarman");
-
-  cfg_parse_status_t status =
-      pkg_parse_tmpkg(&tmpkg_file_data, tmpkg_file_path);
-
-  switch (status) {
-  case TM_CFG_PARSE_STATUS_NOFILE:
-    cli_out_warning("Package configuration file '%s' does not exist",
-                    tmpkg_file_path);
-    goto cleanup;
-
-  case TM_CFG_PARSE_STATUS_INVVAL:
-  case TM_CFG_PARSE_STATUS_MALFORMED:
-    cli_out_warning("Ignoring malformed package configuration file at '%s'",
-                    tmpkg_file_path);
-    goto cleanup;
-
-  case TM_CFG_PARSE_STATUS_ERR:
-  case TM_CFG_PARSE_STATUS_PERM:
-    cli_out_error(
-        "Unable to read contents of package configuration file at '%s'",
-        tmpkg_file_path);
-    goto cleanup;
-
-  default:
-    break;
-  }
-
-  cli_out_progress("Using package configuration file at '%s'", tmpkg_file_path);
-
-  pkg_info_t *pkg = &recipe->recipe.pkg_info;
-
-  pkg->url              = override_if_dst_unset(pkg->url, tmpkg_file_data.url);
-  pkg->application_name = override_if_dst_unset(
-      pkg->application_name, tmpkg_file_data.application_name);
-  pkg->executable_path   = override_if_dst_unset(pkg->executable_path,
-                                               tmpkg_file_data.executable_path);
-  pkg->working_directory = override_if_dst_unset(
-      pkg->working_directory, tmpkg_file_data.working_directory);
-  pkg->icon_path =
-      override_if_dst_unset(pkg->icon_path, tmpkg_file_data.icon_path);
-
-cleanup:
-  mem_safe_free(tmpkg_file_path);
-  return tmpkg_file_path;
-}
-
-static bool create_pkg_dir(char *pkg_path) {
-  fs_dirop_status_t pkgdir_status = os_fs_mkdir(pkg_path);
-
-  switch (pkgdir_status) {
-  case TM_FS_DIROP_STATUS_EXIST:
-    return cli_in_bool(
-        "This pacakge is already installed, proceed with clean install?");
-
-  case TM_FS_DIROP_STATUS_OK:
-    return true;
-
-  default:
-    cli_out_error("Unable to create directory in '%s'", pkg_path);
-    return false;
-  }
 }
 
 static void remove_pkg_cache(const char *archive_path) {
@@ -349,22 +277,6 @@ cleanup:
   mem_safe_free(repos_path);
 
   return ret;
-}
-
-static bool fetch_package(char      **archive_path,
-                          const char *pkg_name,
-                          const char *pkg_fmt,
-                          const char *url) {
-  util_misc_dytmpfile(archive_path, pkg_name, pkg_fmt);
-
-  cli_out_progress("Downloading package from '%s' to '%s'", url, *archive_path);
-
-  if (!download(*archive_path, url)) {
-    cli_out_error("Unable to download package");
-    return false;
-  }
-
-  return true;
 }
 
 static bool infer_app_name(rt_recipe_t *recipe, const char *pkg_path) {
@@ -613,10 +525,11 @@ int cli_cmd_install(cli_info_t info) {
       goto cleanup;
     }
 
-    if (!fetch_package(&archive_path,
-                       recipe.pkg_name,
-                       recipe.recipe.package_format,
-                       recipe.recipe.pkg_info.url)) {
+    if (!util_pkg_fetch_archive(&archive_path,
+                                recipe.pkg_name,
+                                recipe.recipe.package_format,
+                                recipe.recipe.pkg_info.url,
+                                LOG_ON)) {
       goto cleanup;
     }
   }
@@ -631,10 +544,11 @@ int cli_cmd_install(cli_info_t info) {
     recipe.recipe.pkg_info.url =
         override_if_src_set(recipe.recipe.pkg_info.url, info.input, true);
 
-    if (!fetch_package(&archive_path,
-                       recipe.pkg_name,
-                       recipe.recipe.package_format,
-                       recipe.recipe.pkg_info.url)) {
+    if (!util_pkg_fetch_archive(&archive_path,
+                                recipe.pkg_name,
+                                recipe.recipe.package_format,
+                                recipe.recipe.pkg_info.url,
+                                LOG_ON)) {
       goto cleanup;
     }
   }
@@ -643,10 +557,8 @@ int cli_cmd_install(cli_info_t info) {
     archive_path = (char *)override_if_src_set(archive_path, info.input, true);
   }
 
-  os_fs_tm_dypkg(&pkg_path, recipe.pkg_name);
-  cli_out_progress("Creating package in '%s'", pkg_path);
-
-  if (!create_pkg_dir(pkg_path)) {
+  if (!util_pkg_create_directory(
+          &pkg_path, recipe.pkg_name, LOG_ON, INPUT_ON)) {
     goto cleanup;
   }
 
@@ -658,7 +570,9 @@ int cli_cmd_install(cli_info_t info) {
     goto cleanup;
   }
 
-  load_config_file(&recipe, pkg_path);
+  if (!recipe.is_remote) {
+    util_pkg_load_config(&recipe.recipe.pkg_info, pkg_path, LOG_ON);
+  }
 
   if (!infer_additional_info(&recipe, info, pkg_path)) {
     goto cleanup;
@@ -675,47 +589,16 @@ int cli_cmd_install(cli_info_t info) {
                         recipe.recipe.pkg_info.executable_path);
 
     if (recipe.recipe.add_to_path) {
-      cli_out_progress("Adding executable '%s' to PATH", exec_path);
-
-      if (!os_env_path_add(exec_path)) {
-        cli_out_warning("Could not add executable to PATH");
-      }
+      util_pkg_add_to_path(exec_path, LOG_ON);
     }
 
     if (recipe.recipe.add_to_desktop) {
-      cli_out_progress("Adding app '%s' to installed apps",
-                       recipe.recipe.pkg_info.application_name);
-
-      const char *full_icon_path = NULL;
-      const char *full_wrk_dir   = NULL;
-
-      if (NULL != recipe.recipe.pkg_info.icon_path) {
-        os_fs_path_dyconcat((char **)&full_icon_path,
-                            2,
-                            pkg_path,
-                            recipe.recipe.pkg_info.icon_path);
-      } else {
-        cli_out_warning("Application has no icon");
-      }
-
-      if (NULL != recipe.recipe.pkg_info.working_directory) {
-        os_fs_path_dyconcat((char **)&full_wrk_dir,
-                            2,
-                            pkg_path,
-                            recipe.recipe.pkg_info.working_directory);
-      } else {
-        cli_out_warning("Application has no explicit working directory");
-      }
-
-      if (!os_env_desktop_add(recipe.recipe.pkg_info.application_name,
+      util_pkg_add_to_desktop(pkg_path,
+                              recipe.recipe.pkg_info.application_name,
                               exec_path,
-                              full_icon_path,
-                              full_wrk_dir)) {
-        cli_out_warning("Unable to add app to system applications");
-      }
-
-      mem_safe_free(full_icon_path);
-      mem_safe_free(full_wrk_dir);
+                              recipe.recipe.pkg_info.working_directory,
+                              recipe.recipe.pkg_info.icon_path,
+                              LOG_ON);
     }
   }
 

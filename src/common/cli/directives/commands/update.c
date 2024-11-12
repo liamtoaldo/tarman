@@ -28,26 +28,7 @@
 #include "package.h"
 #include "tm-mem.h"
 #include "util/misc.h"
-
-// TODO: this is taken from install.c
-// This should be more generic and the repetition should
-// be removed. Ideally, the same would apply to the entire code
-// used to download and install packages since it will be
-// useful in other parts (e.g., ujpdate all, sync etc)
-static bool fetch_package(char      **archive_path,
-                          const char *pkg_name,
-                          const char *pkg_fmt,
-                          const char *url) {
-  util_misc_dytmpfile(archive_path, pkg_name, pkg_fmt);
-  cli_out_progress("Downloading package from '%s' to '%s'", url, *archive_path);
-
-  if (!download(*archive_path, url)) {
-    cli_out_error("Unable to download package");
-    return false;
-  }
-
-  return true;
-}
+#include "util/pkg.h"
 
 int cli_cmd_update(cli_info_t info) {
   int         ret              = EXIT_FAILURE;
@@ -90,8 +71,8 @@ int cli_cmd_update(cli_info_t info) {
 
   // TODO: Check repository
   // TODO: Basically everything from here should use common functions
-  //        by "common functions' I mean functions shared by install, updated
-  //        and isimlar commands"
+  //        by "common functions' I mean functions shared by install, update
+  //        and similar commands"
 
   if (NULL == recipe_artifact.pkg_info.url ||
       NULL == recipe_artifact.package_format) {
@@ -101,10 +82,11 @@ int cli_cmd_update(cli_info_t info) {
     goto cleanup;
   }
 
-  if (!fetch_package(&tmp_archive_path,
-                     pkg_name,
-                     recipe_artifact.package_format,
-                     recipe_artifact.pkg_info.url)) {
+  if (!util_pkg_fetch_archive(&tmp_archive_path,
+                              pkg_name,
+                              recipe_artifact.package_format,
+                              recipe_artifact.pkg_info.url,
+                              LOG_ON)) {
     goto cleanup;
   }
 
@@ -143,7 +125,6 @@ int cli_cmd_update(cli_info_t info) {
   ret = EXIT_SUCCESS;
 
 cleanup:
-  // TODO: Make a free function for packages and recipes
   mem_safe_free(pkg_path);
   mem_safe_free(tmp_archive_path);
   mem_safe_free(artifact_path);

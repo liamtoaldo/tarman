@@ -17,3 +17,31 @@
 *************************************************************************/
 
 #pragma once
+
+#include <stdbool.h>
+
+#include "package.h"
+
+#define LOG_ON    true
+#define LOG_QUIET false
+
+#define INPUT_ON  true
+#define INPUT_OFF false
+
+bool util_pkg_fetch_archive(char      **dst_file,
+                            const char *pkg_name,
+                            const char *pkg_fmt,
+                            const char *url,
+                            bool        log);
+bool util_pkg_create_directory(char      **path,
+                               const char *pkg_name,
+                               bool        log,
+                               bool        in);
+bool util_pkg_add_to_path(const char *exec_full_path, bool log);
+bool util_pkg_add_to_desktop(const char *pkg_path,
+                             const char *app_name,
+                             const char *exec_full_path,
+                             const char *wrk_dir,
+                             const char *icon,
+                             bool        log);
+void util_pkg_load_config(pkg_info_t *pkg, const char *pkg_path, bool log);

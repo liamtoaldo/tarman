@@ -78,9 +78,9 @@ int cli_cmd_remove(cli_info_t info) {
     goto cleanup;
   }
 
-  if (0 != os_fs_path_dyconcat(
-               (char **)&artifact_path, 2, pkg_path, "recipe.tarman") &&
-      pkg_parse_tmrcp(&recipe_artifact, artifact_path)) {
+  os_fs_path_dyconcat((char **)&artifact_path, 2, pkg_path, "recipe.tarman");
+
+  if (pkg_parse_tmrcp(&recipe_artifact, artifact_path)) {
     if (recipe_artifact.add_to_path) {
       cli_out_progress("Removing executable from PATH");
 
