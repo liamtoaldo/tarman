@@ -97,14 +97,6 @@ int cli_cmd_update(cli_info_t info) {
     goto cleanup;
   }
 
-  cli_out_progress("Creating new package directory '%s'", pkg_path);
-
-  if (TM_FS_DIROP_STATUS_OK != os_fs_mkdir(pkg_path)) {
-    cli_out_error("Unable to create directory, package has been removed but "
-                  "not reinstalled, sorry");
-    goto cleanup;
-  }
-
   if (!util_pkg_create_directory_from_path(pkg_path, LOG_ON, INPUT_OFF)) {
     goto cleanup;
   }
