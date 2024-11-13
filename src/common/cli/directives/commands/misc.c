@@ -25,11 +25,6 @@ int cli_cmd_update_all(cli_info_t info) {
   return EXIT_FAILURE;
 }
 
-int cli_cmd_remove_repo(cli_info_t info) {
-  (void)info;
-  return EXIT_FAILURE;
-}
-
 int cli_cmd_list_repos(cli_info_t info) {
   (void)info;
   return EXIT_FAILURE;

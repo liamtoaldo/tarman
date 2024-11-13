@@ -20,6 +20,7 @@
 
 #include "cli/input.h"
 #include "cli/output.h"
+#include "config.h"
 #include "download.h"
 #include "os/env.h"
 #include "os/fs.h"
@@ -257,6 +258,12 @@ bool util_pkg_parse_recipe(recipe_t   *recipe,
   case TM_CFG_PARSE_STATUS_PERM:
     if (log) {
       cli_out_error("Unable to read contents of recipe file '%s'", *rcp_path);
+    }
+    return false;
+
+  case TM_CFG_PARSE_STATUS_NOFILE:
+    if (log) {
+      cli_out_error("Cannot open recipe file '%s', no such file", *rcp_path);
     }
     return false;
 

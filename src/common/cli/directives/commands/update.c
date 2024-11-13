@@ -70,7 +70,8 @@ int cli_cmd_update(cli_info_t info) {
                             recipe_artifact.pkg_info.from_repoistory,
                             pkg_name,
                             LOG_ON)) {
-    goto cleanup;
+    cli_out_warning("Updating using package metadata (recipe artifact) instead "
+                    "of repository recipe");
   }
 
   if (NULL == recipe_artifact.pkg_info.url ||

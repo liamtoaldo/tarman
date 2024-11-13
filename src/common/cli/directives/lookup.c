@@ -70,12 +70,12 @@ static cli_drt_desc_t commands[] = {
      cli_cmd_add_repo,
      "Add a remote repository to the local database"},
 
-    // {NULL,
-    //  TARMAN_CMD_REMOVE_REPO,
-    //  NULL,
-    //  false,
-    //  cli_cmd_remove_repo,
-    //  "Remove a local repository"},
+    {NULL,
+     TARMAN_CMD_REMOVE_REPO,
+     NULL,
+     false,
+     cli_cmd_remove_repo,
+     "Remove a local repository"},
 
     // {NULL,
     //  TARMAN_CMD_LIST_REPOS,

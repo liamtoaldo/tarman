@@ -31,7 +31,7 @@ int cli_cmd_remove(cli_info_t info) {
   int         ret             = EXIT_FAILURE;
   const char *pkg_name        = info.input;
   char       *pkg_path        = NULL;
-  const char *artifact_path   = NULL;
+  char       *artifact_path   = NULL;
   recipe_t    recipe_artifact = {0};
 
   if (NULL == pkg_name) {
@@ -47,10 +47,7 @@ int cli_cmd_remove(cli_info_t info) {
     goto cleanup;
   }
 
-  if (0 == os_fs_tm_dypkg(&pkg_path, pkg_name)) {
-    cli_out_error("Unable to determine path for package");
-    return ret;
-  }
+  os_fs_tm_dypkg(&pkg_path, pkg_name);
 
   os_fs_dirstream_t dir_stream;
 
@@ -66,6 +63,7 @@ int cli_cmd_remove(cli_info_t info) {
 
   default:
     cli_out_error("Unable to open package directory '%s'", pkg_path);
+    goto cleanup;
   }
 
   if (TM_FS_DIROP_STATUS_OK != os_fs_dir_close(dir_stream)) {
@@ -78,7 +76,7 @@ int cli_cmd_remove(cli_info_t info) {
     goto cleanup;
   }
 
-  os_fs_path_dyconcat((char **)&artifact_path, 2, pkg_path, "recipe.tarman");
+  os_fs_path_dyconcat(&artifact_path, 2, pkg_path, "recipe.tarman");
 
   if (pkg_parse_tmrcp(&recipe_artifact, artifact_path)) {
     if (recipe_artifact.add_to_path) {
