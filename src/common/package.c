@@ -111,7 +111,13 @@ cfg_parse_status_t pkg_parse_ftmpkg(pkg_info_t *pkg_info, FILE *pkg_file) {
     return TM_CFG_PARSE_STATUS_NOFILE;
   }
 
-  return cfg_parse(pkg_file, (cfg_translator_t)pkg_translator, pkg_info);
+  bool ret = cfg_parse(pkg_file, (cfg_translator_t)pkg_translator, pkg_info);
+
+  if (!ret) {
+    pkg_free_pkg(*pkg_info);
+  }
+
+  return ret;
 }
 
 cfg_parse_status_t pkg_parse_tmpkg(pkg_info_t *pkg_info,
@@ -131,7 +137,13 @@ cfg_parse_status_t pkg_parse_ftmrcp(recipe_t *rcp, FILE *rcp_file) {
     return TM_CFG_PARSE_STATUS_NOFILE;
   }
 
-  return cfg_parse(rcp_file, (cfg_translator_t)rcp_translator, rcp);
+  bool ret = cfg_parse(rcp_file, (cfg_translator_t)rcp_translator, rcp);
+
+  if (!ret) {
+    pkg_free_rcp(*rcp);
+  }
+
+  return ret;
 }
 
 cfg_parse_status_t pkg_parse_tmrcp(recipe_t *rcp, const char *rcp_file_path) {

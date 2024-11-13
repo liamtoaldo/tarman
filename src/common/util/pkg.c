@@ -58,19 +58,14 @@ bool util_pkg_fetch_archive(char      **dst_file,
   return true;
 }
 
-bool util_pkg_create_directory(char      **path,
-                               const char *pkg_name,
-                               bool        log,
-                               bool        in) {
-  os_fs_tm_dypkg(path, pkg_name);
-
+bool util_pkg_create_directory_from_path(const char *path, bool log, bool in) {
   if (log) {
-    cli_out_progress("Creating package in '%s'", *path);
+    cli_out_progress("Creating package in '%s'", path);
   }
 
   // Repeat a maximum of two times
   for (size_t i = 0; i < 2; i++) {
-    fs_dirop_status_t pkgdir_status = os_fs_mkdir(*path);
+    fs_dirop_status_t pkgdir_status = os_fs_mkdir(path);
 
     switch (pkgdir_status) {
     case TM_FS_DIROP_STATUS_EXIST:
@@ -78,10 +73,10 @@ bool util_pkg_create_directory(char      **path,
         return cli_in_bool(
             "This pacakge is already installed, proceed with clean install?");
       }
-      if (TM_FS_DIROP_STATUS_OK != os_fs_dir_rm(*path)) {
+      if (TM_FS_DIROP_STATUS_OK != os_fs_dir_rm(path)) {
         if (log) {
           cli_out_error("Unable to remove pre-existing package directory '%s'",
-                        *path);
+                        path);
         }
         return false;
       }
@@ -97,10 +92,18 @@ bool util_pkg_create_directory(char      **path,
 
 fail:
   if (log) {
-    cli_out_error("Unable to create directory in '%s'", *path);
+    cli_out_error("Unable to create directory in '%s'", path);
   }
 
   return false;
+}
+
+bool util_pkg_create_directory(char      **path,
+                               const char *pkg_name,
+                               bool        log,
+                               bool        in) {
+  os_fs_tm_dypkg(path, pkg_name);
+  return util_pkg_create_directory_from_path(*path, log, in);
 }
 
 bool util_pkg_add_to_path(const char *exec_full_path, bool log) {
@@ -155,42 +158,53 @@ bool util_pkg_add_to_desktop(const char *pkg_path,
   return ret;
 }
 
-void util_pkg_load_config(pkg_info_t *pkg, const char *pkg_path, bool log) {
-  pkg_info_t tmpkg_file_data = {0};
-  char      *tmpkg_file_path = NULL;
-
-  os_fs_path_dyconcat(&tmpkg_file_path, 2, pkg_path, "package.tarman");
-
-  cfg_parse_status_t status =
-      pkg_parse_tmpkg(&tmpkg_file_data, tmpkg_file_path);
+bool util_pkg_parse_config(pkg_info_t *pkg,
+                           char      **cfg_path,
+                           const char *pkg_path,
+                           bool        log) {
+  os_fs_path_dyconcat(cfg_path, 2, pkg_path, "package.tarman");
+  cfg_parse_status_t status = pkg_parse_tmpkg(pkg, *cfg_path);
 
   switch (status) {
   case TM_CFG_PARSE_STATUS_NOFILE:
     if (log) {
       cli_out_warning("Package configuration file '%s' does not exist",
-                      tmpkg_file_path);
+                      cfg_path);
     }
-    goto cleanup;
+    return false;
 
   case TM_CFG_PARSE_STATUS_INVVAL:
   case TM_CFG_PARSE_STATUS_MALFORMED:
     if (log) {
       cli_out_warning("Ignoring malformed package configuration file at '%s'",
-                      tmpkg_file_path);
+                      cfg_path);
     }
-    goto cleanup;
+    return false;
 
   case TM_CFG_PARSE_STATUS_ERR:
   case TM_CFG_PARSE_STATUS_PERM:
     if (log) {
       cli_out_error(
           "Unable to read contents of package configuration file at '%s'",
-          tmpkg_file_path);
+          cfg_path);
     }
-    goto cleanup;
+    return false;
 
   default:
     break;
+  }
+
+  return true;
+}
+
+bool util_pkg_load_config(pkg_info_t *pkg, const char *pkg_path, bool log) {
+  pkg_info_t tmpkg_file_data = {0};
+  char      *tmpkg_file_path = NULL;
+  bool       ret             = false;
+
+  if (!util_pkg_parse_config(
+          &tmpkg_file_data, &tmpkg_file_path, pkg_path, log)) {
+    goto cleanup;
   }
 
   if (log) {
@@ -208,6 +222,9 @@ void util_pkg_load_config(pkg_info_t *pkg, const char *pkg_path, bool log) {
   pkg->icon_path =
       override_if_dst_unset(pkg->icon_path, tmpkg_file_data.icon_path);
 
+  ret = true;
+
 cleanup:
   mem_safe_free(tmpkg_file_path);
+  return ret;
 }

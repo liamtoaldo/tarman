@@ -35,7 +35,7 @@ int cli_cmd_update(cli_info_t info) {
   const char *pkg_name         = info.input;
   char       *pkg_path         = NULL;
   char       *tmp_archive_path = NULL;
-  const char *artifact_path    = NULL;
+  char       *artifact_path    = NULL;
   recipe_t    recipe_artifact  = {0};
 
   if (NULL == pkg_name) {
@@ -45,7 +45,7 @@ int cli_cmd_update(cli_info_t info) {
   }
 
   // TODO: Remove this once it's done
-  if (!cli_in_bool("WARNINGS: This is a testing command, proceed?")) {
+  if (!cli_in_bool("WARNING: This is a testing command, proceed?")) {
     return EXIT_SUCCESS;
   }
 
@@ -58,7 +58,7 @@ int cli_cmd_update(cli_info_t info) {
 
   os_fs_tm_dypkg(&pkg_path, pkg_name);
 
-  os_fs_path_dyconcat((char **)&artifact_path, 2, pkg_path, "recipe.tarman");
+  os_fs_path_dyconcat(&artifact_path, 2, pkg_path, "recipe.tarman");
   cli_out_progress("Using metadata (recipe artifact) file '%s'", artifact_path);
 
   if (TM_CFG_PARSE_STATUS_OK !=
@@ -118,7 +118,7 @@ int cli_cmd_update(cli_info_t info) {
   cli_out_progress("Removing cache '%s'", tmp_archive_path);
 
   if (TM_FS_FILEOP_STATUS_OK != os_fs_file_rm(tmp_archive_path)) {
-    cli_out_warning("Unable to delete cache");
+    cli_out_warning("Unable to remove cache");
   }
 
   cli_out_success("Package '%s' updated successfully", tmp_archive_path);

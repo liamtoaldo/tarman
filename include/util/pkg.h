@@ -33,6 +33,7 @@ bool util_pkg_fetch_archive(char      **dst_file,
                             const char *pkg_fmt,
                             const char *url,
                             bool        log);
+bool util_pkg_create_directory_from_path(const char *path, bool log, bool in);
 bool util_pkg_create_directory(char      **path,
                                const char *pkg_name,
                                bool        log,
@@ -44,4 +45,13 @@ bool util_pkg_add_to_desktop(const char *pkg_path,
                              const char *wrk_dir,
                              const char *icon,
                              bool        log);
-void util_pkg_load_config(pkg_info_t *pkg, const char *pkg_path, bool log);
+bool util_pkg_parse_config(pkg_info_t *pkg,
+                           char      **cfg_path,
+                           const char *pkg_path,
+                           bool        log);
+bool util_pkg_load_config(pkg_info_t *pkg, const char *pkg_path, bool log);
+bool util_pkg_parse_recipe(recipe_t   *recipe,
+                           char      **rcp_path,
+                           const char *base_path,
+                           const char *rcp_name,
+                           bool        log);
