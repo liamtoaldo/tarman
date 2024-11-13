@@ -111,9 +111,10 @@ cfg_parse_status_t pkg_parse_ftmpkg(pkg_info_t *pkg_info, FILE *pkg_file) {
     return TM_CFG_PARSE_STATUS_NOFILE;
   }
 
-  bool ret = cfg_parse(pkg_file, (cfg_translator_t)pkg_translator, pkg_info);
+  cfg_parse_status_t ret =
+      cfg_parse(pkg_file, (cfg_translator_t)pkg_translator, pkg_info);
 
-  if (!ret) {
+  if (TM_CFG_PARSE_STATUS_OK != ret) {
     pkg_free_pkg(*pkg_info);
   }
 
@@ -137,9 +138,10 @@ cfg_parse_status_t pkg_parse_ftmrcp(recipe_t *rcp, FILE *rcp_file) {
     return TM_CFG_PARSE_STATUS_NOFILE;
   }
 
-  bool ret = cfg_parse(rcp_file, (cfg_translator_t)rcp_translator, rcp);
+  cfg_parse_status_t ret =
+      cfg_parse(rcp_file, (cfg_translator_t)rcp_translator, rcp);
 
-  if (!ret) {
+  if (TM_CFG_PARSE_STATUS_OK != ret) {
     pkg_free_rcp(*rcp);
   }
 

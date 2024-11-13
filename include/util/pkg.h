@@ -52,6 +52,10 @@ bool util_pkg_parse_config(pkg_info_t *pkg,
 bool util_pkg_load_config(pkg_info_t *pkg, const char *pkg_path, bool log);
 bool util_pkg_parse_recipe(recipe_t   *recipe,
                            char      **rcp_path,
-                           const char *base_path,
+                           const char *repo,
                            const char *rcp_name,
                            bool        log);
+bool util_pkg_load_recipe(recipe_t   *recipe,
+                          const char *repo,
+                          const char *rcp_name,
+                          bool        log);

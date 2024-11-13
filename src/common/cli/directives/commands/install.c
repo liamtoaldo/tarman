@@ -90,63 +90,6 @@ static void remove_pkg_cache(const char *archive_path) {
   }
 }
 
-static bool load_recipe(rt_recipe_t *recipe) {
-  bool     ret           = false;
-  recipe_t rcp_file_data = {0};
-  char    *rcp_file_path = NULL;
-
-  os_fs_tm_dyrecipe(&rcp_file_path,
-                    recipe->recipe.pkg_info.from_repoistory,
-                    recipe->pkg_name);
-
-  cfg_parse_status_t status = pkg_parse_tmrcp(&rcp_file_data, rcp_file_path);
-
-  switch (status) {
-  case TM_CFG_PARSE_STATUS_INVVAL:
-  case TM_CFG_PARSE_STATUS_MALFORMED:
-    cli_out_error(
-        "Recipe file for package '%s' in repository '%s' is malformed",
-        recipe->pkg_name,
-        recipe->recipe.pkg_info.from_repoistory);
-    goto cleanup;
-
-  case TM_CFG_PARSE_STATUS_ERR:
-  case TM_CFG_PARSE_STATUS_PERM:
-    cli_out_error("Unable to read contents of recipe file '%s'", rcp_file_path);
-    goto cleanup;
-
-  default:
-    break;
-  }
-
-  cli_out_progress("Using recipe file '%s'", rcp_file_path);
-
-  recipe_t   *rcp = &recipe->recipe;
-  pkg_info_t *pkg = &recipe->recipe.pkg_info;
-
-  pkg->url = override_if_dst_unset(pkg->url, rcp_file_data.pkg_info.url);
-  pkg->application_name = override_if_dst_unset(
-      pkg->application_name, rcp_file_data.pkg_info.application_name);
-  pkg->executable_path = override_if_dst_unset(
-      pkg->executable_path, rcp_file_data.pkg_info.executable_path);
-  pkg->working_directory = override_if_dst_unset(
-      pkg->working_directory, rcp_file_data.pkg_info.working_directory);
-  pkg->icon_path =
-      override_if_dst_unset(pkg->icon_path, rcp_file_data.pkg_info.icon_path);
-  rcp->package_format =
-      override_if_dst_unset(rcp->package_format, rcp_file_data.package_format);
-
-  rcp->add_to_path    = rcp_file_data.add_to_path;
-  rcp->add_to_desktop = rcp_file_data.add_to_desktop;
-  rcp->add_to_tarman  = rcp_file_data.add_to_tarman;
-
-  ret = true;
-
-cleanup:
-  mem_safe_free(rcp_file_path);
-  return ret;
-}
-
 static bool gen_repos_list(char     ***repos_list,
                            size_t     *repos_count,
                            const char *pkg_name,
@@ -262,7 +205,10 @@ static bool find_repository(rt_recipe_t *recipe) {
 
   recipe->recipe.pkg_info.from_repoistory = repos[user_choice - 1];
 
-  if (load_recipe(recipe)) {
+  if (util_pkg_load_recipe(&recipe->recipe,
+                           recipe->recipe.pkg_info.from_repoistory,
+                           recipe->pkg_name,
+                           LOG_ON)) {
     ret = true;
   }
 

@@ -228,3 +228,79 @@ cleanup:
   mem_safe_free(tmpkg_file_path);
   return ret;
 }
+
+bool util_pkg_parse_recipe(recipe_t   *recipe,
+                           char      **rcp_path,
+                           const char *repo,
+                           const char *rcp_name,
+                           bool        log) {
+  os_fs_tm_dyrecipe(rcp_path, repo, rcp_name);
+
+  if (log) {
+    cli_out_progress("Using recipe file '%s'", *rcp_path);
+  }
+
+  cfg_parse_status_t status = pkg_parse_tmrcp(recipe, *rcp_path);
+
+  switch (status) {
+  case TM_CFG_PARSE_STATUS_INVVAL:
+  case TM_CFG_PARSE_STATUS_MALFORMED:
+    if (log) {
+      cli_out_error(
+          "Recipe file for package '%s' in repository '%s' is malformed",
+          rcp_name,
+          repo);
+    }
+    return false;
+
+  case TM_CFG_PARSE_STATUS_ERR:
+  case TM_CFG_PARSE_STATUS_PERM:
+    if (log) {
+      cli_out_error("Unable to read contents of recipe file '%s'", *rcp_path);
+    }
+    return false;
+
+  default:
+    break;
+  }
+
+  return true;
+}
+
+bool util_pkg_load_recipe(recipe_t   *recipe,
+                          const char *repo,
+                          const char *rcp_name,
+                          bool        log) {
+  bool     ret           = false;
+  recipe_t rcp_file_data = {0};
+  char    *rcp_file_path = NULL;
+
+  if (!util_pkg_parse_recipe(
+          &rcp_file_data, &rcp_file_path, repo, rcp_name, log)) {
+    goto cleanup;
+  }
+
+  pkg_info_t *pkg = &recipe->pkg_info;
+
+  pkg->url = override_if_dst_unset(pkg->url, rcp_file_data.pkg_info.url);
+  pkg->application_name = override_if_dst_unset(
+      pkg->application_name, rcp_file_data.pkg_info.application_name);
+  pkg->executable_path = override_if_dst_unset(
+      pkg->executable_path, rcp_file_data.pkg_info.executable_path);
+  pkg->working_directory = override_if_dst_unset(
+      pkg->working_directory, rcp_file_data.pkg_info.working_directory);
+  pkg->icon_path =
+      override_if_dst_unset(pkg->icon_path, rcp_file_data.pkg_info.icon_path);
+  recipe->package_format = override_if_dst_unset(recipe->package_format,
+                                                 rcp_file_data.package_format);
+
+  recipe->add_to_path    = rcp_file_data.add_to_path;
+  recipe->add_to_desktop = rcp_file_data.add_to_desktop;
+  recipe->add_to_tarman  = rcp_file_data.add_to_tarman;
+
+  ret = true;
+
+cleanup:
+  mem_safe_free(rcp_file_path);
+  return ret;
+}
