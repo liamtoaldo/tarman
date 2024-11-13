@@ -36,17 +36,13 @@ int cli_cmd_update(cli_info_t info) {
   char       *pkg_path         = NULL;
   char       *tmp_archive_path = NULL;
   char       *artifact_path    = NULL;
+  char       *pkg_rcp_path     = NULL;
   recipe_t    recipe_artifact  = {0};
 
   if (NULL == pkg_name) {
     cli_out_error("You must specify a package name for it to be removed. Use "
                   "'tarman update <pkg name>'");
     return ret;
-  }
-
-  // TODO: Remove this once it's done
-  if (!cli_in_bool("WARNING: This is a testing command, proceed?")) {
-    return EXIT_SUCCESS;
   }
 
   cli_out_progress("Initializing host file system");
@@ -69,10 +65,13 @@ int cli_cmd_update(cli_info_t info) {
     goto cleanup;
   }
 
-  // TODO: Check repository
-  // TODO: Basically everything from here should use common functions
-  //        by "common functions' I mean functions shared by install, update
-  //        and similar commands"
+  if (NULL != recipe_artifact.pkg_info.from_repoistory &&
+      !util_pkg_load_recipe(&recipe_artifact,
+                            recipe_artifact.pkg_info.from_repoistory,
+                            pkg_name,
+                            LOG_ON)) {
+    goto cleanup;
+  }
 
   if (NULL == recipe_artifact.pkg_info.url ||
       NULL == recipe_artifact.package_format) {
@@ -105,6 +104,10 @@ int cli_cmd_update(cli_info_t info) {
     goto cleanup;
   }
 
+  if (!util_pkg_create_directory_from_path(pkg_path, LOG_ON, INPUT_OFF)) {
+    goto cleanup;
+  }
+
   cli_out_progress(
       "Extracting archive '%s' to '%s'", tmp_archive_path, pkg_path);
 
@@ -113,6 +116,31 @@ int cli_cmd_update(cli_info_t info) {
     cli_out_error("Unable to extract archive, package has been removed but not "
                   "reinstalled, sorry");
     goto cleanup;
+  }
+
+  os_fs_path_dyconcat(&pkg_rcp_path, 2, pkg_path, "recipe.tarman");
+  cli_out_progress("Creating recipe artifact in '%s'", pkg_rcp_path);
+  pkg_dump_rcp(pkg_rcp_path, recipe_artifact);
+
+  if (NULL != recipe_artifact.pkg_info.executable_path) {
+    char *exec_full_path = NULL;
+    os_fs_path_dyconcat(
+        &exec_full_path, 2, pkg_path, recipe_artifact.pkg_info.executable_path);
+
+    if (recipe_artifact.add_to_path) {
+      util_pkg_add_to_path(exec_full_path, LOG_ON);
+    }
+
+    if (recipe_artifact.add_to_desktop) {
+      util_pkg_add_to_desktop(pkg_path,
+                              recipe_artifact.pkg_info.application_name,
+                              exec_full_path,
+                              recipe_artifact.pkg_info.working_directory,
+                              recipe_artifact.pkg_info.icon_path,
+                              LOG_ON);
+    }
+
+    mem_safe_free(exec_full_path);
   }
 
   cli_out_progress("Removing cache '%s'", tmp_archive_path);
@@ -128,6 +156,7 @@ cleanup:
   mem_safe_free(pkg_path);
   mem_safe_free(tmp_archive_path);
   mem_safe_free(artifact_path);
+  mem_safe_free(pkg_rcp_path);
   pkg_free_rcp(recipe_artifact);
   return ret;
 }
