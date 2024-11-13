@@ -22,6 +22,3 @@
 
 bool archive_tar_extract(const char *dst, const char *src);
 bool archive_extract(const char *dst, const char *src, const char *file_type);
-bool archive_dycreate(const char **archive_path,
-                      const char  *filename,
-                      const char  *filetype);

@@ -35,10 +35,15 @@ bool os_env_desktop_add(const char *app_name,
                         const char *icon_path,
                         const char *wrk_dir) {
   // Not implemented
+  (void)app_name;
+  (void)executable_path;
+  (void)icon_path;
+  (void)wrk_dir;
   return false;
 }
 
 bool os_env_desktop_rm(const char *app_name) {
   // Not implemented
+  (void)app_name;
   return false;
 }

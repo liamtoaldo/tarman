@@ -16,48 +16,37 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#pragma once
-
-#include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
-#include "config.h"
+#include "os/fs.h"
+#include "tm-mem.h"
+#include "util/misc.h"
 
-// Structure for tarman package files (packaage.tarman)
-typedef struct {
-  const char *url;
-  const char *from_repoistory;
-  const char *application_name;
-  const char *executable_path;
-  const char *working_directory;
-  const char *icon_path;
-} pkg_info_t;
+size_t util_misc_dyfile(char      **dst,
+                        const char *base_path,
+                        const char *filename,
+                        const char *filetype) {
+  size_t bufsz = strlen(filename) + 1 + strlen(filetype) + 1;
+  char  *fname = (char *)malloc(bufsz * sizeof(char));
+  mem_chkoom(fname);
+  snprintf(fname, bufsz, "%s.%s", filename, filetype);
 
-// Structure of tarman recipe fles (recipe.tarman or <packagename>.tarman)
-typedef struct {
-  pkg_info_t  pkg_info;
-  const char *package_format;
-  bool        add_to_path;
-  bool        add_to_desktop;
-  bool        add_to_tarman;
-} recipe_t;
+  size_t ret = os_fs_path_dyconcat(dst, 2, base_path, fname);
 
-// "Runtime" recipe
-typedef struct {
-  recipe_t    recipe;
-  const char *pkg_name;
-  bool        is_remote;
-} rt_recipe_t;
+  mem_safe_free(fname);
+  return ret;
+}
 
-cfg_parse_status_t pkg_parse_ftmpkg(pkg_info_t *pkg_info, FILE *pkg_file);
-cfg_parse_status_t pkg_parse_tmpkg(pkg_info_t *pkg_info,
-                                   const char *pkg_file_path);
+size_t
+util_misc_dytmpfile(char **dst, const char *filename, const char *filetype) {
+  size_t bufsz = strlen(filename) + 1 + strlen(filetype) + 1;
+  char  *fname = (char *)malloc(bufsz * sizeof(char));
+  mem_chkoom(fname);
+  snprintf(fname, bufsz, "%s.%s", filename, filetype);
 
-cfg_parse_status_t pkg_parse_ftmrcp(recipe_t *rcp, FILE *rcp_file);
-cfg_parse_status_t pkg_parse_tmrcp(recipe_t *rcp, const char *rcp_file_path);
+  os_fs_tm_dycached(dst, fname);
+  mem_safe_free(fname);
 
-bool pkg_dump_frcp(FILE *fp, recipe_t recipe);
-bool pkg_dump_rcp(const char *file_path, recipe_t recipe);
-
-void pkg_free_pkg(pkg_info_t pkg_info);
-void pkg_free_rcp(recipe_t recipe);
+  return bufsz - 1;
+}

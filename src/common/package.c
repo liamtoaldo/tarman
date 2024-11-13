@@ -111,7 +111,14 @@ cfg_parse_status_t pkg_parse_ftmpkg(pkg_info_t *pkg_info, FILE *pkg_file) {
     return TM_CFG_PARSE_STATUS_NOFILE;
   }
 
-  return cfg_parse(pkg_file, (cfg_translator_t)pkg_translator, pkg_info);
+  cfg_parse_status_t ret =
+      cfg_parse(pkg_file, (cfg_translator_t)pkg_translator, pkg_info);
+
+  if (TM_CFG_PARSE_STATUS_OK != ret) {
+    pkg_free_pkg(*pkg_info);
+  }
+
+  return ret;
 }
 
 cfg_parse_status_t pkg_parse_tmpkg(pkg_info_t *pkg_info,
@@ -131,7 +138,14 @@ cfg_parse_status_t pkg_parse_ftmrcp(recipe_t *rcp, FILE *rcp_file) {
     return TM_CFG_PARSE_STATUS_NOFILE;
   }
 
-  return cfg_parse(rcp_file, (cfg_translator_t)rcp_translator, rcp);
+  cfg_parse_status_t ret =
+      cfg_parse(rcp_file, (cfg_translator_t)rcp_translator, rcp);
+
+  if (TM_CFG_PARSE_STATUS_OK != ret) {
+    pkg_free_rcp(*rcp);
+  }
+
+  return ret;
 }
 
 cfg_parse_status_t pkg_parse_tmrcp(recipe_t *rcp, const char *rcp_file_path) {
@@ -170,4 +184,18 @@ bool pkg_dump_rcp(const char *file_path, recipe_t recipe) {
   bool ret = pkg_dump_frcp(fp, recipe);
   fclose(fp);
   return ret;
+}
+
+void pkg_free_pkg(pkg_info_t pkg_info) {
+  mem_safe_free(pkg_info.url);
+  mem_safe_free(pkg_info.from_repoistory);
+  mem_safe_free(pkg_info.executable_path);
+  mem_safe_free(pkg_info.application_name);
+  mem_safe_free(pkg_info.working_directory);
+  mem_safe_free(pkg_info.icon_path);
+}
+
+void pkg_free_rcp(recipe_t recipe) {
+  pkg_free_pkg(recipe.pkg_info);
+  mem_safe_free(recipe.package_format);
 }

@@ -16,29 +16,28 @@
 | along with this program.  If not, see <https://www.gnu.org/licenses/>. |
 *************************************************************************/
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-#include "archive.h"
 #include "cli/directives/commands.h"
+#include "cli/directives/types.h"
+#include "cli/input.h"
 #include "cli/output.h"
-#include "download.h"
+#include "os/env.h"
 #include "os/fs.h"
+#include "package.h"
 #include "tm-mem.h"
-#include "util/misc.h"
 
-int cli_cmd_add_repo(cli_info_t info) {
-  if (NULL == info.input) {
-    cli_out_error("Must specify a package to install'");
-    return EXIT_FAILURE;
+int cli_cmd_remove_repo(cli_info_t info) {
+  int         ret       = EXIT_FAILURE;
+  const char *repo_name = info.input;
+  char       *repo_path = NULL;
+
+  if (NULL == repo_name) {
+    cli_out_error(
+        "You must specify a repository name for it to be removed. Use "
+        "'tarman remove-repo <repo name>'");
+    return ret;
   }
-
-  char       *archive_path = NULL;
-  const char *repo_url     = info.input;
-  const char *repo_fmt     = info.pkg_fmt;
-  const char *repos_path   = NULL;
-  int         ret          = EXIT_FAILURE;
 
   cli_out_progress("Initializing host file system");
 
@@ -47,41 +46,45 @@ int cli_cmd_add_repo(cli_info_t info) {
     goto cleanup;
   }
 
-  os_fs_tm_dyrepos((char **)&repos_path);
+  os_fs_tm_dyrepo(&repo_path, repo_name);
 
-  if (NULL == repo_fmt) {
-    cli_out_warning("Repository format not specified, using 'tar.gz'");
-    repo_fmt = "tar.gz";
-  }
+  os_fs_dirstream_t dir_stream;
 
-  util_misc_dytmpfile(&archive_path, "__downloaded_repo", repo_fmt);
-  cli_out_progress("Fetching repository from '%s'", repo_url);
+  switch (os_fs_dir_open(&dir_stream, repo_path)) {
+  case TM_FS_DIROP_STATUS_NOEXIST:
+    cli_out_error("The repository '%s' is not present on this system",
+                  repo_name);
+    goto cleanup;
 
-  if (!download(archive_path, repo_url)) {
-    cli_out_error("Unable to download package");
+  case TM_FS_DIROP_STATUS_OK:
+    break;
+
+  default:
+    cli_out_error("Unable to open repository directory '%s'", repo_path);
     goto cleanup;
   }
 
-  cli_out_progress("Extracting repository files");
-
-  if (!archive_extract(repos_path, archive_path, NULL)) {
-    cli_out_error("Unable to extract archive. You may be missing the plugin "
-                  "for this archive type");
+  if (TM_FS_DIROP_STATUS_OK != os_fs_dir_close(dir_stream)) {
+    cli_out_error("Error while closing preliminary directory stream to '%s'",
+                  repo_path);
     goto cleanup;
   }
 
-  cli_out_progress("Removing cache '%s'", archive_path);
-
-  if (TM_FS_FILEOP_STATUS_OK != os_fs_file_rm(archive_path)) {
-    cli_out_warning("Unable to delete cache");
+  if (!cli_in_bool("Proceed with removal?")) {
+    goto cleanup;
   }
 
-  cli_out_success("Repository added successfully");
+  cli_out_progress("Removing repository directory '%s'", repo_path);
 
+  if (TM_FS_DIROP_STATUS_OK != os_fs_dir_rm(repo_path)) {
+    cli_out_error("Unable to remove repository directory '%s'", repo_path);
+    goto cleanup;
+  }
+
+  cli_out_success("Repository '%s' removed successfully", repo_name);
   ret = EXIT_SUCCESS;
 
 cleanup:
-  mem_safe_free(archive_path);
-  mem_safe_free(repos_path);
+  mem_safe_free(repo_path);
   return ret;
 }

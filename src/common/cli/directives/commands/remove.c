@@ -31,7 +31,7 @@ int cli_cmd_remove(cli_info_t info) {
   int         ret             = EXIT_FAILURE;
   const char *pkg_name        = info.input;
   char       *pkg_path        = NULL;
-  const char *artifact_path   = NULL;
+  char       *artifact_path   = NULL;
   recipe_t    recipe_artifact = {0};
 
   if (NULL == pkg_name) {
@@ -47,10 +47,7 @@ int cli_cmd_remove(cli_info_t info) {
     goto cleanup;
   }
 
-  if (0 == os_fs_tm_dypkg(&pkg_path, pkg_name)) {
-    cli_out_error("Unable to determine path for package");
-    return ret;
-  }
+  os_fs_tm_dypkg(&pkg_path, pkg_name);
 
   os_fs_dirstream_t dir_stream;
 
@@ -66,6 +63,7 @@ int cli_cmd_remove(cli_info_t info) {
 
   default:
     cli_out_error("Unable to open package directory '%s'", pkg_path);
+    goto cleanup;
   }
 
   if (TM_FS_DIROP_STATUS_OK != os_fs_dir_close(dir_stream)) {
@@ -78,9 +76,9 @@ int cli_cmd_remove(cli_info_t info) {
     goto cleanup;
   }
 
-  if (0 != os_fs_path_dyconcat(
-               (char **)&artifact_path, 2, pkg_path, "recipe.tarman") &&
-      pkg_parse_tmrcp(&recipe_artifact, artifact_path)) {
+  os_fs_path_dyconcat(&artifact_path, 2, pkg_path, "recipe.tarman");
+
+  if (pkg_parse_tmrcp(&recipe_artifact, artifact_path)) {
     if (recipe_artifact.add_to_path) {
       cli_out_progress("Removing executable from PATH");
 
@@ -97,7 +95,7 @@ int cli_cmd_remove(cli_info_t info) {
       }
     }
 
-    // Remove tarman plugin
+    // TODO: Remove tarman plugin
   } else {
     cli_out_warning("Removing package without metadata (recipe artifact), some "
                     "files may persist");
@@ -120,12 +118,6 @@ int cli_cmd_remove(cli_info_t info) {
 cleanup:
   mem_safe_free(pkg_path);
   mem_safe_free(artifact_path);
-  mem_safe_free(recipe_artifact.package_format);
-  mem_safe_free(recipe_artifact.pkg_info.url);
-  mem_safe_free(recipe_artifact.pkg_info.from_repoistory);
-  mem_safe_free(recipe_artifact.pkg_info.executable_path);
-  mem_safe_free(recipe_artifact.pkg_info.application_name);
-  mem_safe_free(recipe_artifact.pkg_info.working_directory);
-  mem_safe_free(recipe_artifact.pkg_info.icon_path);
+  pkg_free_rcp(recipe_artifact);
   return ret;
 }
