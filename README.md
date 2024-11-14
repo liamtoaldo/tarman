@@ -66,11 +66,44 @@ curl -L "https://github.com/Alessandro-Salerno/tarman/raw/refs/heads/latest-buil
 > ```
 
 ## How to use tarman
-This is a CLI tool, so the only way to interact with it (at the moment) is through the terminal. After installing it, type `tarman help` for a list of commands and options. To install a package you can use the `tarman install` command with the following options:
+This is a CLI tool, so the only way to interact with it (at the moment) is through the terminal. After installing it, type `tarman help` for a list of all commands and options. 
+
+### Installing packages
+To install a package you can use the `tarman install` command with the following options:
 - `-u` Downloads from a URL (e.g., `tarman install -u https://some.domain/some/path/archive.tar.gz`)
 - `-r` Downloads from a repository using a recipe (e.g., `tarman install -r nvim`)
 - `-f` Is often used with `-u` to set the archive format (e.g., `-f zip`)
 - If neither `-u` nor `-r` are specified, tarman will assume that you have an archive locally (e.g., `tarman install ~/Downloads/program.tar.gz`)
+
+### Updating packages
+To update an installed package, assuming that your local repositories are up-to-date, just type:
+```
+tarman update <package name>
+```
+
+### Removing packages
+To remove a package, simply type:
+```
+tarman remove <package name>
+```
+
+> [!WARNING]
+> This command can be used to remove tarman itself. Be careful!
+
+### Adding repositories
+To add repositories from remote URLs, you can use the following command:
+```
+tarman add-repo <URL>
+```
+
+### Removing a repository
+To remove a repository, use:
+```
+tarman remove-repo <repo name>
+```
+
+> [!WARNING]
+> This command can be used to remove the [tarman user repository](https://github.com/Alessandro-Salerno/tarman-user-repository) from which tarman itself is intalled and updated. Be careful!
 
 ## Portable?
 Archives have the advantage of being universal. The `tar` format, for example, is standardized and documented, thus anyone with the right know-how can create their own program to archive and extract tarballs. Tarman is designed to take advantage of this, its source code is structured in a way that should make it very easy to port to operating systems other than GNU/Linux. In fact, there's a working port for macOS (Darwin)!
