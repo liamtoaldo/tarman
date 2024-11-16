@@ -18,14 +18,16 @@
 
 #pragma once
 
+#include <stdarg.h>
+
 #ifdef TARMAN_PLUGIN_SDK_VERSION
 #warning "Plugin redefines SDK version. This is not supported!"
 #undef TARMAN_PLUGIN_SDK_VERSION
 #endif
 
 // Format: <Major>.<Minor>.<Revision>L
-// Example: 1.0.0 -> 010000L
-#define TARMAN_PLUGIN_SDK_VERSION 010000L
+// Example: 1.0.1 -> 010001L
+#define TARMAN_PLUGIN_SDK_VERSION 0100001L
 
 // Structure passed to the `plugin_main` function
 // This structure uses 16-byte alignment to avoid future
@@ -38,6 +40,11 @@ typedef struct {
 
 // Run a program on the user's computer
 // Invokes tarman `os_exec` indirectly
+// Returns the exit code of the program
+int sdk_vexec(const char *executable, va_list args);
+
+// (variadic) Run a program on the user's computer
+// Wrapper for `sdk_vexec`
 // Returns the exit code of the program
 int sdk_exec(const char *executable, ...);
 
