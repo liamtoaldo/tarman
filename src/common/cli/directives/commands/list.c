@@ -126,7 +126,7 @@ int cli_cmd_list(cli_info_t info) {
   (void)info;
 
   if (!os_fs_tm_init()) {
-    cli_out_progress("Failed to inizialize host file system");
+    cli_out_error("Failed to inizialize host file system");
     return EXIT_FAILURE;
   }
 
